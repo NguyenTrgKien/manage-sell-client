@@ -9,14 +9,14 @@ const routerInits = [
     isPrivate: false,
   },
   {
-    path: "/dashboard/*",
-    element: Dashboard,
-    isPrivate: true,
-  },
-  {
     path: "/dashboard/login",
     element: LoginAdmin,
     isPrivate: false,
+  },
+  {
+    path: "/dashboard/*",
+    element: Dashboard,
+    isPrivate: true,
   },
 ];
 

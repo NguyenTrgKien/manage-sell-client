@@ -26,7 +26,7 @@ export default defineConfig(({ command }) => {
   };
 
   if (command === "build") {
-    config.base = "/web-sell-client/";
+    config.base = "/manage-sell-client/";
   }
 
   return config;
