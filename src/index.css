@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --main-button: #1e90ff;
+  --main-button-hover: #097aec;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+  font-family: "Roboto", sans-serif;
+}
+
+body {
+  font-size: 1.6rem;
+  background-color: #f5f5fa;
+}
+
+.hover-linear {
+  transition: all linear 0.25s;
+}
+
+.custom-next-btn,
+.custom-prev-btn,
+.feature-next-btn,
+.feature-prev-btn {
+  background: rgba(255, 255, 255, 0.8);
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.text-limit-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.hover-product:hover {
+  box-shadow: 0 0 1rem rgb(119, 214, 119);
+  transition: all linear 0.25s;
+}
+
+.action-focus{
+  border: rgb(0, 209, 0);
+}
