@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import avatarDefault from "../../../assets/images/avatar-default.png";
-import useAuth from "../../../hooks/useAuth";
 import axiosConfig from "../../../configs/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
+import useAuth from "../../../hooks/useAuth";
 
 type UserUpdateData = {
   avatar: File | undefined | string;
@@ -19,7 +19,7 @@ interface UserUpdateResponse {
 }
 
 function Profile() {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
@@ -89,7 +89,7 @@ function Profile() {
         console.log(a[0], a[1]);
       }
       const res = (await axiosConfig.patch(
-        `/api/v1/user/update/${user.id}`,
+        `/api/v1/user/update/${user?.id}`,
         formData,
         {
           headers: {
@@ -98,7 +98,6 @@ function Profile() {
         }
       )) as UserUpdateResponse;
       if (res.status) {
-        setUser(res.user);
         setIsUpdate(false);
         setIsLoadingUpdate(false);
         setMessage(null);

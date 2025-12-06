@@ -1,11 +1,11 @@
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import useAuth from "../../../../hooks/useAuth";
 import { UserRole } from "@my-project/shared";
 import avatarDefault from "../../../../assets/images/avatar-default.png";
 import { useEffect, useRef, useState } from "react";
 import axiosConfig from "../../../../configs/axiosConfig";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../../../hooks/useAuth";
 
 function HeaderDashboard() {
   const { user } = useAuth();
@@ -74,16 +74,16 @@ function HeaderDashboard() {
           onClick={() => setOpenMenu(!openMenu)}
         >
           <img
-            src={user.avatar ?? avatarDefault}
+            src={user?.avatar ?? avatarDefault}
             alt="Admin Avatar"
             className="h-[4.8rem] w-[4.8rem] rounded-[50%] border border-amber-300 shadow-lg group-hover:border-amber-400 transition-all duration-200"
           />
           <div className="hidden md:block text-left">
             <div className="font-bold text-[1.4rem] text-gray-800">
-              {user.username}
+              {user?.username}
             </div>
             <div className="text-[1.2rem] text-amber-600 font-medium">
-              {user.role === UserRole.ADMIN ? "Super Admin" : "Manager"}
+              {user?.role === UserRole.ADMIN ? "Super Admin" : "Manager"}
             </div>
           </div>
           <svg

@@ -43,8 +43,7 @@ function SidebarDashboard() {
   if (menuItems.length === 0) return null;
 
   return (
-    <aside className="fixed top-[6rem] left-0 w-[15%] h-[calc(100vh-6rem)] bg-white shadow-xl overflow-auto border-r border-gray-200">
-      {/* Admin Header */}
+    <aside className="fixed top-[6rem] left-0 w-[15%] h-[calc(100vh-6rem)] bg-white shadow-xl overflow-auto hide-scrollbar border-r border-gray-200">
       <div className="p-[2rem] border-b border-gray-100">
         <div className="bg-gradient-to-r from-blue-600 to-blue-400 px-[2rem] py-[1.2rem] rounded-xl text-center shadow-lg">
           <h3 className="text-white font-bold text-[1.6rem]">👨‍💼 Admin Panel</h3>
@@ -97,7 +96,6 @@ function SidebarDashboard() {
           ))}
         </div>
 
-        {/* Logout Button */}
         <div className="mt-[3rem] pt-[2rem] border-t border-gray-200">
           <button className="w-full flex items-center gap-[1.2rem] p-[1.2rem] rounded-xl text-left transition-all duration-200 text-red-600 hover:bg-red-50 hover:text-red-700 group">
             <div className="w-[3.2rem] h-[3.2rem] rounded-lg flex items-center justify-center transition-all duration-200 bg-red-100 text-red-500 group-hover:bg-red-200">

@@ -3,8 +3,8 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { BrowserRouter, HashRouter } from "react-router-dom";
-import AuthProvider from "./contexts/AuthContext.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AuthContextProvider from "./contexts/AuthContext.tsx";
 
 const Router =
   process.env.NODE_ENV === "production" ? HashRouter : BrowserRouter;
@@ -15,9 +15,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Router>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
+        <AuthContextProvider>
           <App />
-        </AuthProvider>
+        </AuthContextProvider>
       </QueryClientProvider>
     </Router>
   </StrictMode>

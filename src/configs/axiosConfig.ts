@@ -1,50 +1,65 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 
 const axiosConfig = axios.create({
   baseURL: "http://localhost:8080",
-  timeout: 10000,
+  timeout: 20000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-axiosConfig.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 axiosConfig.interceptors.response.use(
   (response) => response.data as any,
-  (error) => {
-    console.log(error);
-    if (
-      error.status === 401 &&
-      error.response.data.message === "Unauthorized"
-    ) {
-      Cookies.remove("access_token");
-      window.location.href = "/dashboard/login";
-    }
-
-    if (error.code === "ERR_NETWORK" || !error.response) {
+  async (error) => {
+    const status = error.response?.status;
+    if (!error.response) {
       return Promise.reject({
-        status: false,
-        message: "Không thể kết nối đến máy chủ. Vui lòng thử lại sau!",
+        message: "Không thể kết nối đến server. Vui lòng kiểm tra mạng!",
+        code: "NETWORK_ERROR",
       });
     }
-    if (error.response?.data) {
-      return Promise.reject(error.response.data);
+
+    if (status === 401) {
+      sessionStorage.removeItem("checkoutData");
+      return Promise.reject({
+        message: "Phiên đăng nhập hết hạn!",
+        code: "UNAUTHORIZED",
+        status,
+      });
     }
+
+    if (status === 403) {
+      return Promise.reject({
+        message: "Bạn không có quyền thực hiện hành động này",
+        code: "FORBIDDEN",
+        status,
+      });
+    }
+
+    if (status === 404) {
+      return Promise.reject({
+        message: "Không tìm thấy tài nguyên",
+        code: "NOT_FOUND",
+        status,
+      });
+    }
+
+    if (status >= 500) {
+      return Promise.reject({
+        message: "Lỗi máy chủ. Vui lòng thử lại sau!",
+        code: "SERVER_ERROR",
+        status,
+      });
+    }
+
+    const msg =
+      error.response?.data?.message || error.message || "Đã có lỗi xảy ra";
     return Promise.reject({
-      status: false,
-      message: "Đã xảy ra lỗi không xác định. Vui lòng thử lại!",
+      message: typeof msg === "string" ? msg : msg[0] || "Lỗi không xác định",
+      code: error.response?.data?.error || "BAD_REQUEST",
+      status,
+      data: error.response?.data,
     });
   }
 );

@@ -8,12 +8,14 @@ import React, {
 } from "react";
 import axiosConfig from "../../../../configs/axiosConfig";
 import { toast } from "react-toastify";
+import type { CategoriesType } from "../../../../utils/types";
 
 interface ActionCategoryProp {
   setOpenAction: Dispatch<SetStateAction<any>>;
   openAction: { action: string } | null;
   refetch: () => Promise<any>;
   dataUpdate?: any;
+  parents: CategoriesType[];
 }
 
 function ActionCategory({
@@ -21,29 +23,61 @@ function ActionCategory({
   openAction,
   refetch,
   dataUpdate,
+  parents,
 }: ActionCategoryProp) {
   const [data, setData] = useState<{
     categoryName: string;
     image: File | undefined | string;
+    parentId: number | null;
+    sortOrder: number;
   }>({
     categoryName: "",
     image: undefined,
+    parentId: null,
+    sortOrder: 0,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [urlImage, setUrlImage] = useState<string | null>(null);
+
+  const renderParentOption = (
+    category: CategoriesType,
+    allCategories: CategoriesType[],
+    level: number = 0
+  ): React.ReactNode => {
+    const children = allCategories.filter((c) => c.parentId === category.id);
+    const paddingLeft = level * 24;
+
+    return (
+      <React.Fragment key={category.id}>
+        <option value={category.id} style={{ paddingLeft: `${paddingLeft}px` }}>
+          {"└─ ".repeat(level)}
+          {category.categoryName}
+          {!category.isActive && " (đã dừng)"}
+        </option>
+
+        {children
+          .filter((c) => c.isActive)
+          .map((child) => renderParentOption(child, allCategories, level + 1))}
+      </React.Fragment>
+    );
+  };
 
   useEffect(() => {
     if (openAction?.action === "edit") {
       setData({
         categoryName: dataUpdate.categoryName,
         image: dataUpdate.image,
+        parentId: dataUpdate?.parentId,
+        sortOrder: dataUpdate?.sortOrder,
       });
       setUrlImage(dataUpdate.image);
     } else {
       setData({
         categoryName: "",
         image: undefined,
+        parentId: null,
+        sortOrder: 0,
       });
       setUrlImage(null);
     }
@@ -86,9 +120,12 @@ function ActionCategory({
     setIsLoading(true);
     try {
       const formData = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) formData.append(key, value);
-      });
+      formData.append("categoryName", data.categoryName);
+      formData.append("parentId", String(data.parentId || ""));
+      formData.append("sortOrder", String(data.sortOrder));
+      if (data.image instanceof File) {
+        formData.append("image", data.image);
+      }
       const res = (await axiosConfig.post("/api/v1/category/create", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -98,6 +135,8 @@ function ActionCategory({
         setData({
           categoryName: "",
           image: "",
+          parentId: null,
+          sortOrder: 0,
         });
         await refetch();
         toast.success(res.message || "Thêm danh mục thành công!");
@@ -153,40 +192,86 @@ function ActionCategory({
             ? "Thêm danh mục"
             : "Chỉnh sửa danh mục"}
         </h2>
-        <div>
-          <label htmlFor="categoryName" className="text-gray-600">
-            Tên
-          </label>
-          <input
-            type="text"
-            name="categoryName"
-            id="categoryName"
-            value={data.categoryName}
-            placeholder="Nhập tên..."
-            className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem]"
-            onChange={(e) => handleChangeData(e)}
-          />
-        </div>
-        <div className="mt-[2rem]">
-          <span className="text-gray-600">Ảnh cho danh mục:</span>
-          <label className="w-[6.5rem] h-[6.5rem] mt-[.5rem] border border-dashed border-gray-400 rounded-[.5rem] flex items-center justify-center cursor-pointer">
-            {urlImage ? (
-              <img
-                src={urlImage}
-                alt="Ảnh danh mục"
-                className="w-full h-full  border-collapse border-gray-400 rounded-[.5rem] flex items-center justify-center cursor-pointer object-cover"
-              />
-            ) : (
-              <FontAwesomeIcon icon={faPlus} className="text-gray-400" />
-            )}
+        <div className="space-y-6">
+          <div>
+            <label htmlFor="categoryName" className="text-gray-600">
+              Tên danh mục
+            </label>
             <input
-              id="image"
-              type="file"
-              name="image"
-              hidden
+              type="text"
+              name="categoryName"
+              id="categoryName"
+              value={data.categoryName}
+              placeholder="Nhập tên..."
+              className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem] text-gray-600"
               onChange={(e) => handleChangeData(e)}
             />
-          </label>
+          </div>
+
+          <div>
+            <label className="text-gray-600">Danh mục cha (tùy chọn)</label>
+            <select
+              value={data.parentId || ""}
+              onChange={(e) =>
+                setData((prev) => ({
+                  ...prev,
+                  parentId: e.target.value ? Number(e.target.value) : null,
+                }))
+              }
+              className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem] text-gray-600 pr-10 bg-white"
+            >
+              <option value="">-- Không có danh mục cha --</option>
+
+              {parents
+                .filter((cat) => cat.isActive)
+                .filter((cat) =>
+                  openAction?.action === "edit"
+                    ? cat.id !== dataUpdate?.id
+                    : true
+                )
+                .filter((cat) => !cat.parentId)
+                .map((parent) => renderParentOption(parent, parents, 0))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-gray-600">Thứ tự hiển thị</label>
+            <input
+              type="number"
+              value={data.sortOrder}
+              onChange={(e) =>
+                setData((prev) => ({
+                  ...prev,
+                  sortOrder: Number(e.target.value) || 0,
+                }))
+              }
+              className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem] text-gray-600"
+              min="0"
+              placeholder="Số càng nhỏ càng hiển thị trước"
+            />
+          </div>
+
+          <div>
+            <span className="text-gray-600">Ảnh cho danh mục:</span>
+            <label className="w-[6.5rem] h-[6.5rem] mt-[.5rem] border border-dashed border-gray-400 rounded-[.5rem] flex items-center justify-center cursor-pointer">
+              {urlImage ? (
+                <img
+                  src={urlImage}
+                  alt="Ảnh danh mục"
+                  className="w-full h-full border-collapse border-gray-400 rounded-[.5rem] flex items-center justify-center cursor-pointer object-cover"
+                />
+              ) : (
+                <FontAwesomeIcon icon={faPlus} className="text-gray-400" />
+              )}
+              <input
+                id="image"
+                type="file"
+                name="image"
+                hidden
+                onChange={(e) => handleChangeData(e)}
+              />
+            </label>
+          </div>
         </div>
         {error && (
           <p className="text-red-500 text-[1.4rem] mt-[4rem]">{error}</p>

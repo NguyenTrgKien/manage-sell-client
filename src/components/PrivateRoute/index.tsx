@@ -1,58 +1,31 @@
-import { useEffect, useState, type ReactNode } from "react";
-import axiosConfig from "../../configs/axiosConfig";
+import type React from "react";
 import { Navigate } from "react-router-dom";
-import useAuth from "../../hooks/useAuth";
+import { UserRole } from "@my-project/shared";
+import { useUser } from "../../hooks/useUser";
+import Loading from "../Loading";
 
-interface AuthResponse {
-  status: boolean;
-  message: string;
-  user?: {
-    id: number;
-    email: string;
-    role: string;
-    isActive: boolean;
-    image: string | null;
-  };
+interface PrivateRouteProp {
+  children: React.ReactNode;
+  roles?: UserRole[];
+  redirectTo?: string;
 }
 
-function PrivateRoute({ children }: { children: ReactNode }) {
-  const [isAuth, setIsAuth] = useState<boolean | null>(null);
-  const { setUser } = useAuth();
+function PrivateRoute({ children, roles, redirectTo }: PrivateRouteProp) {
+  const { user, loading } = useUser();
 
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const res = (await axiosConfig.get("api/v1/auth/me")) as AuthResponse;
-        if (res.status) {
-          setUser(res.user);
-          setIsAuth(true);
-        } else {
-          setIsAuth(false);
-          setUser(null);
-        }
-      } catch (error) {
-        setIsAuth(false);
-        setUser(null);
-      }
-    };
-    fetch();
-  }, [setUser]);
-
-  if (isAuth === null) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-14 h-14 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-600 text-[1.4rem] font-medium">
-            Đang kiểm tra đăng nhập...
-          </p>
-        </div>
-      </div>
-    );
+  if (loading) {
+    return <Loading />;
   }
 
-  if (isAuth === false) {
-    return <Navigate to={"/dashboard/login"} replace />;
+  if (!user) {
+    if (redirectTo) {
+      return <Navigate to={redirectTo} replace />;
+    }
+    return <Navigate to="/login" replace />;
+  }
+
+  if (roles && !roles?.includes(user?.role)) {
+    return <Navigate to={"/unauthorized"} replace />;
   }
 
   return <>{children}</>;

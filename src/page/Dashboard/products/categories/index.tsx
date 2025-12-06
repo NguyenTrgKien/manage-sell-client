@@ -1,17 +1,19 @@
 import {
+  faChevronDown,
+  faChevronRight,
   faCirclePlus,
+  faEdit,
   faExclamationTriangle,
   faFilter,
-  faPenToSquare,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import ActionCategory from "./ActionCategory";
-import axiosConfig from "../../../../configs/axiosConfig";
 import { useQuery } from "@tanstack/react-query";
 import ActiveCategory from "./ToggleActiveCategory";
 import { getCategory } from "../../../../api/category.api";
+import type { CategoriesType } from "../../../../utils/types";
 
 function Categories() {
   const [openToggleActive, setOpenToggleActive] = useState<{
@@ -21,21 +23,25 @@ function Categories() {
   const [openAction, setOpenAction] = useState<{
     action: "add" | "edit";
   } | null>(null);
-  const [dataUpdate, setDataUpdate] = useState<any | null>(null);
+  const [dataUpdate, setDataUpdate] = useState<CategoriesType | null>(null);
+
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
+
   const [filterInput, setFilterInput] = useState<{
     categoryName: string;
-    isActive: boolean;
+    isActive: "all" | "true" | "false";
   }>({
     categoryName: "",
-    isActive: true,
+    isActive: "all",
   });
   const [appliedFilter, setAppliedFilter] = useState<{
     categoryName: string;
-    isActive: boolean;
+    isActive: "all" | "true" | "false";
   }>({
     categoryName: "",
-    isActive: true,
+    isActive: "all",
   });
+
   const {
     data = [],
     isLoading,
@@ -46,79 +52,199 @@ function Categories() {
     queryFn: getCategory,
   });
 
-  const handleChangeFilter = (item: string, value: string | boolean) => {
-    setFilterInput((prev) => {
-      if (item === "categoryName") {
-        return {
-          ...prev,
-          categoryName: value as string,
-        };
-      } else {
-        return {
-          ...prev,
-          isActive: value as boolean,
-        };
-      }
-    });
+  const handleChangeFilter = (item: string, value: string) => {
+    setFilterInput((prev) => ({
+      ...prev,
+      [item]: value,
+    }));
   };
 
   const handleFilter = () => {
     setAppliedFilter(filterInput);
   };
 
-  return (
-    <div className="">
-      <div className="flex justify-between items-center pb-[1.5rem] border-b-[.1rem] border-b-gray-300">
-        <h3 className="text-[2.5rem] font-semibold text-gray-600">Danh mục</h3>
-        <div>
-          <button
-            className="text-white flex gap-1.5 items-center px-4 py-3 bg-[var(--main-button)] rounded-lg hover:bg-[var(--main-button-hover)] cursor-pointer "
-            onClick={() => setOpenAction({ action: "add" })}
-          >
-            <FontAwesomeIcon icon={faCirclePlus} />
-            Thêm mới
-          </button>
+  const toggleExpand = (id: number) => {
+    setExpandedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const renderCategory = (item: CategoriesType, level: number = 0) => {
+    const children = data.filter((c: any) => c.parentId === item.id);
+    const hasChildren = children.length > 0;
+    const isExpanded = expandedIds.has(item.id);
+    const activeChildren = children.filter((c: CategoriesType) => c.isActive);
+    const inactiveChildren = children.filter(
+      (c: CategoriesType) => !c.isActive
+    );
+    const activeChildrenCount = activeChildren.length;
+    const inactiveChildrenCount = inactiveChildren.length;
+
+    return (
+      <div key={item.id}>
+        <div
+          className={`
+            group relative flex items-center justify-between 
+            border ${level === 0 ? "border-gray-300" : "border-gray-300"}
+            bg-white hover:bg-gray-50 transition-all duration-200
+            ${level === 0 ? "my-3 rounded-lg shadow-sm" : "my-3 ml-10 rounded-r-lg"}
+          `}
+        >
+          <div className="flex items-center gap-5 flex-1 px-6 py-5">
+            <button
+              onClick={() => hasChildren && toggleExpand(item.id)}
+              className={`w-[2.6rem] h-[2.6rem] flex items-center justify-center rounded-full transition-all
+                ${hasChildren ? "hover:bg-gray-200 cursor-pointer" : "opacity-0 cursor-default"}`}
+              disabled={!hasChildren}
+            >
+              <FontAwesomeIcon
+                icon={isExpanded ? faChevronDown : faChevronRight}
+                className={`text-gray-500 text-[1.4rem] transition-transform duration-200 ${
+                  isExpanded ? "rotate-0" : ""
+                }`}
+              />
+            </button>
+
+            <img
+              src={item.image || "/placeholder.jpg"}
+              alt={item.categoryName}
+              className="w-[5rem] h-[5rem] rounded-lg object-cover border border-gray-300 shadow-sm"
+            />
+
+            <div className="flex-1">
+              <h4 className={`text-gray-800 text-[1.6rem]`}>
+                {item.categoryName}
+              </h4>
+              <div className="flex items-center gap-4 mt-2">
+                <span
+                  className={`px-3 py-1 text-[1.2rem] font-bold rounded-full ${
+                    item.isActive
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {item.isActive ? "Đang hoạt động" : "Dừng hoạt động"}
+                </span>
+                {hasChildren && (
+                  <div className="flex items-center gap-3">
+                    {activeChildrenCount > 0 && (
+                      <span className="text-[1.2rem] text-green-700 font-medium">
+                        {activeChildrenCount} hoạt động
+                      </span>
+                    )}
+                    {inactiveChildrenCount > 0 && (
+                      <span className="text-[1.2rem] text-red-600 font-medium">
+                        {inactiveChildrenCount} đã dừng
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 pr-6">
+            <button
+              onClick={() => {
+                setOpenAction({ action: "edit" });
+                setDataUpdate(item);
+              }}
+              className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[1.4rem] font-medium transition flex items-center gap-2"
+            >
+              <FontAwesomeIcon icon={faEdit} />
+              Sửa
+            </button>
+
+            {item.isActive ? (
+              <button
+                onClick={() =>
+                  setOpenToggleActive({ title: "inactive", id: item.id })
+                }
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-[1.4rem] font-medium transition"
+              >
+                Dừng
+              </button>
+            ) : (
+              <button
+                onClick={() =>
+                  setOpenToggleActive({ title: "active", id: item.id })
+                }
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-[1.4rem] font-medium transition"
+              >
+                Kích hoạt
+              </button>
+            )}
+          </div>
         </div>
+
+        {isExpanded && hasChildren && (
+          <div className="relative">
+            <div className="absolute left-10 top-0 h-6 w-6 border-l-2 border-b-2 border-gray-300 rounded-bl-lg" />
+            <div className="ml-10">
+              {children.map((child: CategoriesType) =>
+                renderCategory(child, level + 1)
+              )}
+            </div>
+          </div>
+        )}
       </div>
-      <div className="mt-[3rem]">
-        <h3 className="text-[1.8rem] text-gray-600">Danh sách</h3>
-        <div className="w-full border-[.1rem] border-gray-300 mt-4 p-[2rem] flex items-end gap-[2rem]">
-          <div className="w-[55%] flex flex-col gap-[.5rem]">
-            <label htmlFor="categoryName" className="text-gray-700">
+    );
+  };
+
+  return (
+    <>
+      <div className="flex justify-between items-center pb-6 border-b border-gray-300">
+        <h3 className="text-3xl font-bold text-gray-700">Danh mục</h3>
+        <button
+          onClick={() => setOpenAction({ action: "add" })}
+          className="flex items-center gap-2 px-5 py-3 bg-[var(--main-button)] hover:bg-[var(--main-button-hover)] text-white rounded-lg font-medium transition"
+        >
+          <FontAwesomeIcon icon={faCirclePlus} />
+          Thêm mới
+        </button>
+      </div>
+
+      <div className="mt-8">
+        <h3 className="text-2xl font-semibold text-gray-600 mb-6">Danh sách</h3>
+
+        <div className="bg-gray-50 border border-gray-300 rounded-lg p-6 flex items-end gap-6 mb-8">
+          <div className="flex-1 max-w-md">
+            <label className="block text-gray-700 font-medium mb-2">
               Tên danh mục
             </label>
             <input
               type="text"
-              name="categoryName"
-              id="categoryName"
               value={filterInput.categoryName}
-              placeholder="Nhập tìm kiếm..."
-              className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem]"
               onChange={(e) =>
                 handleChangeFilter("categoryName", e.target.value)
               }
+              placeholder="Nhập để tìm kiếm..."
+              className="w-full h-[4rem] px-[1.5rem] border border-gray-300 text-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
             />
           </div>
-          <div className="w-[30%] flex flex-col gap-[.5rem]">
-            <label htmlFor="categoryName" className="text-gray-700">
+          <div className="w-[22rem]">
+            <label className="block text-gray-700 font-medium mb-2">
               Trạng thái
             </label>
             <select
-              name="isActive"
-              id="isActive"
-              value={filterInput.isActive.toString()}
-              className="w-full h-[4rem] rounded-[.5rem] outline-none border text-gray-600 border-gray-300 pl-[1.5rem]"
-              onChange={(e) =>
-                handleChangeFilter("isActive", e.target.value === "true")
-              }
+              value={String(filterInput.isActive)}
+              onChange={(e) => handleChangeFilter("isActive", e.target.value)}
+              className="w-full h-[4rem] px-[1.5rem] border border-gray-300 rounded-lg focus:outline-none text-gray-600"
             >
+              <option value="all">Tất cả trạng thái</option>
               <option value="true">Đang hoạt động</option>
               <option value="false">Ngừng hoạt động</option>
             </select>
           </div>
           <button
-            className="w-[15%] flex items-center justify-center gap-[1rem] px-[1.5rem] h-[4rem] bg-[var(--main-button)] text-white rounded-[.5rem] cursor-pointer hover:bg-[var(--main-button-hover)]"
-            onClick={() => handleFilter()}
+            onClick={handleFilter}
+            className="h-[4rem] w-[10rem] bg-[var(--main-button)] hover:bg-[var(--main-button-hover)] text-white rounded-lg font-medium flex items-center justify-center gap-2 transition"
           >
             <FontAwesomeIcon icon={faFilter} />
             Lọc
@@ -126,138 +252,54 @@ function Categories() {
         </div>
 
         {isLoading && (
-          <div className="mt-[2rem] flex flex-col items-center justify-center py-[4rem] bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-center py-16 bg-gray-50 rounded-lg border">
             <FontAwesomeIcon
               icon={faSpinner}
               spin
-              className="text-[3rem] text-blue-500 mb-3"
+              className="text-5xl text-blue-500 mb-4"
             />
-            <p className="text-[1.6rem] text-gray-600">Đang tải dữ liệu...</p>
+            <p className="text-lg text-gray-600">Đang tải danh mục...</p>
           </div>
         )}
 
         {isError && !isLoading && (
-          <div className="mt-[2rem] flex flex-col items-center justify-center py-[4rem] bg-red-50 rounded-lg border border-red-200">
+          <div className="text-center py-16 bg-red-50 rounded-lg border border-red-200">
             <FontAwesomeIcon
               icon={faExclamationTriangle}
-              className="text-[3rem] text-red-500 mb-3"
+              className="text-5xl text-red-500 mb-4"
             />
-            <p className="text-[1.6rem] text-red-600 font-medium mb-2">
-              Có lỗi xảy ra khi tải dữ liệu
-            </p>
-            <p className="text-[1.4rem] text-gray-600 mb-4">
-              {isError || "Vui lòng thử lại sau"}
+            <p className="text-xl text-red-600 font-medium mb-4">
+              Lỗi tải dữ liệu
             </p>
             <button
               onClick={() => refetch()}
-              className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-[1.4rem]"
+              className="px-8 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium"
             >
               Thử lại
             </button>
           </div>
         )}
 
-        <div className="border border-gray-300/50 rounded-md overflow-hidden mt-[2rem]">
-          {!isLoading && !isError && (
-            <table className="min-w-full table-auto">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="px-4 py-2 text-center text-[1.4rem] font-medium text-gray-700 border border-gray-300">
-                    STT
-                  </th>
-                  <th className="text-center px-4 py-2 text-[1.4rem] font-medium text-gray-700 border border-gray-300">
-                    Hình ảnh
-                  </th>
-                  <th className="text-left px-4 py-2 text-[1.4rem] font-medium text-gray-700 border border-gray-300">
-                    Tên danh mục
-                  </th>
-                  <th className="text-center px-4 py-2 text-[1.4rem] font-medium text-gray-700 border border-gray-300">
-                    Trạng thái
-                  </th>
-                  <th className="text-center px-4 py-2 text-[1.4rem] font-medium text-gray-700 border border-gray-300">
-                    Hành động
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-gray-200">
-                {data?.length > 0 &&
-                  data.map((item: any, index: number) => {
-                    return (
-                      <tr key={index} className="hover:bg-gray-50 transition">
-                        <td className="px-4 py-2 text-[1.4rem] text-center text-gray-800 border border-gray-300">
-                          {index}
-                        </td>
-                        <td className="px-4 py-2 border border-gray-300">
-                          <img
-                            src={item.image}
-                            alt="Ảnh danh mục"
-                            className="w-[4rem] h-[4rem] rounded-[.5rem] object-cover border mx-auto"
-                          />
-                        </td>
-                        <td className="text-left px-4 py-2 text-[1.4rem] text-gray-800 border border-gray-300">
-                          <span>{item.categoryName}</span>
-                        </td>
-                        <td className="text-center px-4 py-2 text-[1.4rem] border border-gray-300">
-                          <span
-                            className={`inline-block px-6 py-1   rounded-full text-[1.4rem] font-medium ${item.isActive ? "text-green-700 bg-green-100" : "text-orange-700 bg-red-100"}`}
-                          >
-                            {item.isActive
-                              ? "Đang hoạt động"
-                              : "Dừng hoạt động"}
-                          </span>
-                        </td>
-                        <td className="text-center px-4 py-2 space-x-2 border border-gray-300">
-                          <button
-                            className="px-6 py-2 text-white bg-amber-500 hover:bg-amber-600 rounded-md text-[1.4rem] outline-none"
-                            onClick={() => {
-                              setOpenAction({ action: "edit" });
-                              setDataUpdate(item);
-                            }}
-                          >
-                            <FontAwesomeIcon icon={faPenToSquare} />
-                            Chỉnh sửa
-                          </button>
-                          {item.isActive ? (
-                            <button
-                              className="px-6 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-md text-[1.4rem] outline-none"
-                              onClick={() =>
-                                setOpenToggleActive({
-                                  id: item.id,
-                                  title: "inactive",
-                                })
-                              }
-                            >
-                              Dừng hoạt dộng
-                            </button>
-                          ) : (
-                            <button
-                              className="px-6 py-2 text-white bg-[var(--main-button)] hover:bg-[var(--main-button-hover)] rounded-md text-[1.4rem] outline-none"
-                              onClick={() =>
-                                setOpenToggleActive({
-                                  id: item.id,
-                                  title: "active",
-                                })
-                              }
-                            >
-                              Kích hoạt
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
-          )}
+        <div className="space-y-2">
+          {!isLoading && !isError && data.length > 0
+            ? data
+                .filter((item: any) => !item.parentId)
+                .map((parent: CategoriesType) => renderCategory(parent))
+            : !isLoading && (
+                <div className="text-center py-20 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <p className="text-2xl text-gray-500">Chưa có danh mục nào</p>
+                </div>
+              )}
         </div>
       </div>
+
       {openAction && (
         <ActionCategory
           setOpenAction={setOpenAction}
           openAction={openAction}
           refetch={refetch}
           dataUpdate={openAction.action === "add" ? undefined : dataUpdate}
+          parents={data}
         />
       )}
 
@@ -268,7 +310,7 @@ function Categories() {
           refetch={refetch}
         />
       )}
-    </div>
+    </>
   );
 }
 

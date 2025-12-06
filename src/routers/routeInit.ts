@@ -1,23 +1,39 @@
-import Dashboard from "../page/Dashboard";
-import LoginAdmin from "../page/Dashboard/auth/Login";
-import HomePage from "../page/Home";
+// import { UserRole } from "@my-project/shared";
+// import Login from "../page/customer/Auth/Login/login";
+// import Dashboard from "../page/Dashboard";
+// import LoginAdmin from "../page/Dashboard/auth/Login";
+// import HomePage from "../page/customer/Home";
 
-const routerInits = [
-  {
-    path: "/",
-    element: HomePage,
-    isPrivate: false,
-  },
-  {
-    path: "/dashboard/login",
-    element: LoginAdmin,
-    isPrivate: false,
-  },
-  {
-    path: "/dashboard/*",
-    element: Dashboard,
-    isPrivate: true,
-  },
-];
+// interface RouteConfig {
+//   path: string;
+//   element: React.ComponentType;
+//   isPrivate: boolean;
+//   requiredRole?: string;
+//   allowedRoles?: string[];
+// }
 
-export default routerInits;
+// const routerInits: RouteConfig[] = [
+//   {
+//     path: "/",
+//     element: HomePage,
+//     isPrivate: false,
+//   },
+//   {
+//     path: "/login",
+//     element: Login,
+//     isPrivate: false,
+//   },
+//   {
+//     path: "/dashboard/login",
+//     element: LoginAdmin,
+//     isPrivate: false,
+//   },
+//   {
+//     path: "/dashboard/:any",
+//     element: Dashboard,
+//     isPrivate: true,
+//     requiredRole: UserRole.ADMIN,
+//   },
+// ];
+
+// export default routerInits;

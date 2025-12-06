@@ -7,31 +7,48 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import ActionProduct from "./AddProduct";
+import ActionProduct from "./components/ActionProduct";
 import { useQuery } from "@tanstack/react-query";
 import type { CategoriesType, ProductT } from "../../../utils/types";
 import { getProduct } from "../../../api/product.api";
 import { getAllCategory } from "../../../api/category.api";
 import axiosConfig from "../../../configs/axiosConfig";
 import { toast } from "react-toastify";
+import RenderParentOption from "../../../components/RenderParentOption";
 
 function Products() {
   const [openActionProduct, setOpenActionProduct] = useState<{
+    open: boolean;
     action: "add" | "edit";
     id: number | undefined;
-  } | null>(null);
+  }>({
+    open: false,
+    action: "add",
+    id: undefined,
+  });
   const [openDelete, setOpenDelete] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [queryProduct, setQueryProduct] = useState<{
-    page: 1;
-    limit: 20;
+  const [filterProduct, setFilterProduct] = useState<{
+    page: number;
+    limit: number;
     price: number | null;
     productName: "";
+    categoryId: number | null;
   }>({
     page: 1,
     limit: 20,
     price: null,
     productName: "",
+    categoryId: null,
+  });
+  const [filterInput, setFilterInput] = useState<{
+    productName: "";
+    price: null;
+    categoryId: null | number;
+  }>({
+    productName: "",
+    price: null,
+    categoryId: null,
   });
   const {
     data: products,
@@ -39,14 +56,11 @@ function Products() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["products", queryProduct],
-    queryFn: ({ queryKey }) => {
-      const [_, filters] = queryKey;
-      return getProduct(filters);
-    },
+    queryKey: ["products", filterProduct],
+    queryFn: getProduct,
   });
 
-  const { data: dataCategory } = useQuery({
+  const { data: dataCategories = [] } = useQuery({
     queryKey: ["getAllCategory"],
     queryFn: getAllCategory,
   });
@@ -60,7 +74,7 @@ function Products() {
     try {
       const res = await axiosConfig.delete(
         `/api/v1/product/delete-product/${productId}`
-      );  
+      );
       if (res.status) {
         await refetch();
         setIsLoading(false);
@@ -73,17 +87,25 @@ function Products() {
       toast.error(error.message);
     }
   };
-  console.log(products);
-  
+
+  const handleAppliedFilter = () => {
+    setFilterProduct((prev) => ({
+      ...prev,
+      categoryId: filterInput.categoryId,
+      productName: filterInput.productName,
+      price: filterInput.price,
+    }));
+  };
+
   return (
-    <div>
+    <>
       <div className="flex justify-between items-center pb-[1.5rem] border-b-[.1rem] border-b-gray-300">
         <h3 className="text-[2.5rem] font-semibold text-gray-600">Sản phẩm</h3>
         <div>
           <button
             className="text-white flex gap-1.5 items-center px-4 py-3 bg-[var(--main-button)] rounded-lg hover:bg-[var(--main-button-hover)] cursor-pointer "
             onClick={() =>
-              setOpenActionProduct({ action: "add", id: undefined })
+              setOpenActionProduct({ action: "add", id: undefined, open: true })
             }
           >
             <FontAwesomeIcon icon={faCirclePlus} />
@@ -93,7 +115,7 @@ function Products() {
       </div>
       <div className="mt-[3rem]">
         <div className="w-full border-[.1rem] border-gray-300 mt-4 p-[2rem] flex items-end gap-[2rem]">
-          <div className="w-[40rem] flex flex-col gap-[.5rem]">
+          <div className="w-[35rem] flex flex-col gap-[.5rem]">
             <label htmlFor="productName" className="text-gray-700">
               Tên sản phẩm
             </label>
@@ -103,6 +125,30 @@ function Products() {
               id="productName"
               placeholder="Nhập tìm kiếm..."
               className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem]"
+              onChange={(e) =>
+                setFilterInput((prev) => ({
+                  ...prev,
+                  [e.target.name]: e.target.value,
+                }))
+              }
+            />
+          </div>
+          <div className="w-[20rem] flex flex-col gap-[.5rem]">
+            <label htmlFor="price" className="text-gray-700">
+              Giá sản phẩm
+            </label>
+            <input
+              type="number"
+              name="price"
+              id="price"
+              placeholder="Nhập giá..."
+              className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem]"
+              onChange={(e) =>
+                setFilterInput((prev) => ({
+                  ...prev,
+                  [e.target.name]: e.target.value,
+                }))
+              }
             />
           </div>
           <div className="w-[30rem] flex flex-col gap-[.5rem]">
@@ -113,12 +159,29 @@ function Products() {
               name="categoryId"
               id="categoryId"
               className="w-full h-[4rem] rounded-[.5rem] outline-none border text-gray-600 border-gray-300 pl-[1.5rem]"
+              onChange={(e) =>
+                setFilterInput((prev) => ({
+                  ...prev,
+                  [e.target.name]: e.target.value,
+                }))
+              }
             >
-              <option value="true">Điện thoại</option>
-              <option value="false">Laptop</option>
+              {dataCategories
+                ?.filter((cat: CategoriesType) => cat.isActive)
+                .map((parent: CategoriesType) => (
+                  <RenderParentOption
+                    key={parent.id}
+                    category={parent}
+                    allCategories={dataCategories}
+                    level={0}
+                  />
+                ))}
             </select>
           </div>
-          <button className="w-[15%] flex items-center justify-center gap-[1rem] px-[1.5rem] h-[4rem] bg-[var(--main-button)] text-white rounded-[.5rem] cursor-pointer hover:bg-[var(--main-button-hover)]">
+          <button
+            className="w-[15%] flex items-center justify-center gap-[1rem] px-[1.5rem] h-[4rem] bg-[var(--main-button)] text-white rounded-[.5rem] cursor-pointer hover:bg-[var(--main-button-hover)]"
+            onClick={() => handleAppliedFilter()}
+          >
             <FontAwesomeIcon icon={faFilter} />
             Lọc
           </button>
@@ -137,22 +200,22 @@ function Products() {
             <p className="text-red-500">Có lỗi xảy ra khi tải dữ liệu!</p>
           </div>
         ) : (
-          <table className="min-w-full table-auto text-[1.4rem] bg-white rounded-lg shadow-sm overflow-hidden">
-            <thead className="bg-gray-100">
+          <table className="min-w-full table-auto text-[1.4rem] rounded-lg shadow-sm overflow-hidden">
+            <thead className="bg-gray-100 border-b border-b-gray-200">
               <tr>
-                <th className="text-left px-6 py-4 text-gray-600 uppercase font-semibold tracking-wide">
+                <th className="text-left px-6 py-4 text-gray-600 font-semibold tracking-wide">
                   STT
                 </th>
-                <th className="px-6 py-4 text-left text-gray-600 uppercase font-semibold tracking-wide">
+                <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
                   Sản phẩm
                 </th>
-                <th className="px-6 py-4 text-left text-gray-600 uppercase font-semibold tracking-wide">
+                <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
                   Danh mục
                 </th>
-                <th className="px-6 py-4 text-left text-gray-600 uppercase font-semibold tracking-wide">
+                <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
                   Giá
                 </th>
-                <th className="px-6 py-4 text-center text-gray-600 uppercase font-semibold tracking-wide">
+                <th className="px-6 py-4 text-center text-gray-600 font-semibold tracking-wide">
                   Hành động
                 </th>
               </tr>
@@ -172,7 +235,7 @@ function Products() {
                         className="w-16 h-16 object-cover rounded-md"
                       />
                       <div>
-                        <h4 className="font-medium text-gray-900">
+                        <h4 className="max-w-[30rem] font-medium text-gray-900 text-limit-1">
                           {product.productName}
                         </h4>
                         <p className="text-gray-500 text-[1.2rem]">
@@ -183,8 +246,8 @@ function Products() {
                   </td>
                   <td className="px-6 py-4 text-gray-700">
                     {
-                      dataCategory?.find(
-                        (it: CategoriesType) => it.id === product.categoryId
+                      dataCategories?.find(
+                        (it: CategoriesType) => it.id === product.category.id
                       )?.categoryName
                     }
                   </td>
@@ -202,6 +265,7 @@ function Products() {
                           setOpenActionProduct({
                             action: "edit",
                             id: product.id,
+                            open: true,
                           })
                         }
                       >
@@ -227,19 +291,19 @@ function Products() {
         )}
       </div>
 
-      {openActionProduct && (
-        <ActionProduct
-          openActionProduct={openActionProduct}
-          setOpenActionProduct={setOpenActionProduct}
-          dataUpdate={
-            openActionProduct.action === "edit"
-              ? products?.find(
-                  (product: ProductT) => product.id === openActionProduct.id
-                )
-              : undefined
-          }
-        />
-      )}
+      <ActionProduct
+        openActionProduct={openActionProduct}
+        setOpenActionProduct={setOpenActionProduct}
+        dataCategories={dataCategories}
+        dataUpdate={
+          openActionProduct?.action === "edit"
+            ? products?.find(
+                (product: ProductT) => product.id === openActionProduct.id
+              )
+            : undefined
+        }
+        refetch={refetch}
+      />
 
       {openDelete && (
         <div className="fixed top-0 left-0 w-full h-[100vh] flex items-center justify-center bg-[#43434344] z-[999]">
@@ -269,7 +333,7 @@ function Products() {
                 onClick={() => handleDelete(openDelete)}
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 mx-auto border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   "Xóa"
                 )}
@@ -278,7 +342,7 @@ function Products() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

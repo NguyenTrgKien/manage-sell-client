@@ -1,21 +1,11 @@
-import {
-  faBox,
-  faChartBar,
-  faCog,
-  faTachometerAlt,
-  faUsers,
-} from "@fortawesome/free-solid-svg-icons";
-
 export const menuItems = [
   {
     id: 1,
-    icon: faTachometerAlt,
     label: "Dashboard",
     path: "",
   },
   {
     id: 2,
-    icon: faBox,
     label: "Sản phẩm",
     path: "products",
     children: [
@@ -32,26 +22,34 @@ export const menuItems = [
     ],
   },
   {
-    id: 4,
-    icon: faUsers,
+    id: 5,
+    label: "Đơn hàng",
+    path: "orders",
+    children: [
+      {
+        id: 23,
+        label: "Danh sách đơn hàng",
+        path: "orders/list-order"
+      }
+    ]
+  },
+  {
+    id: 6,
+    label: "Nhân viên",
+    path: "staff",
+  },
+  {
+    id: 7,
     label: "Khách hàng",
     path: "customer",
   },
   {
-    id: 5,
-    icon: faChartBar,
-    label: "Báo cáo",
-    path: "report",
-  },
-  {
-    id: 6,
-    icon: faCog,
+    id: 8,
     label: "Cá nhân",
     path: "profile",
   },
   {
-    id: 7,
-    icon: faCog,
+    id: 9,
     label: "Cài đặt",
     path: "setting",
   },
