@@ -12,6 +12,7 @@ import {
   getShippingProvider,
   OrderStatus,
   PaymentMethod,
+  PaymentStatus,
 } from "@nguyentrungkien/shared";
 import dayjs from "dayjs";
 import { getStatusConfig } from "../../../../configs/getOrderStatusConfig";
@@ -279,6 +280,9 @@ function DetailOrder({
               <p className="text-gray-600">Voucher giảm giá: </p>
               <p className="text-gray-600">Thành tiền: </p>
               <p className="text-gray-600">Phương thức thanh toán: </p>
+              {order.paymentMethod !== PaymentMethod.COD && (
+                <p className="text-gray-600">Trạng thái thanh toán: </p>
+              )}
             </div>
             <div className="flex flex-col items-end space-y-6">
               <span className="text-gray-800">{formatPrice(subTotal)}</span>
@@ -293,6 +297,11 @@ function DetailOrder({
               </span>
               <span className="text-gray-800">
                 {getPaymentMethod[order.paymentMethod].text}
+              </span>
+              <span className="text-gray-800">
+                {order?.payment?.status === PaymentStatus.SUCCESS
+                  ? "Đã thanh toán"
+                  : "Chưa thanh toán"}
               </span>
             </div>
           </div>

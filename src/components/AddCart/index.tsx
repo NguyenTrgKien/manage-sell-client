@@ -184,7 +184,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
               <span>
                 Tình trạng:{" "}
                 <strong>
-                  {showAddCart.data && showAddCart.data?.inventory > 0
+                  {showAddCart.data?.variants.some((v) => v.inventory > 0)
                     ? "Còn hàng"
                     : "Hết hàng"}
                 </strong>
