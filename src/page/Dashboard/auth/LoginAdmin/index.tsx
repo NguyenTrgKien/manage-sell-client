@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserRole } from "@nguyentrungkien/shared";
 import useAuth from "../../../../hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -157,12 +157,12 @@ function LoginAdmin() {
         </form>
 
         <div className="mt-6 text-center">
-          <a
-            href="#"
+          <Link
+            to="/"
             className="text-[1.4rem] text-blue-600 hover:text-blue-700 font-medium"
           >
             Liên hệ IT Support
-          </a>
+          </Link>
         </div>
       </div>
     </div>

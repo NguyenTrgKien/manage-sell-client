@@ -12,7 +12,7 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartPlus, faEye } from "@fortawesome/free-solid-svg-icons";
 import AddCart from "../AddCart";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function PopularProduct() {
   const navigate = useNavigate();
@@ -43,9 +43,9 @@ function PopularProduct() {
         <h4 className="text-[1.6rem] md:text-[1.8rem] font-bold text-blue-500">
           Sản phẩm nổi bật
         </h4>
-        <a href="/" className="text-blue-500 text-[1.4rem] hover:underline">
+        <Link to="/" className="text-blue-500 text-[1.4rem] hover:underline">
           Xem tất cả &rarr;
-        </a>
+        </Link>
       </div>
 
       <div className="relative">
@@ -120,32 +120,34 @@ function PopularProduct() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                     <div className="absolute w-full h-[4rem] bottom-[.5rem] right-[50%] translate-x-[50%] flex gap-[1rem] items-center justify-center rounded-xl translate-y-[4.5rem] group-hover:translate-y-0 transition duration-300">
-                    <button
-                      className="w-[10rem] h-[3.4rem] bg-white hover:bg-gray-200 rounded-md cursor-pointer transition duration-300 flex items-center justify-center gap-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowAddCart({ open: true, data: product });
-                      }}
-                    >
-                      <FontAwesomeIcon
-                        icon={faCartPlus}
-                        className="text-[1.6rem] text-gray-600"
-                      />
-                      <span className="text-[1.4rem] text-gray-600">Thêm</span>
-                    </button>
-                    <button
-                      className="w-[4rem] h-[3.4rem] flex items-center justify-center bg-green-500 hover:bg-green-600 rounded-md cursor-pointer transition duration-300"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/product-detail/${product.id}`);
-                      }}
-                    >
-                      <FontAwesomeIcon
-                        icon={faEye}
-                        className="text-[2rem] text-white"
-                      />
-                    </button>
-                  </div>
+                      <button
+                        className="w-[10rem] h-[3.4rem] bg-white hover:bg-gray-200 rounded-md cursor-pointer transition duration-300 flex items-center justify-center gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAddCart({ open: true, data: product });
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faCartPlus}
+                          className="text-[1.6rem] text-gray-600"
+                        />
+                        <span className="text-[1.4rem] text-gray-600">
+                          Thêm
+                        </span>
+                      </button>
+                      <button
+                        className="w-[4rem] h-[3.4rem] flex items-center justify-center bg-green-500 hover:bg-green-600 rounded-md cursor-pointer transition duration-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/product-detail/${product.id}`);
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faEye}
+                          className="text-[2rem] text-white"
+                        />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mt-4 px-2 text-center md:text-left">

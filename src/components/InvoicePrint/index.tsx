@@ -7,8 +7,6 @@ interface InvoicePrintProp {
 
 const InvoicePrint = React.forwardRef<HTMLDivElement, InvoicePrintProp>(
   ({ order }, ref) => {
-    console.log(order);
-
     const formatCurrency = (amount: number) => {
       return new Intl.NumberFormat("vi-VN", {
         style: "currency",

@@ -220,12 +220,12 @@ function Login() {
         </form>
 
         <div className="mt-6 space-y-3 text-center">
-          <a
-            href="#"
+          <Link
+            to="/"
             className="block text-[1.4rem] text-blue-600 hover:text-blue-700 font-medium"
           >
             Quên mật khẩu?
-          </a>
+          </Link>
           <div className="pt-4 border-t border-gray-200">
             <p className="text-[1.4rem] text-gray-600">
               Chưa có tài khoản?{" "}

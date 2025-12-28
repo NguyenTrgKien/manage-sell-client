@@ -8,6 +8,7 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useQuery } from "@tanstack/react-query";
 import { getListBanner } from "../../api/ui.api";
 import type { BannerType } from "../../utils/ui.type";
+import { Link } from "react-router-dom";
 
 function Banner() {
   const { data: listBanner = [], isLoading: isLoadingListBanner } = useQuery({
@@ -106,8 +107,8 @@ function Banner() {
           ) : (
             listBanner.map((banner: BannerType) => (
               <SwiperSlide key={banner.id}>
-                <a
-                  href={banner.link || "/"}
+                <Link
+                  to={banner.link || "/"}
                   className="block relative overflow-hidden group cursor-pointer"
                 >
                   <img
@@ -137,7 +138,7 @@ function Banner() {
                       />
                     </button>
                   </div>
-                </a>
+                </Link>
               </SwiperSlide>
             ))
           )}

@@ -14,7 +14,7 @@ const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Router>
+    <Router basename="/manage-sell-client">
       <QueryClientProvider client={queryClient}>
         <CategoryProvider>
           <AuthContextProvider>

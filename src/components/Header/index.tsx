@@ -136,7 +136,7 @@ function Header() {
         <div className="px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             <div className="flex items-center gap-2">
-              <a href="/" className="flex items-center gap-2">
+              <Link to="/" className="flex items-center gap-2">
                 <div className="bg-gradient-to-br from-pink-500 to-red-600 text-white w-14 h-14 md:w-[3.5rem] md:h-[3.5rem] rounded-lg flex items-center justify-center font-bold text-lg md:text-xl">
                   K
                 </div>
@@ -148,7 +148,7 @@ function Header() {
                     Style Your Life
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
 
             <div className="md:hidden flex items-center space-x-12">
@@ -330,8 +330,8 @@ function Header() {
                 </>
               )}
 
-              <a
-                href="/"
+              <Link
+                to="/"
                 className="flex flex-col items-center gap-1 hover:text-pink-600 transition-colors relative group"
               >
                 <svg
@@ -353,7 +353,7 @@ function Header() {
                 <span className="absolute -top-2 left-[3rem] bg-red-500 text-white text-[10px] w-[1.5rem] h-[1.5rem] rounded-full flex items-center justify-center">
                   5
                 </span>
-              </a>
+              </Link>
 
               <div
                 className="relative flex flex-col items-center gap-1 group transition-colors cursor-pointer"

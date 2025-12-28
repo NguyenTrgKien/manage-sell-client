@@ -18,7 +18,7 @@ function HeaderDashboard() {
       const res = await axiosConfig.get("/api/v1/auth/logout");
       if (res.status) {
         localStorage.removeItem("user");
-        window.location.href = "/dashboard/login";
+        navigate("/dashboard/login");
       }
     } catch (error) {
       console.log("Lỗi khi đăng xuất", error);
