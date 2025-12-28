@@ -1,4 +1,4 @@
-import { PaymentMethod } from "@my-project/shared";
+import { PaymentMethod } from "@nguyentrungkien/shared";
 import * as yup from "yup";
 
 export const orderSchema = yup

@@ -24,7 +24,7 @@ function SelectAddress({
   onClose,
   selectedId,
 }: SelectAddressProp) {
-  const { user, refreshUser } = useUser();
+  const { refreshUser, user } = useUser();
   const [selectedAdd, setSelectedAdd] = useState<AddressType | null>(null);
   const queryClient = useQueryClient();
   const [openActionAddress, setOpenActionAddress] = useState<{
@@ -36,7 +36,17 @@ function SelectAddress({
     dataUpdate: null,
     action: "add",
   });
-  const addresses = user?.address;
+  const [addresses, setAddresses] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      if (user.address.length > 0) {
+        const dataAddresses = user.address;
+        setAddresses(dataAddresses);
+      }
+    }
+  }, [user]);
+  console.log(addresses);
 
   useEffect(() => {
     if (open && selectedId && addresses) {
@@ -45,7 +55,7 @@ function SelectAddress({
         setSelectedAdd(currentAddress);
       }
     }
-  }, [open, selectedId, addresses]);
+  }, [selectedId, addresses]);
 
   const handleConfirm = () => {
     onSelect(selectedAdd);
@@ -82,25 +92,25 @@ function SelectAddress({
           />
         </div>
         <div className="mt-[2rem] space-y-4 min-h-[40rem] max-h-[50rem] overflow-auto hide-scrollbar">
+          <div className="flex items-center justify-between mb-[2rem]">
+            <h4 className="text-gray-800">Địa chỉ</h4>
+            <button
+              type="button"
+              className="flex items-center gap-[.3rem] px-[1rem] py-[.5rem] rounded-md border border-gray-300 text-gray-500 hover:bg-gray-100 transition duration-300 cursor-pointer"
+              onClick={() =>
+                setOpenActionAddress({
+                  open: true,
+                  dataUpdate: null,
+                  action: "add",
+                })
+              }
+            >
+              <FontAwesomeIcon icon={faAdd} className="text-[1.4rem]" />
+              <span>Thêm địa chỉ</span>
+            </button>
+          </div>
           {addresses && addresses?.length > 0 ? (
             <>
-              <div className="flex items-center justify-between mb-[2rem]">
-                <h4 className="text-gray-800">Địa chỉ</h4>
-                <button
-                  type="button"
-                  className="flex items-center gap-[.3rem] px-[1rem] py-[.5rem] rounded-md border border-gray-300 text-gray-500 hover:bg-gray-100 transition duration-300 cursor-pointer"
-                  onClick={() =>
-                    setOpenActionAddress({
-                      open: true,
-                      dataUpdate: null,
-                      action: "add",
-                    })
-                  }
-                >
-                  <FontAwesomeIcon icon={faAdd} className="text-[1.4rem]" />
-                  <span>Thêm địa chỉ</span>
-                </button>
-              </div>
               {addresses.map((add) => {
                 return (
                   <label
@@ -162,6 +172,47 @@ function SelectAddress({
                           Cập nhật
                         </button>
                       </div>
+                      <button
+                        type="button"
+                        className="flex-1 px-[1rem] py-[.4rem] text-[1.4rem] border text-red-500 border-red-400 hover:border-red-600 hover:text-red-600 rounded-sm"
+                        onClick={() => {
+                          const updated = addresses.filter(
+                            (a) => a.id !== add.id
+                          );
+
+                          localStorage.setItem(
+                            "guest_addresses",
+                            JSON.stringify(updated)
+                          );
+
+                          if (updated.length > 0) {
+                            const latest = updated[updated.length - 1];
+                            localStorage.setItem(
+                              "guest_latest_address",
+                              JSON.stringify(latest)
+                            );
+
+                            window.dispatchEvent(
+                              new CustomEvent("guest_address_updated", {
+                                detail: { action: "added", address: latest },
+                              })
+                            );
+                          } else {
+                            localStorage.removeItem("guest_latest_address");
+                            localStorage.removeItem("guest_addresses");
+
+                            window.dispatchEvent(
+                              new CustomEvent("guest_address_updated", {
+                                detail: { action: "added" },
+                              })
+                            );
+                          }
+
+                          setAddresses(updated);
+                        }}
+                      >
+                        Xóa
+                      </button>
                     </div>
                   </label>
                 );

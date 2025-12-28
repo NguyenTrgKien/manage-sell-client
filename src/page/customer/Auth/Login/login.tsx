@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { UserRole } from "@my-project/shared";
+import { UserRole } from "@nguyentrungkien/shared";
 import useAuth from "../../../../hooks/useAuth";
 import Loading from "../../../../components/Loading";
 import { toast } from "react-toastify";
 import axiosConfig from "../../../../configs/axiosConfig";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export interface LoginResponse {
   status: boolean;
@@ -25,7 +27,9 @@ function Login() {
   const location = useLocation();
   const from = location.state?.from || "/";
   const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
+  const [isMergeCart, setIsMergeCart] = useState(false);
 
   const handleChangeData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -39,15 +43,17 @@ function Login() {
 
   const handleLoginSuccess = async () => {
     try {
-      const localCart = JSON.parse(localStorage.getItem("localCart") || "[]");
-      if (localCart.length > 0) {
-        const res = await axiosConfig.post("/api/v1/cart/merge", {
-          localItems: localCart,
-        });
+      if (isMergeCart) {
+        const localCart = JSON.parse(localStorage.getItem("localCart") || "[]");
+        if (localCart.length > 0) {
+          const res = await axiosConfig.post("/api/v1/cart/merge", {
+            localItems: localCart,
+          });
 
-        if (res.status) {
-          toast.success("Đã gộp giỏ hàng của bạn!");
-          localStorage.removeItem("localCart");
+          if (res.status) {
+            toast.success("Đã gộp giỏ hàng của bạn!");
+            localStorage.removeItem("localCart");
+          }
         }
       }
       if (from === "/checkout") {
@@ -69,15 +75,11 @@ function Login() {
       await login(UserRole.USER, dataLogin.email, dataLogin.password);
       await handleLoginSuccess();
     } catch (error: any) {
-      if (
-        error.response?.data?.message?.includes(
-          UserRole.ADMIN || UserRole.STAFF
-        )
-      ) {
+      if (error.message?.includes(UserRole.ADMIN || UserRole.STAFF)) {
         setShowAdminModal(true);
         return;
       }
-      setErrorMessage(error.response?.data?.message || "Đăng nhập thất bại!");
+      setErrorMessage(error?.message || "Đăng nhập thất bại!");
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +87,7 @@ function Login() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white shadow-2xl rounded-2xl p-[2.5rem] transform transition-all hover:scale-[1.02]">
+      <div className="w-full max-w-2xl bg-white shadow-2xl rounded-2xl p-[2.5rem] transform transition-all">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
             <svg
@@ -108,7 +110,7 @@ function Login() {
           <p className="text-gray-500">Chào mừng bạn trở lại! 👋</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
               htmlFor="email"
@@ -136,27 +138,54 @@ function Login() {
             >
               Mật khẩu
             </label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="••••••••"
-              value={dataLogin.password}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
-              onChange={handleChangeData}
-              onFocus={() => setErrorMessage(null)}
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                id="password"
+                placeholder="••••••••"
+                value={dataLogin.password}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
+                onChange={handleChangeData}
+                onFocus={() => setErrorMessage(null)}
+                required
+              />
+              <button
+                type="button"
+                className="absolute top-[50%] translate-y-[-50%] right-4 cursor-pointer"
+                onClick={() => {
+                  setShowPassword(!showPassword);
+                }}
+              >
+                {showPassword ? (
+                  <FontAwesomeIcon icon={faEye} className="text-gray-600" />
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faEyeSlash}
+                    className="text-gray-600"
+                  />
+                )}
+              </button>
+            </div>
           </div>
 
           {errorMessage && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{errorMessage}</p>
-            </div>
+            <p className="text-[1.4rem] text-red-600">{errorMessage}</p>
           )}
-
+          <div className="mt-[2.5rem] flex items-center space-x-4">
+            <label htmlFor="mergeCart">Gộp giỏ hàng khi đang nhập</label>
+            <input
+              type="checkbox"
+              id="mergeCart"
+              name="mergeCart"
+              checked={isMergeCart}
+              className=""
+              style={{ scale: 1.2 }}
+              onChange={(e) => setIsMergeCart(e.target.checked)}
+            />
+          </div>
           <button
-            className={`w-full py-3 rounded-lg text-white font-medium transition mt-[1.8rem] ${
+            className={`w-full py-3 rounded-lg text-white font-medium transition ${
               isLoading
                 ? "bg-gray-300 cursor-not-allowed"
                 : "bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 shadow-lg hover:shadow-xl"

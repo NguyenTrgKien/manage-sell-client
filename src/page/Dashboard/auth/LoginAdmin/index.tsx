@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserRole } from "@my-project/shared";
+import { UserRole } from "@nguyentrungkien/shared";
 import useAuth from "../../../../hooks/useAuth";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export interface LoginResponse {
   status: boolean;
@@ -17,6 +19,7 @@ function LoginAdmin() {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -36,7 +39,6 @@ function LoginAdmin() {
     setIsLoading(true);
     try {
       await login(UserRole.ADMIN, dataLogin.email, dataLogin.password);
-      console.log(login);
 
       navigate("/dashboard");
     } catch (error: any) {
@@ -105,16 +107,34 @@ function LoginAdmin() {
             <label className="block font-medium text-gray-700 mb-2">
               Mật khẩu
             </label>
-            <input
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              value={dataLogin.password}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-              onChange={handleChangeData}
-              onFocus={() => setErrorMessage(null)}
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="••••••••"
+                value={dataLogin.password}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                onChange={handleChangeData}
+                onFocus={() => setErrorMessage(null)}
+                required
+              />
+              <button
+                type="button"
+                className="absolute top-[50%] translate-y-[-50%] right-4 cursor-pointer"
+                onClick={() => {
+                  setShowPassword(!showPassword);
+                }}
+              >
+                {showPassword ? (
+                  <FontAwesomeIcon icon={faEye} className="text-gray-600" />
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faEyeSlash}
+                    className="text-gray-600"
+                  />
+                )}
+              </button>
+            </div>
           </div>
 
           {errorMessage && (

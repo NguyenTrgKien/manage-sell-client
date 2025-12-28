@@ -1,4 +1,4 @@
-import { StaffPosition, StaffStatus, UserRole } from "@my-project/shared";
+import { StaffPosition, StaffStatus, UserRole } from "@nguyentrungkien/shared";
 
 export const getStaffPosition = {
   [StaffPosition.INVENTORY]: "Quản lý kho",

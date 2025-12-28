@@ -4,6 +4,7 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import AddSizeColor from "./AddSizeColor";
 import { useQueryClient } from "@tanstack/react-query";
 import MotionWrapper from "../../../../../components/ui/MotionWrapper";
+import { toast } from "react-toastify";
 
 export interface VariantSize {
   id: number;
@@ -97,32 +98,42 @@ function ActionVariant({
         size: "Vui lòng chọn size cho sản phẩm!",
       }));
       return;
-    } else if (!dataVariants.colorId) {
+    }
+    if (!dataVariants.colorId) {
       setMessageInput((prev) => ({
         ...prev,
         color: "Vui lòng chọn màu sắc cho sản phẩm!",
       }));
       return;
-    } else if (!dataVariants.inventory) {
+    }
+    if (!dataVariants.inventory) {
       setMessageInput((prev) => ({
         ...prev,
         inventory: "Vui lòng nhập số lượng tồn kho!",
       }));
       return;
-    } else {
-      setValue("variants", [
-        ...variants,
-        {
-          id: Date.now(),
-          sizeId: Number(dataVariants.sizeId),
-          colorId: Number(dataVariants.colorId),
-          price: dataVariants.price ? Number(dataVariants.price) : null,
-          inventory: Number(dataVariants.inventory),
-          isNew: true,
-        },
-      ]);
-      setOpenActionVariant({ open: false, node: "add", data: null });
     }
+    const isDuplicate = variants.some(
+      (v: any) =>
+        v.sizeId === Number(dataVariants.sizeId) &&
+        v.colorId === Number(dataVariants.colorId)
+    );
+    if (isDuplicate) {
+      toast.warn("Thuộc tính với Size và Màu này đã tồn tại!");
+      return;
+    }
+    setValue("variants", [
+      ...variants,
+      {
+        tempId: Date.now(),
+        sizeId: Number(dataVariants.sizeId),
+        colorId: Number(dataVariants.colorId),
+        price: dataVariants.price ? Number(dataVariants.price) : null,
+        inventory: Number(dataVariants.inventory),
+        isEdited: false,
+      },
+    ]);
+    setOpenActionVariant({ open: false, node: "add", data: null });
   };
 
   const handleEdit = () => {
@@ -145,16 +156,36 @@ function ActionVariant({
       }));
       return;
     }
+    const isId = dataUpdate.id;
+    const isDuplicate = variants.some((v: any) => {
+      const isSameVariant = !isId
+        ? v.tempId === dataUpdate.tempId
+        : v.id === dataUpdate.id;
+
+      return (
+        !isSameVariant &&
+        v.sizeId === Number(dataVariants.sizeId) &&
+        v.colorId === Number(dataVariants.colorId)
+      );
+    });
+
+    if (isDuplicate) {
+      toast.warn("Thuộc tính với Size và Màu này đã tồn tại!");
+      return;
+    }
+
     const updatedVariant = {
-      ...dataUpdate,
+      tempId: dataUpdate.tempId,
       sizeId: dataVariants.sizeId,
       colorId: dataVariants.colorId,
       price: dataVariants.price ? Number(dataVariants.price) : null,
       inventory: Number(dataVariants.inventory),
-      isEdited: !dataUpdate.isNew,
+      ...(dataUpdate.id && { id: dataUpdate.id }),
+      isEdited: true,
     };
+
     const editVariant = variants.map((variant: any) => {
-      if (variant.id === dataUpdate.id) {
+      if (variant.tempId === dataUpdate.tempId) {
         return updatedVariant;
       }
       return variant;

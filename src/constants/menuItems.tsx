@@ -29,9 +29,9 @@ export const menuItems = [
       {
         id: 23,
         label: "Danh sách đơn hàng",
-        path: "orders/list-order"
-      }
-    ]
+        path: "orders/list-order",
+      },
+    ],
   },
   {
     id: 6,
@@ -45,11 +45,22 @@ export const menuItems = [
   },
   {
     id: 8,
-    label: "Cá nhân",
-    path: "profile",
+    label: "Giảm giá",
+    path: "discount",
   },
   {
     id: 9,
+    label: "Banner",
+    path: "banner-slide",
+  },
+  {
+    id: 10,
+    label: "Cá nhân",
+    path: "profile",
+  },
+
+  {
+    id: 11,
     label: "Cài đặt",
     path: "setting",
   },

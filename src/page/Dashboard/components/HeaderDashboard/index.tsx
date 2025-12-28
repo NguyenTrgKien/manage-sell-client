@@ -1,14 +1,14 @@
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { UserRole } from "@my-project/shared";
+import { UserRole } from "@nguyentrungkien/shared";
 import avatarDefault from "../../../../assets/images/avatar-default.png";
 import { useEffect, useRef, useState } from "react";
 import axiosConfig from "../../../../configs/axiosConfig";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../../../../hooks/useAuth";
+import { useUser } from "../../../../hooks/useUser";
 
 function HeaderDashboard() {
-  const { user } = useAuth();
+  const { user } = useUser();
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);

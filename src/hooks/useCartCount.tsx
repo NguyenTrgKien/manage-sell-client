@@ -29,6 +29,7 @@ export const useCartCount = () => {
   useEffect(() => {
     if (!user) {
       const localCart = JSON.parse(localStorage.getItem("localCart") || "[]");
+
       const totalCount = localCart.reduce(
         (total: number, item: { variantId: number; quantity: number }) =>
           total + item.quantity,

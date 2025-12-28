@@ -13,10 +13,13 @@ import { getCart, getVariantByIds } from "../../../api/user.api";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axiosConfig from "../../../configs/axiosConfig";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUser } from "../../../hooks/useUser";
 
 export default function CartDetail() {
+  const [params] = useSearchParams();
+  const buyNowVariant = params.get("buyNowVariant");
+  const buyBackVariants = params.get("buyback");
   const { user } = useUser();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<VariantsType[]>([]);
@@ -33,6 +36,10 @@ export default function CartDetail() {
     queryFn: getCart,
     enabled: !!user,
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     if (!user) {
@@ -93,6 +100,71 @@ export default function CartDetail() {
       }
     }
   }, [user, data]);
+
+  useEffect(() => {
+    if (!buyNowVariant && !buyBackVariants) {
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      return;
+    }
+    const variantIdsToSelect: number[] = [];
+
+    if (buyBackVariants) {
+      variantIdsToSelect.push(
+        ...buyBackVariants
+          .split(",")
+          .map(Number)
+          .filter((id) => !isNaN(id) && id > 0)
+      );
+    }
+
+    if (buyNowVariant) {
+      const id = Number(buyNowVariant);
+      if (!isNaN(id) && id > 0) {
+        variantIdsToSelect.push(id);
+      }
+    }
+    if (variantIdsToSelect.length === 0) {
+      return;
+    }
+    const uniqueIds = [...new Set(variantIdsToSelect)];
+    const hasAnyMatch = cartItems.some((item) => uniqueIds.includes(item.id));
+    if (!hasAnyMatch) {
+      return;
+    }
+    let hasSelectedAny = false;
+    setCartItems((prev) => {
+      let changed = false;
+      const newItems = prev.map((item: any) => {
+        if (uniqueIds.includes(item.id) && !item.selected) {
+          hasSelectedAny = true;
+          changed = true;
+          return { ...item, selected: true };
+        }
+        return item;
+      });
+
+      return changed ? newItems : prev;
+    });
+
+    if (hasSelectedAny) {
+      setTimeout(() => {
+        const firstSelected = document.querySelector("tr.bg-blue-50");
+        if (firstSelected) {
+          firstSelected.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+      }, 300);
+    }
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.delete("buyback");
+    newUrl.searchParams.delete("buyNowVariant");
+    window.history.replaceState({}, "", newUrl);
+  }, [cartItems]);
 
   useEffect(() => {
     const allSelected =
@@ -189,7 +261,7 @@ export default function CartDetail() {
     }).format(price);
   };
 
-  const totalAmount = () => {
+  const subTotal = () => {
     return cartItems
       .filter((it: any) => it.selected)
       .reduce((acc, item: any) => {
@@ -216,13 +288,17 @@ export default function CartDetail() {
           inventory: item.inventory,
         };
       }),
-      subtotal: totalAmount(),
-      shippingFee: 0,
-      total: totalAmount(),
+      subtotal: subTotal(),
+      total: subTotal(),
       timestamp: new Date().toISOString(),
     };
 
     sessionStorage.setItem("checkoutData", JSON.stringify(checkoutData));
+    if (user) {
+      sessionStorage.setItem("checkoutFrom", "authenticated");
+    } else {
+      sessionStorage.setItem("checkoutFrom", "guest");
+    }
     navigate("/checkout");
   };
 
@@ -244,7 +320,6 @@ export default function CartDetail() {
 
     processToCheckout();
   };
-  console.log(cartItems);
 
   return (
     <div className="w-full min-h-screen bg-gray-50 py-8 px-4 lg:px-[12rem]">
@@ -400,19 +475,20 @@ export default function CartDetail() {
             <div className="space-y-6 text-[1.4rem] text-gray-600">
               <div className="flex justify-between">
                 <span>Tạm tính ({selectedCount} sản phẩm):</span>
-                <span className="font-semibold">
-                  {formatPrice(totalAmount())}
-                </span>
+                <span className="font-semibold">{formatPrice(subTotal())}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="">
                 <span>Phí vận chuyển:</span>
-                <span className="text-green-600 ">Miễn phí</span>
+                <div className="mt-4 text-[1.4rem] text-green-600">
+                  Phí vận chuyển sẽ được tính chính xác dựa trên địa chỉ nhận
+                  hàng
+                </div>
               </div>
               <div className="border-t border-t-gray-400 pt-6">
                 <div className="flex justify-between text-[1.4rem]">
                   <span className="font-bold">Tổng cộng:</span>
                   <span className="font-bold text-[1.8rem] text-red-600">
-                    {formatPrice(totalAmount())}
+                    {formatPrice(subTotal())}
                   </span>
                 </div>
               </div>

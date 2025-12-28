@@ -31,3 +31,10 @@ export const getVariantByIds = async (variantIds: number[]) => {
   });
   return res;
 };
+
+export const getUsers = async (searchUser: string) => {
+  const res = await axiosConfig.get("/api/v1/user/search", {
+    params: { searchTerm: searchUser, limit: 20 },
+  });
+  return res;
+};

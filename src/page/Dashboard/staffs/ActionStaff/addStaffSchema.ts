@@ -1,4 +1,4 @@
-import { Gender, StaffPosition, UserRole } from "@my-project/shared";
+import { Gender, StaffPosition, UserRole } from "@nguyentrungkien/shared";
 import * as yup from "yup";
 
 export const addStaffSchema = (isEdit = false) =>

@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import Select from "react-select";
 import { useEffect } from "react";
 import type { AddressType } from "../utils/userType";
+import { useUser } from "../hooks/useUser";
 
 interface ActionAddressProp {
   openActionAddress: {
@@ -20,7 +21,7 @@ interface ActionAddressProp {
   onSuccess?: () => void;
 }
 
-interface AddressForm {
+export interface AddressForm {
   province: string;
   district: string;
   ward: string;
@@ -35,6 +36,7 @@ function ActionAddress({
   onClose,
   onSuccess,
 }: ActionAddressProp) {
+  const { user } = useUser();
   const {
     control,
     register,
@@ -98,34 +100,47 @@ function ActionAddress({
 
   const onSubmit = async (data: AddressForm) => {
     try {
-      const phone = Number(data.phone);
       let res = null;
-      const isUpdata =
-        openActionAddress.action === "edit" && openActionAddress.dataUpdate;
-      if (isUpdata) {
-        res = await axiosConfig.patch(
-          `/api/v1/address/update/${openActionAddress.dataUpdate.id}`,
-          data
-        );
-      } else {
-        res = await axiosConfig.post("/api/v1/address/add", {
+      if (!user) {
+        const address = {
           ...data,
-          phone: phone,
-        });
-      }
-      if (res.status) {
-        reset({
-          province: "",
-          district: "",
-          ward: "",
-          recipentName: "",
-          addressDetail: "",
-          phone: "",
-          isDefault: false,
-        });
+        };
+
+        localStorage.setItem("guest_address", JSON.stringify(address));
+        window.dispatchEvent(
+          new CustomEvent("guest_address_updated", {
+            detail: { action: "added", address },
+          })
+        );
         onClose();
         onSuccess?.();
-        return;
+      } else {
+        const isUpdata =
+          openActionAddress.action === "edit" && openActionAddress.dataUpdate;
+        if (isUpdata) {
+          res = await axiosConfig.patch(
+            `/api/v1/address/update/${openActionAddress.dataUpdate.id}`,
+            data
+          );
+        } else {
+          res = await axiosConfig.post("/api/v1/address/add", {
+            ...data,
+          });
+        }
+        if (res.status) {
+          reset({
+            province: "",
+            district: "",
+            ward: "",
+            recipentName: "",
+            addressDetail: "",
+            phone: "",
+            isDefault: false,
+          });
+          onClose();
+          onSuccess?.();
+          return;
+        }
       }
     } catch (error: any) {
       console.log(error);
@@ -376,23 +391,25 @@ function ActionAddress({
             </span>
           )}
         </div>
-        <label
-          htmlFor="isDefault"
-          className="flex items-center w-[11rem] gap-[1rem] mt-[1.5rem]"
-        >
-          <span className="select-none text-gray-600">Mặc định</span>
-          <div className="relative inline-block w-12 h-6">
-            <input
-              id="isDefault"
-              type="checkbox"
-              className="peer hidden"
-              {...register("isDefault")}
-              disabled={watch("addressDetail") === ""}
-            />
-            <div className="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-blue-500 transition"></div>
-            <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-6"></div>
-          </div>
-        </label>
+        {user && (
+          <label
+            htmlFor="isDefault"
+            className="flex items-center w-[11rem] gap-[1rem] mt-[1.5rem]"
+          >
+            <span className="select-none text-gray-600">Mặc định</span>
+            <div className="relative inline-block w-12 h-6">
+              <input
+                id="isDefault"
+                type="checkbox"
+                className="peer hidden"
+                {...register("isDefault")}
+                disabled={watch("addressDetail") === ""}
+              />
+              <div className="absolute inset-0 bg-gray-300 rounded-full peer-checked:bg-blue-500 transition"></div>
+              <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-6"></div>
+            </div>
+          </label>
+        )}
         <div className="mt-[2rem] flex items-center gap-[1rem] justify-end">
           <button
             type="button"

@@ -1,7 +1,7 @@
 import Banner from "../../../components/Banner";
 import PopularProduct from "../../../components/PopularProduct";
 
-function HomePage() {
+function Main() {
   return (
     <>
       <Banner />
@@ -10,4 +10,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default Main;

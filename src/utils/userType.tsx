@@ -4,7 +4,7 @@ import type {
   StaffPosition,
   StaffStatus,
   UserRole,
-} from "@my-project/shared";
+} from "@nguyentrungkien/shared";
 import type { OrderType } from "../page/Dashboard/order/ListOrders";
 
 export interface UserType {

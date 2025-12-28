@@ -28,6 +28,8 @@ export interface EvaluateType {
   images: string[];
   publicIds: string[];
   showAccount: boolean;
+  user: UserType;
+  helpfulCount: number;
   createdAt: string;
   updatedAt: string;
 }

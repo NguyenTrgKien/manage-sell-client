@@ -13,12 +13,19 @@ import { useEffect, useRef, useState } from "react";
 import { ordersForAdmin } from "../../../../api/order.api";
 import AddOrder from "./AddOrder";
 import { getStatusConfig } from "../../../../configs/getOrderStatusConfig";
-import { OrderStatus, type PaymentMethod } from "@my-project/shared";
+import {
+  CancelReasonType,
+  OrderStatus,
+  ShippingProvider,
+  ShippingStatus,
+  type PaymentMethod,
+} from "@nguyentrungkien/shared";
 import type { VariantsType } from "../../../../utils/types";
 import UpdateOrder from "./UpdateOrder";
 import OrderDetail from "./OrderDetail";
 import DeleteOrder from "./DeleteOrder";
 import type { EvaluateType } from "../../../../utils/productType";
+import type { VoucherT } from "../../../../utils/voucher.type";
 
 export interface OrderType {
   id: number;
@@ -38,6 +45,17 @@ export interface OrderType {
   orderItems: orderItemsType[];
   createdAt: string;
   updatedAt: string;
+  reason: CancelReasonType;
+  shippedAt: string;
+  shippingFee: number;
+  shippingProvider: ShippingProvider;
+  deliveredAt: string;
+  shippingNote: string;
+  shippingStatus: ShippingStatus;
+  trackingNumber: string;
+  voucherCode: string;
+  discountAmount: number;
+  voucher: VoucherT;
 }
 
 export interface orderItemsType {
@@ -354,23 +372,25 @@ function Order() {
         )}
         {
           <AddOrder
-            openAddOrder={openAddOrder}
-            setOpenAddOrder={setOpenAddOrder}
+            open={openAddOrder}
+            onClose={() => setOpenAddOrder(false)}
             refetch={refetch}
           />
         }
         {
           <UpdateOrder
-            openUpdate={openUpdate}
-            setOpenUpdate={setOpenUpdate}
+            open={openUpdate.open}
+            orderData={openUpdate.data}
+            onClose={() => setOpenUpdate({ open: false, data: null })}
             refetch={refetch}
           />
         }
 
         {
           <DeleteOrder
-            openDelete={openDelete}
-            setOpenDelete={setOpenDelete}
+            open={openDelete !== null}
+            orderId={openDelete}
+            onClose={() => setOpenDelete(null)}
             refetch={refetch}
           />
         }

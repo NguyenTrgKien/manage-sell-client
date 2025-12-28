@@ -1,11 +1,13 @@
 import axios from "axios";
 
 const axiosConfig = axios.create({
+  // baseURL: "https://quan-ly-ban-quan-ao-server.onrender.com",
   baseURL: "http://localhost:8080",
-  timeout: 20000,
+  timeout: 60000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
+    // "c1a1bd344b33.ngrok-free.app": "true",
   },
 });
 
@@ -20,27 +22,18 @@ axiosConfig.interceptors.response.use(
       });
     }
 
-    if (status === 401) {
-      sessionStorage.removeItem("checkoutData");
-      return Promise.reject({
-        message: "Phiên đăng nhập hết hạn!",
-        code: "UNAUTHORIZED",
-        status,
-      });
-    }
+    // if (status === 401) {
+    //   return Promise.reject({
+    //     message: "Phiên đăng nhập hết hạn!",
+    //     code: "UNAUTHORIZED",
+    //     status,
+    //   });
+    // }
 
     if (status === 403) {
       return Promise.reject({
         message: "Bạn không có quyền thực hiện hành động này",
         code: "FORBIDDEN",
-        status,
-      });
-    }
-
-    if (status === 404) {
-      return Promise.reject({
-        message: "Không tìm thấy tài nguyên",
-        code: "NOT_FOUND",
         status,
       });
     }

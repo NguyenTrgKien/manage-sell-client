@@ -8,7 +8,7 @@ function Dashboard({}) {
       <HeaderDashboard />
       <div className="flex">
         <SidebarDashboard />
-        <main className="flex-1 ml-[15%] p-[3rem] mt-[6rem]">
+        <main className="flex-1 ml-[15%] p-[2rem] mt-[6rem]">
           <Outlet />
         </main>
       </div>

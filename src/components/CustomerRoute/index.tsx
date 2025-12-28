@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { UserRole } from "@my-project/shared";
+import { UserRole } from "@nguyentrungkien/shared";
 import { useUser } from "../../hooks/useUser";
 
 interface Props {

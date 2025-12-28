@@ -12,11 +12,18 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
-import { PaymentMethod } from "@my-project/shared";
+import { PaymentMethod, VoucherType } from "@nguyentrungkien/shared";
 import axiosConfig from "../../../configs/axiosConfig";
 import SelectAddress from "../../../components/SelectAddress";
 import type { AddressType } from "../../../utils/userType";
 import { useUser } from "../../../hooks/useUser";
+import ActionAddress from "../../../components/ActionAddress";
+import { useQueryClient } from "@tanstack/react-query";
+import OpenLogin from "../../../components/OpenLogin";
+import type { VoucherT } from "../../../utils/voucher.type";
+import SelectVoucher from "../../../components/SelectVoucher";
+import { AnimatePresence } from "framer-motion";
+import RequireLogin from "../../../components/RequireLogin";
 
 interface CheckoutItem {
   variantId: number;
@@ -33,7 +40,6 @@ interface CheckoutItem {
 interface CheckoutData {
   items: CheckoutItem[];
   subtotal: number;
-  shippingFee: number;
   total: number;
 }
 
@@ -68,9 +74,34 @@ export default function Checkout() {
     open: false,
     selectedId: null,
   });
+  const [openActionAddress, setOpenActionAddress] = useState<{
+    open: boolean;
+    dataUpdate: AddressType | null;
+    action: "edit" | "add";
+  }>({
+    open: false,
+    dataUpdate: null,
+    action: "add",
+  });
   const [selectedAddress, setSelectedAddress] = useState<AddressType | null>(
     null
   );
+  const [showLogin, setShowLogin] = useState(false);
+  const [shippingFee, setShippingFee] = useState(0);
+  const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
+  const [discountAmount, setdiscountAmount] = useState<number>(0);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [openLogin, setOpenLogin] = useState(false);
+  const [selectVoucher, setSelectVoucher] = useState<{
+    open: boolean;
+    voucher: VoucherT | null;
+    conditionValue: number | null;
+  }>({
+    open: false,
+    voucher: null,
+    conditionValue: null,
+  });
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -92,36 +123,99 @@ export default function Checkout() {
       orderItems: [],
     },
   });
+  const watchedProvince = watch("customerProvince");
+
   const paymentMethod = watch("paymentMethod");
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
 
   useEffect(() => {
-    if (user && user.address.length > 0) {
-      const defaultAddress = user?.address.find((it) => it.isDefault);
-      if (defaultAddress) {
-        setSelectedAddress(defaultAddress);
-        setIsSelectAddressOpen({
-          open: false,
-          selectedId: defaultAddress.id,
-        });
-        setValue("customerName", defaultAddress.recipentName);
-        setValue("customerEmail", user.email);
-        setValue("customerPhone", defaultAddress.phone.toString());
-        setValue("customerAddress", defaultAddress.addressDetail);
-        setValue("customerWard", defaultAddress.ward);
-        setValue("customerDistrict", defaultAddress.district);
-        setValue("customerProvince", defaultAddress.province);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      setValue("customerPhone", user.phone?.toString() || "");
+      setValue("customerEmail", user.email || "");
+      if (user.address.length > 0) {
+        const defaultAddress = user?.address.find((it) => it.isDefault);
+        if (defaultAddress) {
+          setSelectedAddress(defaultAddress);
+          setValue(
+            "customerName",
+            defaultAddress.recipentName || user.username || ""
+          );
+          setValue("customerAddress", defaultAddress.addressDetail);
+          setValue("customerWard", defaultAddress.ward);
+          setValue("customerDistrict", defaultAddress.district);
+          setValue("customerProvince", defaultAddress.province);
+          setIsSelectAddressOpen({
+            open: false,
+            selectedId: defaultAddress.id,
+          });
+        }
       }
     }
   }, [user, setValue]);
 
+  // Xử lý khách chưa đăng nhập
+  useEffect(() => {
+    const loadGuestAddress = () => {
+      if (user) return;
+
+      const data = localStorage.getItem("guest_address");
+      if (data) {
+        const address = JSON.parse(data);
+        setSelectedAddress(address);
+        setValue("customerAddress", address.addressDetail);
+        setValue("customerWard", address.ward);
+        setValue("customerDistrict", address.district);
+        setValue("customerProvince", address.province);
+      } else {
+        setSelectedAddress(null);
+        setValue("customerAddress", "");
+        setValue("customerWard", "");
+        setValue("customerDistrict", "");
+        setValue("customerProvince", "");
+      }
+    };
+
+    loadGuestAddress();
+
+    const handleGuestAddressChange = (e: Event) => {
+      const event = e as CustomEvent;
+      const { action } = event.detail || {};
+
+      if (action === "cleared") {
+        setSelectedAddress(null);
+        setValue("customerAddress", "");
+        setValue("customerWard", "");
+        setValue("customerDistrict", "");
+        setValue("customerProvince", "");
+      } else {
+        loadGuestAddress();
+      }
+    };
+
+    window.addEventListener("guest_address_updated", handleGuestAddressChange);
+
+    return () => {
+      window.removeEventListener(
+        "guest_address_updated",
+        handleGuestAddressChange
+      );
+    };
+  }, [user, setValue]);
+
+  // Load thông tin đơn từ sessionStorage
   useEffect(() => {
     const data = sessionStorage.getItem("checkoutData");
+
     if (!data) {
       toast.error("Không tìm thấy thông tin đơn hàng!");
-      navigate("/cart");
+      navigate("/cart/detail");
       return;
     }
+
     const parsed = JSON.parse(data);
     const dataOrderItems = parsed.items.map((item: CheckoutItem) => {
       return {
@@ -134,6 +228,73 @@ export default function Checkout() {
     setValue("orderItems", dataOrderItems);
     setCheckoutData(parsed);
   }, [navigate, setValue]);
+
+  useEffect(() => {
+    if (!checkoutData) return;
+    let discountAmount = 0;
+    if (user && selectVoucher.voucher) {
+      const voucher = selectVoucher.voucher;
+      const subTotal = checkoutData?.subtotal;
+      if (voucher.type === VoucherType.PERCENT) {
+        discountAmount = (Number(subTotal) * voucher.value) / 100;
+        if (discountAmount > voucher.maxDiscount) {
+          discountAmount = voucher.maxDiscount;
+        }
+      } else {
+        discountAmount = voucher.value;
+      }
+    }
+    setdiscountAmount(discountAmount);
+    const newTotal = checkoutData.subtotal + shippingFee - discountAmount;
+    setTotalAmount(newTotal);
+  }, [selectVoucher.voucher, checkoutData, shippingFee, user]);
+
+  const calculateShipping = async (addressData: { province: string }) => {
+    if (!checkoutData) return;
+    setIsCalculatingShipping(true);
+    try {
+      const res = await axiosConfig.post("/api/v1/orders/calculate-shipping", {
+        subTotal: checkoutData.subtotal,
+        customerProvince: addressData.province,
+      });
+
+      if (res.status) {
+        setShippingFee(res.data.shippingFee);
+        setTotalAmount(checkoutData.subtotal + res.data.shippingFee);
+      } else {
+        const free = checkoutData.subtotal >= 500000 ? 0 : 35000;
+        setShippingFee(free);
+        setTotalAmount(checkoutData.subtotal + free);
+      }
+    } catch (error) {
+      const free = checkoutData.subtotal >= 500000 ? 0 : 35000;
+      setShippingFee(free);
+      setTotalAmount(checkoutData.subtotal + free);
+    } finally {
+      setIsCalculatingShipping(false);
+    }
+  };
+  useEffect(() => {
+    if (checkoutData && watchedProvince) {
+      calculateShipping({
+        province: watchedProvince,
+      });
+    }
+  }, [watchedProvince, checkoutData]);
+
+  // Xử lý nếu phiên đăng nhập hết hạn
+  useEffect(() => {
+    if (user === undefined) return;
+
+    const from = sessionStorage.getItem("checkoutFrom");
+
+    if (from === "authenticated" && !user) {
+      toast.error("Phiên đăng nhập đã hết hạn! Vui lòng chọn lại sản phẩm.");
+      sessionStorage.removeItem("checkoutData");
+      sessionStorage.removeItem("checkoutFrom");
+      navigate("/cart/detail", { replace: true });
+    }
+  }, [user, navigate]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -158,26 +319,71 @@ export default function Checkout() {
 
   const onSubmit = async (data: CheckoutForm) => {
     try {
-      console.log(data);
-
+      const submitData = {
+        shippingFee: shippingFee,
+        totalAmount: totalAmount,
+        ...data,
+        ...(selectVoucher.voucher && discountAmount
+          ? {
+              voucherCode: selectVoucher.voucher.voucherCode,
+              discountAmount: discountAmount,
+            }
+          : {}),
+      };
       const res = (await axiosConfig.post(
         "/api/v1/orders/create",
-        data
+        submitData
       )) as any;
+
       if (res.status) {
         sessionStorage.removeItem("checkoutData");
+        sessionStorage.removeItem("checkoutFrom");
+        if (!user) {
+          const orderRaw = localStorage.getItem("guest_orders");
+          if (orderRaw) {
+            const guestorder = JSON.parse(orderRaw);
+            guestorder.push(res.data.orderCode);
+            localStorage.setItem("guest_orders", JSON.stringify(guestorder));
+          } else {
+            localStorage.setItem(
+              "guest_orders",
+              JSON.stringify([res.data.orderCode])
+            );
+          }
+        }
+        toast.success(res.data.message || "Đặt hàng thành công!");
         if (data.paymentMethod !== PaymentMethod.COD) {
-          // window.location.href = res.data.paymentUrl;
+          window.location.href = res.data.paymentUrl;
         } else {
-          navigate(`/order-confirmation/${res.data.orderId}`, {
+          navigate(`/order-confirmation/${res.data.orderCode}`, {
             replace: true,
           });
         }
-        await refreshUser();
+
+        if (user) {
+          await refreshUser();
+        }
+      } else {
+        if (res.existingEmail) {
+          setOpenLogin(true);
+        }
       }
     } catch (error: any) {
       console.log(error);
-      toast.error(error.message);
+      toast.error(
+        error.message || "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!"
+      );
+    }
+  };
+
+  const handleActionSuccess = async () => {
+    setOpenActionAddress({
+      open: false,
+      dataUpdate: null,
+      action: "add",
+    });
+    if (user) {
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
     }
   };
 
@@ -266,7 +472,7 @@ export default function Checkout() {
                       type="tel"
                       placeholder="Số điện thoại *"
                       className="w-full h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg focus:outline-none focus:border-cyan-300"
-                      disabled={!!user?.phone}
+                      readOnly={!!user?.phone}
                       {...register("customerPhone", {
                         required: "Vui lòng nhập số điện thoại!",
                       })}
@@ -289,7 +495,7 @@ export default function Checkout() {
                     type="email"
                     placeholder="Email (tùy chọn)"
                     className="w-full h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg focus:outline-none focus:border-cyan-300 md:col-span-2 select-none"
-                    disabled={!!user?.email}
+                    readOnly={!!user?.email}
                     {...register("customerEmail", {
                       required: "Vui lòng nhập email!",
                     })}
@@ -340,12 +546,20 @@ export default function Checkout() {
                           <button
                             type="button"
                             className="flex-1 px-[1rem] py-[.4rem] text-[1.4rem] border text-amber-500 border-amber-400 hover:border-amber-600 hover:text-amber-600 rounded-sm"
-                            onClick={() =>
-                              setIsSelectAddressOpen({
-                                open: true,
-                                selectedId: selectedAddress.id,
-                              })
-                            }
+                            onClick={() => {
+                              if (user) {
+                                setIsSelectAddressOpen({
+                                  open: true,
+                                  selectedId: selectedAddress.id,
+                                });
+                              } else {
+                                setOpenActionAddress({
+                                  open: true,
+                                  action: "edit",
+                                  dataUpdate: selectedAddress,
+                                });
+                              }
+                            }}
                           >
                             Thay đổi
                           </button>
@@ -354,12 +568,23 @@ export default function Checkout() {
                     ) : (
                       <button
                         type="button"
-                        className="flex items-center gap-[.5rem] text-center rounded-md px-[2rem] py-[.5rem] border border-dashed border-cyan-300"
+                        className="flex items-center gap-[.5rem] text-center rounded-md px-[2rem] py-[.6rem] border border-dashed border-blue-500 cursor-pointer hover:border-blue-600 text-blue-500 hover:text-blue-600"
+                        onClick={() => {
+                          if (user) {
+                            setIsSelectAddressOpen({
+                              open: true,
+                              selectedId: null,
+                            });
+                          } else {
+                            setOpenActionAddress({
+                              open: true,
+                              action: "add",
+                              dataUpdate: null,
+                            });
+                          }
+                        }}
                       >
-                        <FontAwesomeIcon
-                          icon={faAdd}
-                          className="text-[2rem] text-red-500"
-                        />
+                        <FontAwesomeIcon icon={faAdd} className="text-[2rem]" />
                         <p className="text-gra-500 text-[1.6rem] select-none">
                           Thêm địa chỉ
                         </p>
@@ -423,7 +648,70 @@ export default function Checkout() {
                 ))}
               </div>
 
-              <div className="border-t-1 border-gray-200 mt-6 pt-6 space-y-6">
+              <div className="py-4 border-t border-b border-gray-200">
+                {selectVoucher.voucher ? (
+                  <div className="flex items-center justify-between">
+                    <p className="text-blue-600">Đã áp dụng voucher:</p>
+                    <div className="flex space-x-4 gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSelectVoucher((prev) => ({ ...prev, open: true }))
+                        }
+                        className="text-blue-600 hover:text-blue-700 cursor-pointer text-[1.4rem]"
+                      >
+                        Đổi
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectVoucher({
+                            open: false,
+                            voucher: null,
+                            conditionValue: checkoutData.subtotal,
+                          });
+                          setdiscountAmount(0);
+                        }}
+                        className="text-red-600 hover:text-red-700 cursor-pointer text-[1.4rem]"
+                      >
+                        Bỏ
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-4 border-t border-b border-gray-200">
+                    {selectVoucher.voucher ? (
+                      <p
+                        className="text-blue-600 cursor-pointer hover:text-blue-700 select-none"
+                        onClick={() =>
+                          setSelectVoucher((prev) => ({ ...prev, open: true }))
+                        }
+                      >
+                        Đã áp dụng 1 voucher
+                      </p>
+                    ) : (
+                      <p
+                        className="text-blue-600 cursor-pointer hover:text-blue-700 select-none"
+                        onClick={() => {
+                          if (user) {
+                            setSelectVoucher({
+                              open: true,
+                              voucher: null,
+                              conditionValue: checkoutData.subtotal,
+                            });
+                          } else {
+                            setShowLogin(true);
+                          }
+                        }}
+                      >
+                        Chọn hoặc nhập mã voucher
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 pt-6 space-y-6">
                 <div className="flex justify-between text-[1.4rem]">
                   <span className="text-gray-800">Tạm tính:</span>
                   <span>{formatPrice(checkoutData.subtotal)}</span>
@@ -431,16 +719,26 @@ export default function Checkout() {
                 <div className="flex justify-between text-[1.4rem] text-gray-800">
                   <span>Phí vận chuyển:</span>
                   <span className="text-green-600">
-                    {checkoutData.shippingFee === 0
-                      ? "Miễn phí"
-                      : formatPrice(checkoutData.shippingFee)}
+                    {isCalculatingShipping ? (
+                      <span className="text-gray-500">Đang tính...</span>
+                    ) : shippingFee === 0 ? (
+                      "Miễn phí"
+                    ) : (
+                      formatPrice(shippingFee)
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between text-[1.4rem] text-gray-800">
+                  <span>Voucher áp dụng:</span>
+                  <span className="text-red-600">
+                    - {formatPrice(discountAmount)}
                   </span>
                 </div>
                 <div className="border-t border-t-gray-400 pt-4">
                   <div className="flex justify-between font-bold">
                     <span>Tổng cộng:</span>
                     <span className="text-red-600">
-                      {formatPrice(checkoutData.total)}
+                      {formatPrice(totalAmount)}
                     </span>
                   </div>
                 </div>
@@ -525,6 +823,35 @@ export default function Checkout() {
           }
         />
       )}
+
+      <ActionAddress
+        openActionAddress={openActionAddress}
+        onClose={() =>
+          setOpenActionAddress({
+            open: false,
+            dataUpdate: null,
+            action: "add",
+          })
+        }
+        onSuccess={handleActionSuccess}
+      />
+
+      <OpenLogin open={openLogin} onClose={() => setOpenLogin(false)} />
+      <AnimatePresence>
+        {selectVoucher.open && (
+          <SelectVoucher
+            open={selectVoucher.open}
+            selected={selectVoucher.voucher}
+            setSelectVoucher={setSelectVoucher}
+            onClose={() =>
+              setSelectVoucher((prev) => ({ ...prev, open: false }))
+            }
+            conditionValue={selectVoucher.conditionValue}
+          />
+        )}
+      </AnimatePresence>
+
+      <RequireLogin open={showLogin} onClose={() => setShowLogin(false)} />
     </div>
   );
 }

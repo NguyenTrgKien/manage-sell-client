@@ -9,7 +9,7 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { Controller, useForm } from "react-hook-form";
-import { PaymentMethod } from "@my-project/shared";
+import { PaymentMethod } from "@nguyentrungkien/shared";
 import { orderSchema } from "./orderSchema";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
@@ -22,8 +22,8 @@ import { toast } from "react-toastify";
 import axiosConfig from "../../../../../configs/axiosConfig";
 
 interface AddOrderProp {
-  openAddOrder: boolean;
-  setOpenAddOrder: Dispatch<SetStateAction<boolean>>;
+  open: boolean;
+  onClose: () => void;
   refetch: () => Promise<UseQueryResult<any>>;
 }
 
@@ -48,7 +48,7 @@ export interface orderItemsForm {
   price: number;
 }
 
-function AddOrder({ openAddOrder, setOpenAddOrder, refetch }: AddOrderProp) {
+function AddOrder({ open, onClose, refetch }: AddOrderProp) {
   const {
     register,
     handleSubmit,
@@ -75,7 +75,7 @@ function AddOrder({ openAddOrder, setOpenAddOrder, refetch }: AddOrderProp) {
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
-  const { data: dataProvinces, isLoading } = useQuery({
+  const { data: dataProvinces } = useQuery({
     queryKey: ["province"],
     queryFn: getProvince,
   });
@@ -143,7 +143,7 @@ function AddOrder({ openAddOrder, setOpenAddOrder, refetch }: AddOrderProp) {
       if (res.status) {
         toast.success(res.message || "Tạo đơn hàng thành công");
         await refetch();
-        setOpenAddOrder(false);
+        onClose();
       } else {
         toast.error(res.message || "Tạo đơn hàng thất bại");
       }
@@ -176,13 +176,13 @@ function AddOrder({ openAddOrder, setOpenAddOrder, refetch }: AddOrderProp) {
 
   return (
     <MotionWrapper
-      open={openAddOrder}
+      open={open}
       className="relative w-[80%] h-auto bg-white rounded-[1rem] shadow-xl px-[3rem] py-[2rem]"
     >
       <div
         className="absolute top-[1.5rem] right-[1.5rem] w-[3rem] h-[3rem] bg-gray-100 flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer"
         onClick={() => {
-          setOpenAddOrder(false);
+          onClose();
           reset();
         }}
       >
@@ -630,7 +630,7 @@ function AddOrder({ openAddOrder, setOpenAddOrder, refetch }: AddOrderProp) {
           <button
             className="px-[2rem] py-[.5rem] rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-600 hover-linear"
             onClick={() => {
-              setOpenAddOrder(false);
+              onClose();
               reset();
             }}
             disabled={isSubmitting}

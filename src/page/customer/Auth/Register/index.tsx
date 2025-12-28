@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useAuth from "../../../../hooks/useAuth";
 import Loading from "../../../../components/Loading";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export interface RegisterResponse {
   status: boolean;
@@ -14,7 +16,6 @@ export interface RegisterForm {
   email: string;
   password: string;
   phone: string;
-  gender: "male" | "female" | "";
   username: string;
 }
 
@@ -29,7 +30,6 @@ function Register() {
       email: "",
       password: "",
       phone: "",
-      gender: "",
       username: "",
     },
   });
@@ -37,17 +37,16 @@ function Register() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const [showAdminModal, setShowAdminModal] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const onSubmit = async (data: RegisterForm) => {
     try {
       await register({
         email: data.email,
         password: data.password,
         phone: data.phone,
-        username: data.phone,
-        gender: data.gender,
+        username: data.username,
       });
-      navigate("/");
+      navigate("/customer/account/profile");
     } catch (error: any) {
       console.log(error);
       toast.error(error.message || "Đăng ký tài khoản thất bại!");
@@ -56,9 +55,9 @@ function Register() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white shadow-2xl rounded-2xl p-[2.5rem] transform transition-all hover:scale-[1.02]">
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-orange-300 to-orange-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+      <div className="w-full max-w-2xl bg-white shadow-2xl rounded-2xl p-[2rem] transform transition-all">
+        <div className="text-center mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-300 to-orange-600 rounded-full mx-auto mb-2 flex items-center justify-center shadow-lg">
             <svg
               className="w-10 h-10 text-white"
               fill="none"
@@ -73,9 +72,7 @@ function Register() {
               />
             </svg>
           </div>
-          <h2 className="text-[2.2rem] font-bold text-gray-800 mb-2">
-            Đăng ký
-          </h2>
+          <h2 className="text-[2rem] font-bold text-gray-800 mb-2">Đăng ký</h2>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -137,20 +134,38 @@ function Register() {
             >
               Mật khẩu
             </label>
-            <input
-              type="password"
-              id="password"
-              placeholder="••••••••"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent outline-none transition"
-              onFocus={() => setErrorMessage(null)}
-              {...registerForm("password", {
-                required: "Mật khẩu không được bỏ trống",
-                minLength: {
-                  value: 6,
-                  message: "Mật khẩu phải ít nhất 6 ký tự",
-                },
-              })}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                placeholder="••••••••"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent outline-none transition"
+                onFocus={() => setErrorMessage(null)}
+                {...registerForm("password", {
+                  required: "Mật khẩu không được bỏ trống",
+                  minLength: {
+                    value: 6,
+                    message: "Mật khẩu phải ít nhất 6 ký tự",
+                  },
+                })}
+              />
+              <button
+                type="button"
+                className="absolute top-[50%] translate-y-[-50%] right-4 cursor-pointer"
+                onClick={() => {
+                  setShowPassword(!showPassword);
+                }}
+              >
+                {showPassword ? (
+                  <FontAwesomeIcon icon={faEye} className="text-gray-600" />
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faEyeSlash}
+                    className="text-gray-600"
+                  />
+                )}
+              </button>
+            </div>
             {errors.password && (
               <p className="text-red-500 text-[1.2rem] mt-1">
                 {errors.password.message}
@@ -188,34 +203,6 @@ function Register() {
             {errors.phone && (
               <p className="text-red-500 text-[1.2rem] mt-1">
                 {errors.phone.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label
-              htmlFor="gender"
-              className="block font-medium text-gray-700 mb-2"
-            >
-              Giới tính
-            </label>
-            <select
-              id="gender"
-              className="w-full px-4 h-[4rem] border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent outline-none transition text-gray-600"
-              onFocus={() => setErrorMessage(null)}
-              {...registerForm("gender", {
-                required: "Vui lòng chọn giới tính",
-              })}
-            >
-              <option value="" hidden>
-                Giới tính
-              </option>
-              <option value="male">Nam</option>
-              <option value="female">Nữ</option>
-            </select>
-            {errors.gender && (
-              <p className="text-red-500 text-[1.2rem] mt-1">
-                {errors.gender.message}
               </p>
             )}
           </div>

@@ -29,7 +29,7 @@ function ActionCategory({
     categoryName: string;
     image: File | undefined | string;
     parentId: number | null;
-    sortOrder: number;
+    sortOrder: number | "";
   }>({
     categoryName: "",
     image: undefined,
@@ -113,15 +113,17 @@ function ActionCategory({
       return;
     }
 
-    if (!data.image) {
-      setError("Vui lòng chọn hình ảnh cho danh mục này!");
+    if (!data.parentId && !data.image) {
+      setError("Vui lòng chọn hình ảnh!");
       return;
     }
     setIsLoading(true);
     try {
       const formData = new FormData();
       formData.append("categoryName", data.categoryName);
-      formData.append("parentId", String(data.parentId || ""));
+      if (data.parentId !== null && data.parentId !== undefined) {
+        formData.append("parentId", String(data.parentId));
+      }
       formData.append("sortOrder", String(data.sortOrder));
       if (data.image instanceof File) {
         formData.append("image", data.image);
@@ -151,6 +153,7 @@ function ActionCategory({
 
   const handleEdit = async () => {
     try {
+      setIsLoading(true);
       const formData = new FormData();
       formData.append("categoryName", data.categoryName);
 
@@ -175,6 +178,8 @@ function ActionCategory({
       }
     } catch (error: any) {
       toast.error(error.message || "Lỗi server!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -242,7 +247,8 @@ function ActionCategory({
               onChange={(e) =>
                 setData((prev) => ({
                   ...prev,
-                  sortOrder: Number(e.target.value) || 0,
+                  sortOrder:
+                    e.target.value === "" ? "" : Number(e.target.value),
                 }))
               }
               className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem] text-gray-600"

@@ -19,10 +19,8 @@ import type {
   VariantColorType,
   VariantSizeType,
 } from "../../utils/types";
-import axiosConfig from "../../configs/axiosConfig";
 import Notify from "../Notify";
-import { useQueryClient } from "@tanstack/react-query";
-import { useUser } from "../../hooks/useUser";
+import { useAddCart } from "../../hooks/useAddCart";
 
 interface AddCartProp {
   showAddCart: { open: boolean; data: ProductT | null };
@@ -32,8 +30,6 @@ interface AddCartProp {
 }
 
 function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
-  const { user } = useUser();
-  const queryClient = useQueryClient();
   const [showImage, setShowImage] = useState<string | null>(null);
   const [selectVariantSize, setSelectVariantSize] =
     useState<VariantSizeType | null>(null);
@@ -41,9 +37,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
     useState<VariantColorType | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showNotify, setShowNotify] = useState(false);
-  const [notifyContent, setNofityContent] = useState("");
+  const { addToCart, isLoading, notify, setNotify } = useAddCart();
   const getMaxInventory = () => {
     const found =
       showAddCart.data &&
@@ -125,60 +119,12 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
     if (quantity <= 0) {
       setMessage("Số lượng sản phẩm ít nhất là 1!");
     }
-    setIsLoading(true);
     const dataRequest = {
       variantId: variantId,
       quantity: quantity,
     };
 
-    try {
-      if (!user) {
-        let existLocalCart = JSON.parse(
-          localStorage.getItem("localCart") || "[]"
-        );
-        const existing = existLocalCart.find(
-          (item: { variantId: number; quantity: number }) =>
-            item.variantId === dataRequest.variantId
-        );
-
-        if (existing) {
-          existing.quantity += quantity;
-        } else {
-          existLocalCart.push(dataRequest);
-        }
-
-        localStorage.setItem("localCart", JSON.stringify(existLocalCart));
-        window.dispatchEvent(new Event("localStorageUpdate"));
-
-        setShowAddCart({ open: false, data: null });
-        setTimeout(() => {
-          setShowNotify(true);
-          setNofityContent("Đã thêm vào giỏ hàng!");
-        }, 500);
-        return;
-      }
-
-      const res = (await axiosConfig.post(
-        "/api/v1/cart/add-to-cart",
-        dataRequest
-      )) as any;
-      if (res.status) {
-        queryClient.invalidateQueries({ queryKey: ["cart"] });
-        setShowAddCart({ open: false, data: null });
-        setTimeout(() => {
-          setShowNotify(true);
-          setNofityContent("Đã thêm vào giỏ hàng!");
-        }, 500);
-      }
-    } catch (error: any) {
-      setShowAddCart({ open: false, data: null });
-      setTimeout(() => {
-        setShowNotify(true);
-        setNofityContent("Đã thêm vào giỏ hàng!");
-      }, 500);
-    } finally {
-      setIsLoading(false);
-    }
+    addToCart([dataRequest]);
   };
 
   return (
@@ -371,6 +317,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
         </div>
         <div className={`flex items-center justify-end mt-[1rem] gap-[1rem]`}>
           <button
+            type="button"
             className="px-[2rem] py-[.6rem] bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-300 cursor-pointer"
             onClick={() => setShowAddCart({ open: false, data: null })}
             disabled={isLoading}
@@ -378,6 +325,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
             Hủy
           </button>
           <button
+            type="button"
             className="px-[2rem] py-[.6rem] bg-red-500 rounded-lg text-white hover:bg-red-600 transition duration-300 cursor-pointer"
             onClick={() => handleAddCart()}
             disabled={isLoading}
@@ -387,10 +335,10 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
         </div>
       </MotionWrapper>
       <Notify
-        showNotify={showNotify}
-        content={notifyContent}
+        showNotify={notify.show}
+        content={notify.content}
         duration={1000}
-        onClose={() => setShowNotify(false)}
+        onClose={() => setNotify({ show: false, content: "" })}
       />
     </>
   );

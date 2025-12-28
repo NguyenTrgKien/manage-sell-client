@@ -39,9 +39,41 @@ export const getPopular = async (queryDefault: {
   return res;
 };
 
-export const getProductDetail = async (id: number) => {
-  console.log(id);
+export const getProductDetail = async (productSlug: string | undefined) => {
+  const res = await axiosConfig.get(`/api/v1/product/detail/${productSlug}`);
 
-  const res = await axiosConfig.get(`/api/v1/product/detail/${id}`);
+  return res;
+};
+
+export const getEvaluate = async ({
+  productId,
+  rating,
+  page,
+  sort,
+}: {
+  productId: number;
+  rating: number | "all";
+  page: number;
+  sort: "newest" | "oldest";
+}) => {
+  const res = await axiosConfig.get(
+    `/api/v1/evaluate/get-evaluate/${productId}`,
+    {
+      params: { rating, page, sort, limit: 20 },
+    }
+  );
+  return res;
+};
+
+export const getProductByCategorySlugs = async (
+  slugs: string[],
+  queryDefault: { page: number; limit: number; price: "asc" | "desc" }
+) => {
+  const res = await axiosConfig.get(`/api/v1/product/by-slugs`, {
+    params: {
+      slugs: slugs.join("/"),
+      ...queryDefault,
+    },
+  });
   return res;
 };

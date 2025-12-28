@@ -3,7 +3,7 @@ import avatarDefault from "../../../assets/images/avatar-default.png";
 import axiosConfig from "../../../configs/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
-import useAuth from "../../../hooks/useAuth";
+import { useUser } from "../../../hooks/useUser";
 
 type UserUpdateData = {
   avatar: File | undefined | string;
@@ -19,7 +19,7 @@ interface UserUpdateResponse {
 }
 
 function Profile() {
-  const { user } = useAuth();
+  const { user } = useUser();
   const [isUpdate, setIsUpdate] = useState(false);
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);

@@ -1,41 +1,42 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MotionWrapper from "../../../../../components/ui/MotionWrapper";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import axiosConfig from "../../../../../configs/axiosConfig";
 import type { UseQueryResult } from "@tanstack/react-query";
 
 interface DeleteOrderProp {
-  openDelete: number | null;
-  setOpenDelete: Dispatch<SetStateAction<number | null>>;
+  open: boolean;
+  onClose: () => void;
+  orderId: number | null;
   refetch: () => Promise<UseQueryResult<any>>;
 }
 
-function DeleteOrder({ openDelete, setOpenDelete, refetch }: DeleteOrderProp) {
+function DeleteOrder({ open, orderId, onClose, refetch }: DeleteOrderProp) {
   const [isLoading, setIsLoading] = useState(false);
 
   const deleteStatus = async () => {
-    if (!openDelete) {
+    if (!orderId) {
       toast.error("Không có id của sản phẩm!");
       return;
     }
     setIsLoading(true);
     try {
       const res = (await axiosConfig.delete(
-        `/api/v1/orders/delete-order/${openDelete}`
+        `/api/v1/orders/delete-order/${orderId}`
       )) as any;
       if (res.status) {
         toast.success(res.message || "Xóa đơn thành công!");
         await refetch();
-        setOpenDelete(null);
+        onClose();
       } else {
         toast.error(res.message || "Xóa đơn không thành công!");
-        setOpenDelete(null);
+        onClose();
       }
     } catch (error: any) {
       console.log(error);
-      setOpenDelete(null);
+      onClose();
       toast.error(error.message || "Lỗi không thể xóa đơn hàng!");
     } finally {
       setIsLoading(false);
@@ -44,12 +45,12 @@ function DeleteOrder({ openDelete, setOpenDelete, refetch }: DeleteOrderProp) {
 
   return (
     <MotionWrapper
-      open={!!openDelete}
+      open={open}
       className="relative w-[50rem] h-auto bg-white rounded-[1rem] shadow-xl px-[3rem] py-[2.5rem]"
     >
       <div
         className="absolute top-[1.5rem] right-[1.5rem] w-[3rem] h-[3rem] bg-gray-100 flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer"
-        onClick={() => setOpenDelete(null)}
+        onClick={() => onClose()}
       >
         <FontAwesomeIcon icon={faXmark} className="text-gray-500" />
       </div>
@@ -60,7 +61,7 @@ function DeleteOrder({ openDelete, setOpenDelete, refetch }: DeleteOrderProp) {
         <button
           className="px-[2rem] py-[.5rem] rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-600 hover-linear"
           onClick={() => {
-            setOpenDelete(null);
+            onClose();
           }}
           disabled={isLoading}
         >

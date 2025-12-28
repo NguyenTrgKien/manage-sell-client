@@ -6,22 +6,61 @@ import {
   faCheckCircle,
   faBoxOpen,
   faEye,
+  faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { OrderStatus, PaymentMethod } from "@my-project/shared";
+import {
+  getPaymentMethod,
+  getShippingProvider,
+  OrderStatus,
+  ShippingProvider,
+} from "@nguyentrungkien/shared";
 import type { OrderType } from "..";
 import { getStatusConfig } from "../../../../../configs/getOrderStatusConfig";
-import { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import UpdateOrder from "../UpdateOrder";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useReactToPrint } from "react-to-print";
 import InvoicePrint from "../../../../../components/InvoicePrint";
+import { toast } from "react-toastify";
+import axiosConfig from "../../../../../configs/axiosConfig";
 
 interface OrderDetailProps {
   orderDetail: OrderType;
   setOrderDetail: (order: OrderType | null) => void;
   refetch: () => Promise<UseQueryResult<any>>;
 }
+
+const steps = [
+  {
+    key: OrderStatus.PENDING,
+    label: "Chờ xác nhận",
+    desc: "Đơn hàng đang chờ xác nhận",
+    icon: faBox,
+    color: "bg-blue-500",
+  },
+  {
+    key: OrderStatus.CONFIRMED,
+    label: "Đã xác nhận",
+    desc: "Đơn hàng đang được chuẩn bị",
+    icon: faBoxOpen,
+    color: "bg-orange-500",
+  },
+  {
+    key: OrderStatus.SHIPPING,
+    label: "Đang giao hàng",
+    desc: "Đơn hàng đang được vận chuyển",
+    icon: faTruck,
+    color: "bg-purple-500",
+  },
+  {
+    key: OrderStatus.COMPLETED,
+    label: "Đã giao hàng",
+    desc: "Đơn hàng đã được giao thành công",
+    icon: faCheckCircle,
+    color: "bg-green-500",
+  },
+];
 
 function OrderDetail({
   orderDetail,
@@ -33,6 +72,17 @@ function OrderDetail({
     data: OrderType | null;
   }>({ open: false, data: null });
   const printRef = useRef<HTMLDivElement | null>(null);
+  const [dataUpdateShipping, setDataUpdateShipping] = useState<{
+    shippingProvider: ShippingProvider | "";
+    trackingNumber: string;
+    shippingNote: string;
+  }>({
+    shippingProvider: "",
+    trackingNumber: "",
+    shippingNote: "",
+  });
+  const [errors, setErrors] = useState<string | null>(null);
+  const [editShipping, setEditShipping] = useState(true);
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
@@ -46,40 +96,57 @@ function OrderDetail({
     // `,
   });
 
-  const totalAmount = orderDetail.orderItems.reduce((total, item) => {
+  useEffect(() => {
+    console.log(orderDetail);
+
+    if (orderDetail.shippingProvider && orderDetail.trackingNumber) {
+      setDataUpdateShipping({
+        shippingProvider: orderDetail.shippingProvider || "",
+        shippingNote: orderDetail.shippingNote || "",
+        trackingNumber: orderDetail.trackingNumber || "",
+      });
+      setEditShipping(false);
+    }
+  }, [orderDetail]);
+  console.log(editShipping);
+
+  const handleChangeShipping = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setDataUpdateShipping((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleUpdateShipping = async () => {
+    try {
+      if (dataUpdateShipping.shippingProvider === "") {
+        setErrors("Vui lòng chọn nhà vận chuyển!");
+        return;
+      }
+      if (dataUpdateShipping.trackingNumber === "") {
+        setErrors("Vui lòng nhập mã đơn vận!");
+        return;
+      }
+      const res = (await axiosConfig.patch(
+        `/api/v1/orders/update-shipping/${orderDetail.id}`,
+        dataUpdateShipping
+      )) as any;
+      if (res.status) {
+        toast.success(res.message);
+        setEditShipping(false);
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const subTotal = orderDetail.orderItems.reduce((total, item) => {
     return total + item.price * item.quantity;
   }, 0);
-
-  const steps = [
-    {
-      key: OrderStatus.PENDING,
-      label: "Chờ xác nhận",
-      desc: "Đơn hàng đang chờ xác nhận",
-      icon: faBox,
-      color: "bg-blue-500",
-    },
-    {
-      key: OrderStatus.CONFIRMED,
-      label: "Đã xác nhận",
-      desc: "Đơn hàng đang được chuẩn bị",
-      icon: faBoxOpen,
-      color: "bg-orange-500",
-    },
-    {
-      key: OrderStatus.SHIPPING,
-      label: "Đang giao hàng",
-      desc: "Đơn hàng đang được vận chuyển",
-      icon: faTruck,
-      color: "bg-purple-500",
-    },
-    {
-      key: OrderStatus.COMPLETED,
-      label: "Đã giao hàng",
-      desc: "Đơn hàng đã được giao thành công",
-      icon: faCheckCircle,
-      color: "bg-green-500",
-    },
-  ];
 
   return (
     <div className="mt-[1rem]">
@@ -155,6 +222,107 @@ function OrderDetail({
                   <span className="text-gray-800 flex-1 italic">
                     {orderDetail.customerNote}
                   </span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-[2rem] border border-gray-200">
+            <h4 className="text-[1.6rem] font-semibold text-gray-700 mb-[1.5rem]">
+              Thông tin vận chuyển
+            </h4>
+            <div className="space-y-[1rem] text-[1.4rem]">
+              <div className="flex items-start gap-[2rem] space-y-2.5">
+                <div className="w-full">
+                  <label htmlFor="shippingProvider">Nhà vận chuyển</label>
+                  <select
+                    name="shippingProvider"
+                    id="shippingProvider"
+                    value={dataUpdateShipping.shippingProvider}
+                    className="w-full h-[4rem] px-[1.5rem] rounded-md border border-gray-300 mt-1 outline-none"
+                    onChange={(e) => handleChangeShipping(e)}
+                    disabled={!editShipping}
+                  >
+                    <option value="">-Chọn nhà vận chuyển-</option>
+                    {Object.entries(getShippingProvider).map(
+                      ([key, value], index) => {
+                        return (
+                          <option key={index} value={key}>
+                            {value.text}
+                          </option>
+                        );
+                      }
+                    )}
+                  </select>
+                </div>
+                <div className="w-full">
+                  <label htmlFor="trackingNumber">Mã vận đơn</label>
+                  <input
+                    type="text"
+                    className="w-full h-[4rem] px-[1.5rem] rounded-md border border-gray-300 mt-1 outline-none"
+                    id="trackingNumber"
+                    name="trackingNumber"
+                    value={dataUpdateShipping.trackingNumber}
+                    placeholder="Nhập mã vận đơn..."
+                    onChange={(e) => handleChangeShipping(e)}
+                    disabled={!editShipping}
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <label htmlFor="shippingNote">Ghi chú vận chuyển</label>
+                <input
+                  type="text"
+                  className="w-full h-[4rem] px-[1.5rem] rounded-md border border-gray-300 mt-1 outline-none"
+                  id="shippingNote"
+                  name="shippingNote"
+                  value={dataUpdateShipping.shippingNote}
+                  placeholder="Ghi chú vận chuyển..."
+                  onChange={(e) => handleChangeShipping(e)}
+                  disabled={!editShipping}
+                />
+              </div>
+              {errors && <p className="text-red-500">{errors}</p>}
+              {orderDetail.shippingProvider && orderDetail.trackingNumber ? (
+                <div className="flex justify-end items-center gap-[1rem] mt-[2rem]">
+                  {orderDetail.status !== OrderStatus.COMPLETED && (
+                    <>
+                      {editShipping ? (
+                        <>
+                          <button
+                            className="text-white px-6 py-3 bg-green-500 rounded-lg hover:bg-green-600"
+                            onClick={handleUpdateShipping}
+                          >
+                            Lưu thay đổi
+                          </button>
+                          <button
+                            className="text-gray-600 px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300"
+                            onClick={() => setEditShipping(false)}
+                          >
+                            Hủy
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          className="text-white px-4 py-3 bg-amber-500 rounded-lg hover:bg-amber-600 flex items-center gap-2"
+                          onClick={() => setEditShipping(true)}
+                        >
+                          <FontAwesomeIcon icon={faEdit} />
+                          Chỉnh sửa
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="flex justify-end items-center gap-[1rem] mt-[2rem]">
+                  {orderDetail.status !== OrderStatus.COMPLETED && (
+                    <button
+                      className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-green-500 rounded-lg hover:bg-green-600 cursor-pointer hover-linear"
+                      onClick={() => handleUpdateShipping()}
+                    >
+                      Cập nhật vận chuyển
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -245,12 +413,7 @@ function OrderDetail({
             <div className="space-y-[1.2rem] text-[1.4rem]">
               <div className="flex justify-between">
                 <span className="text-gray-600">Tạm tính:</span>
-                <span className="text-gray-800">
-                  {Intl.NumberFormat("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  }).format(orderDetail.totalAmount)}
-                </span>
+                <span className="text-gray-800">{subTotal}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Phí vận chuyển:</span>
@@ -258,7 +421,7 @@ function OrderDetail({
                   {Intl.NumberFormat("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                  }).format(0)}
+                  }).format(orderDetail.shippingFee)}
                 </span>
               </div>
               {orderDetail.couponCode && (
@@ -275,7 +438,7 @@ function OrderDetail({
                   {Intl.NumberFormat("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                  }).format(totalAmount)}
+                  }).format(orderDetail.totalAmount)}
                 </span>
               </div>
               <div className="border-t border-gray-200 pt-[1.2rem]">
@@ -283,12 +446,7 @@ function OrderDetail({
                   Phương thức thanh toán:
                 </div>
                 <div className="font-semibold text-gray-800">
-                  {orderDetail.paymentMethod === PaymentMethod.COD
-                    ? "Thanh toán khi nhận hàng (COD)"
-                    : orderDetail.paymentMethod === PaymentMethod.MOMO
-                      ? "Thanh toán qua ví MOMO"
-                      : orderDetail.paymentMethod === PaymentMethod.VNPAY &&
-                        "Thanh toán qua VNPAY"}
+                  {getPaymentMethod[orderDetail.paymentMethod].text}
                 </div>
               </div>
             </div>
@@ -337,30 +495,31 @@ function OrderDetail({
               </div>
             </div>
           </div>
+          <div className="flex justify-end items-center gap-[1rem] mt-[2rem]">
+            {orderDetail.status !== OrderStatus.COMPLETED && (
+              <button
+                className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-green-500 rounded-lg hover:bg-green-600 cursor-pointer hover-linear"
+                onClick={() => setOpenUpdate({ open: true, data: orderDetail })}
+              >
+                <FontAwesomeIcon icon={faEye} />
+                Cập nhật
+              </button>
+            )}
+            <button
+              className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-[var(--main-button)] rounded-lg hover:bg-[var(--main-button-hover)] cursor-pointer hover-linear"
+              onClick={() => handlePrint()}
+            >
+              <FontAwesomeIcon icon={faPrint} />
+              In đơn
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="flex justify-end items-center gap-[1rem] mt-[2rem]">
-        {orderDetail.status !== OrderStatus.COMPLETED && (
-          <button
-            className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-green-500 rounded-lg hover:bg-green-600 cursor-pointer hover-linear"
-            onClick={() => setOpenUpdate({ open: true, data: orderDetail })}
-          >
-            <FontAwesomeIcon icon={faEye} />
-            Cập nhật
-          </button>
-        )}
-        <button
-          className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-[var(--main-button)] rounded-lg hover:bg-[var(--main-button-hover)] cursor-pointer hover-linear"
-          onClick={() => handlePrint()}
-        >
-          <FontAwesomeIcon icon={faPrint} />
-          In đơn
-        </button>
       </div>
       {
         <UpdateOrder
-          openUpdate={openUpdate}
-          setOpenUpdate={setOpenUpdate}
+          open={openUpdate.open}
+          orderData={openUpdate.data}
+          onClose={() => setOpenUpdate({ open: false, data: null })}
           refetch={refetch}
         />
       }

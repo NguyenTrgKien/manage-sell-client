@@ -1,9 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import LoginAdmin from "./page/Dashboard/auth/LoginAdmin";
-import HomePage from "./page/customer/Home";
 import Login from "./page/customer/Auth/Login/login";
-import CustomerLayout from "./page/customer/CustomerLayout";
 import AboutPage from "./page/customer/About";
 import CustomerNoSidebar from "./page/customer/CustomerNoSidebar";
 import Dashboard from "./page/Dashboard";
@@ -15,14 +13,13 @@ import Order from "./page/Dashboard/order/ListOrders";
 import Staffs from "./page/Dashboard/staffs";
 import NotFound from "./components/NotFound";
 import PrivateRoute from "./components/PrivateRoute";
-import { UserRole } from "@my-project/shared";
+import { UserRole } from "@nguyentrungkien/shared";
 import Unauthorized from "./components/unauthorized";
 import CustomerRoute from "./components/CustomerRoute";
 import Register from "./page/customer/Auth/Register";
 import CustomerProfile from "./page/customer/CustomerProfile";
 import CustomerOnlyHeader from "./page/customer/CustomerOnlyHeader";
 import CustomerOrder from "./page/customer/CustomerProfile/CustomerOrder";
-import LikeOrder from "./page/customer/CustomerProfile/likeOrder";
 import CartDetail from "./page/customer/CartDetail";
 import Checkout from "./page/customer/Checkout";
 import Address from "./page/customer/CustomerProfile/Account/Address";
@@ -31,6 +28,16 @@ import ProfileCustomer from "./page/customer/CustomerProfile/Account/Profile";
 import DashboardLoginRoute from "./components/DashboardLoginRoute";
 import OrderConfirmation from "./page/customer/OrderConfirmation";
 import ProductDetail from "./page/customer/ProductDetail";
+import LookUpOrder from "./page/customer/LookUpOrder";
+import RedirectUrlMomo from "./page/customer/RedirectUrlMomo";
+import BannerSlide from "./page/Dashboard/banner-slide";
+import Main from "./page/customer/Main";
+import HomePage from "./page/customer/HomePage";
+import CategoryLayout from "./page/customer/CategoryLayout";
+import ProductList from "./page/customer/ProductList";
+import Discount from "./page/Dashboard/Discount";
+import FavoriteProduct from "./page/customer/CustomerProfile/favoriteProduct";
+import MyVoucher from "./page/customer/CustomerProfile/MyVoucher";
 
 function App() {
   return (
@@ -40,12 +47,18 @@ function App() {
           path="/"
           element={
             <CustomerRoute>
-              <CustomerLayout />
+              <HomePage />
             </CustomerRoute>
           }
         >
-          <Route index element={<HomePage />} />
+          <Route index element={<Main />} />
           <Route path="about" element={<AboutPage />} />
+        </Route>
+
+        <Route path="category" element={<CategoryLayout />}>
+          <Route path=":slug1" element={<ProductList />} />
+          <Route path=":slug1/:slug2" element={<ProductList />} />
+          <Route path=":slug1/:slug2/:slug3" element={<ProductList />} />
         </Route>
 
         {/* Các route không có Sidebar và header */}
@@ -73,16 +86,22 @@ function App() {
             <Route path="account/privacy" element={<Privacy />} />
 
             <Route path="order" element={<CustomerOrder />} />
-            <Route path="like" element={<LikeOrder />} />
+            <Route path="my-voucher" element={<MyVoucher />} />
+            <Route path="favorite" element={<FavoriteProduct />} />
           </Route>
 
           <Route path="cart/detail" element={<CartDetail />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="payment-momo-redirect" element={<RedirectUrlMomo />} />
           <Route
-            path="order-confirmation/:orderid"
+            path="order-confirmation/:orderCode"
             element={<OrderConfirmation />}
           />
-          <Route path="product-detail/:productid" element={<ProductDetail />} />
+          <Route path="look-up-order" element={<LookUpOrder />} />
+          <Route
+            path="product-detail/:productSlug"
+            element={<ProductDetail />}
+          />
         </Route>
 
         <Route
@@ -102,6 +121,8 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="orders/list-order" element={<Order />} />
           <Route path="staff" element={<Staffs />} />
+          <Route path="banner-slide" element={<BannerSlide />} />
+          <Route path="discount" element={<Discount />} />
         </Route>
 
         <Route

@@ -5,6 +5,7 @@ import {
   faEdit,
   faExclamationTriangle,
   faFilter,
+  faFolder,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -111,11 +112,20 @@ function Categories() {
               />
             </button>
 
-            <img
-              src={item.image || "/placeholder.jpg"}
-              alt={item.categoryName}
-              className="w-[5rem] h-[5rem] rounded-lg object-cover border border-gray-300 shadow-sm"
-            />
+            {item.image ? (
+              <img
+                src={item.image}
+                alt={item.categoryName}
+                className="w-[5rem] h-[5rem] rounded-lg object-cover"
+              />
+            ) : (
+              <div className="w-[5rem] h-[5rem] rounded-lg bg-gray-100 flex items-center justify-center">
+                <FontAwesomeIcon
+                  icon={faFolder}
+                  className="text-[2rem] text-gray-600"
+                />
+              </div>
+            )}
 
             <div className="flex-1">
               <h4 className={`text-gray-800 text-[1.6rem]`}>

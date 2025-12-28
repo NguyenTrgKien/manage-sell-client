@@ -279,7 +279,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
             className="px-[2rem] h-[3.5rem] flex items-center rounded-md from-pink-400 to-red-500 bg-gradient-to-r hover:from-pink-500 hover:to-red-600 text-white transition duration-300"
             onClick={() => {
               setShowCart(false);
-              navigate("cart/detail");
+              navigate("/cart/detail");
             }}
           >
             Chi tiết giỏ hàng

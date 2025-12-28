@@ -6,7 +6,9 @@ import type { UserType } from "../utils/userType";
 const fetchUser = async (): Promise<UserType | null> => {
   try {
     const res = (await axiosConfig.get("/api/v1/auth/me")) as any;
-    if (!res?.user) return null;
+    if (!res?.user) {
+      return null;
+    }
     return res.user;
   } catch (err: any) {
     if (err?.response?.status === 401) return null;

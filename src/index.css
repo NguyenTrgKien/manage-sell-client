@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   --main-button: #1e90ff;
@@ -19,6 +20,7 @@ html {
 body {
   font-size: 1.6rem;
   background-color: #f5f5fa;
+  color: #4b5563;
 }
 
 .hover-linear {
@@ -138,7 +140,51 @@ body {
   border: 1px solid #f1f1f1;
 }
 
+.shadow-container {
+  box-shadow: 0rem 0.2rem 2rem #ccc;
+}
 
-.shadow-container{
-  box-shadow: 0rem .2rem 2rem #ccc;
+.ProseMirror h1 {
+  font-size: 2.6rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror h2 {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror h3 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Css cho nav đơn hàng  */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+@media (max-width: 768px) {
+  .snap-x {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-start {
+    scroll-snap-align: start;
+  }
+
+  .snap-mandatory {
+    scroll-snap-stop: always;
+  }
 }

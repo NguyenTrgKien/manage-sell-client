@@ -1,54 +1,53 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MotionWrapper from "../../../../../components/ui/MotionWrapper";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState } from "react";
 import type { OrderType } from "..";
 import { getStatusConfig } from "../../../../../configs/getOrderStatusConfig";
-import { OrderStatus } from "@my-project/shared";
+import { OrderStatus } from "@nguyentrungkien/shared";
 import { toast } from "react-toastify";
 import axiosConfig from "../../../../../configs/axiosConfig";
 import type { UseQueryResult } from "@tanstack/react-query";
 
 interface UpdateOrderProp {
-  openUpdate: { open: boolean; data: OrderType | null };
-  setOpenUpdate: Dispatch<
-    SetStateAction<{ open: boolean; data: OrderType | null }>
-  >;
+  open: boolean;
+  onClose: () => void;
+  orderData: OrderType | null;
   refetch: () => Promise<UseQueryResult<any>>;
 }
 
-function UpdateOrder({ openUpdate, setOpenUpdate, refetch }: UpdateOrderProp) {
+function UpdateOrder({ open, onClose, orderData, refetch }: UpdateOrderProp) {
   const [status, setStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (openUpdate.data) {
-      setStatus(openUpdate.data.status);
+    if (orderData) {
+      setStatus(orderData.status);
     }
-  }, [openUpdate.data]);
+  }, [orderData]);
 
   const updateStatus = async () => {
-    if (!openUpdate.data?.id) {
+    if (!orderData?.id) {
       toast.error("Không có id của sản phẩm"!);
       return;
     }
     setIsLoading(true);
     try {
       const res = (await axiosConfig.patch(
-        `/api/v1/orders/update-status/${openUpdate.data?.id}`,
+        `/api/v1/orders/update-status/${orderData?.id}`,
         { status }
       )) as any;
       if (res.status) {
         toast.success(res.message || "Cập nhật thành công!");
         await refetch();
-        setOpenUpdate({ open: false, data: null });
+        onClose();
       } else {
         toast.error(res.message || "Cập nhật không thành công!");
-        setOpenUpdate({ open: false, data: null });
+        onClose();
       }
     } catch (error: any) {
       console.log(error);
-      setOpenUpdate({ open: false, data: null });
+      onClose();
       toast.error(error.message || "Lỗi không thể cập nhật trạng thái!");
     } finally {
       setIsLoading(false);
@@ -57,12 +56,12 @@ function UpdateOrder({ openUpdate, setOpenUpdate, refetch }: UpdateOrderProp) {
 
   return (
     <MotionWrapper
-      open={openUpdate.open}
+      open={open}
       className="relative w-[50rem] h-auto bg-white rounded-[1rem] shadow-xl px-[3rem] py-[2rem]"
     >
       <div
         className="absolute top-[1.5rem] right-[1.5rem] w-[3rem] h-[3rem] bg-gray-100 flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer"
-        onClick={() => setOpenUpdate({ open: false, data: null })}
+        onClick={() => onClose()}
       >
         <FontAwesomeIcon icon={faXmark} className="text-gray-500" />
       </div>
@@ -93,7 +92,7 @@ function UpdateOrder({ openUpdate, setOpenUpdate, refetch }: UpdateOrderProp) {
         <button
           className="px-[2rem] py-[.5rem] rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-600 hover-linear"
           onClick={() => {
-            setOpenUpdate({ open: false, data: null });
+            onClose();
           }}
           disabled={isLoading}
         >

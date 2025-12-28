@@ -12,6 +12,7 @@ function RenderParentOption({
   allCategories,
   level = 0,
 }: RenderParentOptionProp) {
+  if (!category.isActive) return null;
   const children = allCategories.filter((c) => c.parentId === category.id);
   const paddingLeft = level * 24;
 

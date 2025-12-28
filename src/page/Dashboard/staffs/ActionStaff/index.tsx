@@ -1,6 +1,6 @@
 import { faAdd, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Gender, StaffPosition, UserRole } from "@my-project/shared";
+import { Gender, StaffPosition, UserRole } from "@nguyentrungkien/shared";
 import React, {
   useEffect,
   useState,

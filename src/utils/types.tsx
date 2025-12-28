@@ -9,6 +9,11 @@ export interface ProductT {
   publicId: number;
   listImageProduct: ImageProduct[];
   variants: VariantsType[];
+  isActive: boolean;
+  reviewCount?: number;
+  averageRating: number;
+  soldCount: number;
+  slug: string;
 }
 
 interface ImageProduct {
@@ -20,10 +25,12 @@ export interface CategoriesType {
   id: number;
   categoryName: string;
   isActive: boolean;
-  parentId: number;
+  parent: CategoriesType;
   createdAt: string;
   updatedAt: string;
   image: string;
+  slug: string;
+  children: CategoriesType[];
 }
 
 export interface VariantsType {

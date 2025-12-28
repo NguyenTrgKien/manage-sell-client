@@ -19,7 +19,7 @@ import {
   getStaffPosition,
   getStaffStatus,
 } from "../../../../configs/staffEnumConfig";
-import { StaffStatus } from "@my-project/shared";
+import { StaffStatus } from "@nguyentrungkien/shared";
 import MotionWrapper from "../../../../components/ui/MotionWrapper";
 
 interface ViewStaffDetailProps {

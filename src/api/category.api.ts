@@ -17,3 +17,11 @@ export const getAllCategory = async () => {
   const res = await axiosConfig.get("/api/v1/category/get-all-category");
   return res.data;
 };
+
+export const getCategoryBySlugs = async (slugs: string[]) => {
+  const slugsPath = slugs.join("/");
+  const res = await axiosConfig.get(`/api/v1/category/get-category-by-slugs`, {
+    params: { slugs: slugsPath },
+  });
+  return res.data;
+};
