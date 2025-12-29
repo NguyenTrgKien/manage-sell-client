@@ -3,26 +3,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { UserRole } from "@nguyentrungkien/shared";
 import avatarDefault from "../../../../assets/images/avatar-default.png";
 import { useEffect, useRef, useState } from "react";
-import axiosConfig from "../../../../configs/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../../../hooks/useUser";
+import useAuth from "../../../../hooks/useAuth";
 
 function HeaderDashboard() {
   const { user } = useUser();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const handleLogout = async () => {
-    try {
-      const res = await axiosConfig.get("/api/v1/auth/logout");
-      if (res.status) {
-        localStorage.removeItem("user");
-        navigate("/dashboard/login");
-      }
-    } catch (error) {
-      console.log("Lỗi khi đăng xuất", error);
-    }
+    logout();
+    navigate("/");
   };
 
   useEffect(() => {
