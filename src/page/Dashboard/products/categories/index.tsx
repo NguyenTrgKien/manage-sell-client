@@ -208,8 +208,8 @@ function Categories() {
   };
 
   return (
-    <>
-      <div className="flex justify-between items-center pb-6 border-b border-gray-300">
+    <div className="w-full h-[calc(100vh-10rem)] overflow-y-auto bg-white shadow-lg rounded-[1rem] flex flex-col p-[2rem]">
+      <div className="sticky top-0 bg-white flex justify-between items-center pb-6 border-b border-gray-300">
         <h3 className="text-3xl font-bold text-gray-700">Danh mục</h3>
         <button
           onClick={() => setOpenAction({ action: "add" })}
@@ -320,7 +320,7 @@ function Categories() {
           refetch={refetch}
         />
       )}
-    </>
+    </div>
   );
 }
 

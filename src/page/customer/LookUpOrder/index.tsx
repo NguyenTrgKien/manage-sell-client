@@ -20,7 +20,6 @@ import type {
   OrderType,
 } from "../../Dashboard/order/ListOrders";
 import ChangeAddressOrder from "../../../components/ChangeAddressOrder";
-import { useQuery } from "@tanstack/react-query";
 import { lookup } from "../../../api/order.api";
 import CancelOrder from "../../../components/CancelOrder";
 import { useAddCart } from "../../../hooks/useAddCart";
@@ -35,6 +34,11 @@ function LookUpOrder() {
   const [activeTab, setActiveTab] = useState<"search" | "history">("search");
   const { addToCart } = useAddCart();
   const navigate = useNavigate();
+
+  const [orderData, setOrderData] = useState<OrderType | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [openReview, setOpenReview] = useState<{
     open: boolean;
     data: null | orderItemsType;
@@ -62,7 +66,6 @@ function LookUpOrder() {
   useEffect(() => {
     if (urlCode !== searchCode) {
       setSearchCode(urlCode);
-      refetchOrder();
     }
   }, [urlCode]);
 
@@ -70,27 +73,47 @@ function LookUpOrder() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const {
-    data: dataOrder = null,
-    isLoading: isLoadingOrder,
-    isError: error,
-    refetch: refetchOrder,
-  } = useQuery({
-    queryKey: ["lookupOrder", searchCode],
-    queryFn: ({ queryKey }) => lookup(queryKey[1]),
-    enabled: !!searchCode,
-    retry: false,
-  });
+  const fetchOrder = async (code: string) => {
+    if (!code.trim()) {
+      setError("Vui lòng nhập mã đơn hàng!");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setOrderData(null);
+
+    try {
+      const data = await lookup(code);
+      setOrderData(data);
+    } catch (err: any) {
+      setError(
+        err.message ||
+          "Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn hàng."
+      );
+      setOrderData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSearch = (code?: string) => {
     const finalCode = code ?? searchCode;
+
     if (!finalCode.trim()) {
       toast.error("Vui lòng nhập mã đơn hàng!");
       return;
     }
+
     setSearchCode(finalCode);
     setSearchParams({ code: finalCode.trim() });
-    refetchOrder();
+    fetchOrder(finalCode.trim());
+  };
+
+  const refetchOrder = () => {
+    if (searchCode.trim()) {
+      fetchOrder(searchCode.trim());
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -115,18 +138,22 @@ function LookUpOrder() {
     setSearchCode(value);
     if (!value.trim()) {
       setSearchParams({});
+      setOrderData(null);
+      setError(null);
     }
   };
 
   const handleOpenChangeAddress = () => {
+    if (!orderData) return;
+
     const dataAddress = {
-      orderCode: dataOrder?.dataOrderCode,
-      recipientName: dataOrder?.customerName,
-      addressDetail: dataOrder?.customerAddress,
-      phone: dataOrder?.customerPhone,
-      province: dataOrder?.customerProvince,
-      district: dataOrder?.customerDistrict,
-      ward: dataOrder?.customerWard,
+      orderCode: orderData?.orderCode,
+      recipientName: orderData?.customerName,
+      addressDetail: orderData?.customerAddress,
+      phone: orderData?.customerPhone,
+      province: orderData?.customerProvince,
+      district: orderData?.customerDistrict,
+      ward: orderData?.customerWard,
     };
     setOpenChangeAddress({
       open: true,
@@ -162,6 +189,11 @@ function LookUpOrder() {
       toast.error("Thêm sản phẩm vào giỏ hàng thất bại!");
     }
   };
+
+  const isPaid =
+    orderData && orderData.paymentMethod === PaymentMethod.COD
+      ? orderData.status === OrderStatus.COMPLETED
+      : Boolean(orderData?.payment);
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-[12rem]">
@@ -201,14 +233,19 @@ function LookUpOrder() {
                   onChange={(e) => handleInputChange(e)}
                   placeholder="Nhập mã đơn hàng (VD: ORDER-abc123)"
                   className="w-[40rem] h-[4rem] px-6 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-[1.4rem]"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch();
+                    }
+                  }}
                 />
                 <button
                   type="button"
-                  disabled={isLoadingOrder}
+                  disabled={isLoading}
                   className="w-[12rem] h-[4rem] bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-bold rounded-lg transition flex items-center justify-center gap-2"
                   onClick={() => handleSearch()}
                 >
-                  {isLoadingOrder ? (
+                  {isLoading ? (
                     <>
                       <FontAwesomeIcon icon={faSpinner} spin />
                       Đang tìm...
@@ -232,7 +269,7 @@ function LookUpOrder() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6 flex items-center gap-3">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6 flex items-center justify-center gap-3">
                 <FontAwesomeIcon
                   icon={faExclamationTriangle}
                   className="text-2xl text-red-500"
@@ -241,41 +278,48 @@ function LookUpOrder() {
               </div>
             )}
 
-            {isLoadingOrder ? (
-              <div>Đang tải dữ liệu...</div>
-            ) : dataOrder ? (
+            {isLoading ? (
+              <div className="flex justify-center items-center py-10">
+                <FontAwesomeIcon
+                  icon={faSpinner}
+                  spin
+                  className="text-3xl text-blue-500 mr-3"
+                />
+                <span className="text-lg">Đang tải dữ liệu...</span>
+              </div>
+            ) : orderData ? (
               <>
                 <div className="space-y-6">
                   <div className="bg-white rounded-lg shadow-lg p-8">
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <h2 className=" font-bold ">
-                          Đơn hàng: {dataOrder.orderCode}
+                          Đơn hàng: {orderData.orderCode}
                         </h2>
                         <p className="text-gray-600 text-[1.4rem] mt-1">
-                          Đặt ngày {formatDate(dataOrder.createdAt)}
+                          Đặt ngày {formatDate(orderData.createdAt)}
                         </p>
                       </div>
                       <span
-                        className={`px-12 py-2 rounded-lg font-medium ${getStatusConfig(dataOrder.status as OrderStatus).bgColor} ${getStatusConfig(dataOrder.status as OrderStatus).textColor}`}
+                        className={`px-12 py-2 rounded-lg font-medium ${getStatusConfig(orderData.status as OrderStatus).bgColor} ${getStatusConfig(orderData.status as OrderStatus).textColor}`}
                       >
-                        {getStatusConfig(dataOrder.status as OrderStatus).text}
+                        {getStatusConfig(orderData.status as OrderStatus).text}
                       </span>
                     </div>
 
-                    {dataOrder?.status === OrderStatus.CANCELLED ? (
+                    {orderData?.status === OrderStatus.CANCELLED ? (
                       <div className="w-full py-[2rem] border border-amber-200 bg-amber-50 px-[2rem]">
                         <p className="text-[1.8rem] text-red-500">
                           Đã hủy đơn hàng
                         </p>
-                        <p>lúc {formatDate(dataOrder.updatedAt)}</p>
+                        <p>lúc {formatDate(orderData.updatedAt)}</p>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center space-x-5 mt-[3rem]">
                         {steps.map((step, index) => {
                           const isActive =
                             steps.findIndex(
-                              (s) => s.key === dataOrder.status
+                              (s) => s.key === orderData.status
                             ) >= index;
                           return (
                             <div key={step.key} className="flex items-center">
@@ -319,7 +363,7 @@ function LookUpOrder() {
                           Họ tên:
                         </span>
                         <span className="block text-end">
-                          {dataOrder.customerName}
+                          {orderData.customerName}
                         </span>
                       </div>
                       <div className="flex items-center">
@@ -327,7 +371,7 @@ function LookUpOrder() {
                           Số điện thoại:
                         </span>
                         <span className="block text-end">
-                          {maskPhone(dataOrder.customerPhone)}
+                          {maskPhone(orderData.customerPhone)}
                         </span>
                       </div>
                       <div className="flex items-center">
@@ -335,21 +379,21 @@ function LookUpOrder() {
                           Email:
                         </span>
                         <span className="block text-end">
-                          {maskEmail(dataOrder.customerEmail)}
+                          {maskEmail(orderData.customerEmail)}
                         </span>
                       </div>
                       <span className="font-bold">Địa chỉ nhận hàng</span>
                       <div className="w-full mt-[1rem] border border-gray-300 rounded-md p-[2rem]">
                         <p className="text-gray-800">
-                          {dataOrder.customerName}
+                          {orderData.customerName}
                         </p>
                         <p className="text-[1.3rem] text-gray-500">
-                          ({maskPhone(dataOrder.customerPhone)})
+                          ({maskPhone(orderData.customerPhone)})
                         </p>
                         <p className="text-[1.3rem] text-gray-500">
-                          {dataOrder.customerAddress}, {dataOrder.customerWard},{" "}
-                          {dataOrder.customerDistrict},{" "}
-                          {dataOrder.customerPhone}
+                          {orderData.customerAddress}, {orderData.customerWard},{" "}
+                          {orderData.customerDistrict},{" "}
+                          {orderData.customerPhone}
                         </p>
                       </div>
                     </div>
@@ -359,15 +403,15 @@ function LookUpOrder() {
                           icon={faBox}
                           className="text-blue-500"
                         />
-                        Sản phẩm ({dataOrder && dataOrder.orderItems?.length})
+                        Sản phẩm ({orderData && orderData.orderItems?.length})
                       </h3>
 
-                      {dataOrder.orderItems &&
-                        dataOrder.orderItems?.length > 0 && (
+                      {orderData.orderItems &&
+                        orderData.orderItems?.length > 0 && (
                           <div className="border border-gray-200 px-[2rem] py-[1rem] rounded-md">
                             <div className="bg-white ">
                               <div className="space-y-2">
-                                {dataOrder.orderItems.map(
+                                {orderData.orderItems.map(
                                   (item: orderItemsType) => (
                                     <div key={item.id}>
                                       <Link
@@ -413,19 +457,19 @@ function LookUpOrder() {
                                             [
                                               OrderStatus.CANCELLED,
                                               OrderStatus.COMPLETED,
-                                            ].includes(dataOrder.status) && (
+                                            ].includes(orderData.status) && (
                                               <button
                                                 type="button"
                                                 className="px-[2rem] py-[.6rem] rounded-md bg-red-500 text-white hover:bg-red-600 cursor-pointer transition duration-300"
                                                 onClick={() => {
-                                                  handleBuyBack(dataOrder);
+                                                  handleBuyBack(orderData);
                                                 }}
                                               >
                                                 Mua lại
                                               </button>
                                             )}
                                           {item.evaluate.length === 0 &&
-                                            dataOrder.status ===
+                                            orderData.status ===
                                               OrderStatus.COMPLETED && (
                                               <button
                                                 type="button"
@@ -472,38 +516,46 @@ function LookUpOrder() {
                           <span className="text-end text-gray-600">
                             Phương thức thanh toán:
                           </span>
+                          <span className="text-end text-gray-600">
+                            Trạng thái
+                          </span>
                         </div>
                         <div className="flex flex-col items-end space-y-8 mt-4">
                           <span className="block text-end text-gray-800">
-                            {formatPrice(dataOrder.totalAmount)}
+                            {formatPrice(orderData.totalAmount)}
                           </span>
                           <span className="block text-end text-gray-800">
-                            {formatPrice(dataOrder.shippingFee)}
+                            {formatPrice(orderData.shippingFee)}
                           </span>
 
                           <span className="block text-end font-bold text-red-500">
                             {formatPrice(
-                              dataOrder.totalAmount +
-                                Number(dataOrder.shippingFee)
+                              orderData.totalAmount +
+                                Number(orderData.shippingFee)
                             )}
                           </span>
                           <span className="block text-end text-gray-800">
                             {
                               getPaymentMethod[
-                                dataOrder.paymentMethod as PaymentMethod
+                                orderData.paymentMethod as PaymentMethod
                               ].text
                             }
+                          </span>
+                          <span
+                            className={`${isPaid ? "text-green-600" : "text-red-600"} block text-end`}
+                          >
+                            {isPaid ? "Đã thanh toán" : "Chưa thanh toán"}
                           </span>
                         </div>
                       </div>
                     </div>
-                    {dataOrder && (
+                    {orderData && !isPaid && (
                       <div className="text-center border border-amber-300 bg-amber-50 py-5 px-[1rem] mt-[1rem] rounded-md">
                         Vui lòng thanh toán (
                         <span className="text-red-500">
                           {formatPrice(
-                            dataOrder.totalAmount +
-                              Number(dataOrder.shippingFee)
+                            orderData.totalAmount +
+                              Number(orderData.shippingFee)
                           )}
                         </span>
                         ) khi nhận hàng!
@@ -511,15 +563,15 @@ function LookUpOrder() {
                     )}
 
                     <div className="flex items-center justify-end space-x-4 mt-[2rem]">
-                      {dataOrder.status === OrderStatus.CANCELLED && (
+                      {orderData.status === OrderStatus.CANCELLED && (
                         <button
                           type="button"
                           className="px-[2rem] py-[.6rem] rounded-md border border-gray-300 text-gray-600 hover:border-gray-400 cursor-pointer transition duration-300"
                           onClick={() =>
                             setOpenCancelledOrder({
                               open: true,
-                              orderCode: dataOrder.orderCode,
-                              data: dataOrder,
+                              orderCode: orderData.orderCode,
+                              data: orderData,
                             })
                           }
                         >
@@ -528,7 +580,7 @@ function LookUpOrder() {
                       )}
 
                       {[OrderStatus.CONFIRMED, OrderStatus.PENDING].includes(
-                        dataOrder.status
+                        orderData.status
                       ) && (
                         <button
                           type="button"
@@ -536,7 +588,7 @@ function LookUpOrder() {
                           onClick={() =>
                             setOpenCancelledOrder({
                               open: true,
-                              orderCode: dataOrder.orderCode,
+                              orderCode: orderData.orderCode,
                               data: null,
                             })
                           }
@@ -546,7 +598,7 @@ function LookUpOrder() {
                       )}
 
                       {[OrderStatus.CONFIRMED, OrderStatus.PENDING].includes(
-                        dataOrder.status
+                        orderData.status
                       ) && (
                         <button
                           type="button"
@@ -563,8 +615,8 @@ function LookUpOrder() {
                   open={openReview.open}
                   item={openReview.data}
                   dataGuest={{
-                    customerEmail: dataOrder.customerEmail,
-                    customerName: dataOrder.customerName,
+                    customerEmail: orderData.customerEmail,
+                    customerName: orderData.customerName,
                   }}
                   onClose={() => setOpenReview({ open: false, data: null })}
                   refetch={refetchOrder}
@@ -577,7 +629,9 @@ function LookUpOrder() {
                   className="text-5xl mb-4 text-gray-400"
                 />
                 <p className="text-xl">
-                  Chưa có kết quả. Vui lòng nhập mã đơn hàng để tra cứu.
+                  {searchCode
+                    ? "Nhấn 'Tra cứu' để kiểm tra đơn hàng của bạn."
+                    : "Chưa có kết quả. Vui lòng nhập mã đơn hàng để tra cứu."}
                 </p>
               </div>
             )}

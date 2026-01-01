@@ -6,10 +6,14 @@ import type { AxiosError } from "axios";
 import { useUser } from "../../../hooks/useUser";
 
 type UserUpdateData = {
-  avatar: File | undefined | string;
-  username: string;
-  email: string;
-  phone: number | undefined;
+  user: {
+    avatar: File | undefined | string;
+    username: string;
+    email: string;
+    phone: number | undefined;
+  };
+  gender: "male" | "female" | "";
+  birthday: string;
 };
 
 interface UserUpdateResponse {
@@ -26,19 +30,27 @@ function Profile() {
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [dataUpdate, setDataUpdate] = useState<UserUpdateData>({
-    avatar: undefined,
-    username: "",
-    email: "",
-    phone: undefined,
+    user: {
+      avatar: undefined,
+      username: "",
+      email: "",
+      phone: undefined,
+    },
+    gender: "",
+    birthday: "",
   });
 
   useEffect(() => {
     if (user) {
       setDataUpdate({
-        avatar: user.avatar,
-        username: user.username,
-        email: user.email,
-        phone: user.phone,
+        user: {
+          avatar: user.avatar,
+          username: user.username,
+          email: user.email,
+          phone: user.phone,
+        },
+        gender: user?.staff.gender || "",
+        birthday: user?.staff.birthday || "",
       });
     }
   }, [user]);
@@ -55,16 +67,31 @@ function Profile() {
       setDataUpdate((prev) => {
         return {
           ...prev,
-          [name]: file[0],
+          user: {
+            ...prev.user,
+            [name]: file[0],
+          },
         };
       });
     } else {
-      setDataUpdate((prev) => {
-        return {
-          ...prev,
-          [name]: value,
-        };
-      });
+      if (name === "gender" || name === "birthday") {
+        setDataUpdate((prev) => {
+          return {
+            ...prev,
+            [name]: value,
+          };
+        });
+      } else {
+        setDataUpdate((prev) => {
+          return {
+            ...prev,
+            user: {
+              ...prev.user,
+              [name]: value,
+            },
+          };
+        });
+      }
     }
   };
 
@@ -75,21 +102,26 @@ function Profile() {
         navigate("/dashboard/login");
       }
       const formData = new FormData();
-      Object.entries(dataUpdate).forEach(([key, value]) => {
-        if (value === null || value === undefined) return;
-        if (key === "avatar") {
-          if (value instanceof File) {
-            formData.append(key, value as File);
-          }
-        } else {
-          formData.append(key, value.toString());
-        }
-      });
-      for (const a of formData.entries()) {
-        console.log(a[0], a[1]);
+      console.log(dataUpdate);
+
+      if (dataUpdate.user.avatar && dataUpdate.user.avatar instanceof File) {
+        formData.append("avatar", dataUpdate.user.avatar);
       }
+
+      formData.append("user[username]", dataUpdate.user.username);
+      formData.append("user[email]", dataUpdate.user.email);
+      if (dataUpdate.user.phone)
+        formData.append("user[phone]", dataUpdate.user.phone.toString());
+
+      if (dataUpdate.gender) formData.append("gender", dataUpdate.gender);
+      if (dataUpdate.birthday)
+        formData.append(
+          "birthday",
+          new Date(dataUpdate.birthday).toISOString()
+        );
+
       const res = (await axiosConfig.patch(
-        `/api/v1/user/update/${user?.id}`,
+        `/api/v1/staff/update/${user?.staff.id}`,
         formData,
         {
           headers: {
@@ -97,6 +129,7 @@ function Profile() {
           },
         }
       )) as UserUpdateResponse;
+
       if (res.status) {
         setIsUpdate(false);
         setIsLoadingUpdate(false);
@@ -110,7 +143,7 @@ function Profile() {
   };
 
   return (
-    <div className="">
+    <div className="w-full h-[calc(100vh-10rem)] bg-white shadow-lg rounded-[1rem] flex flex-col p-[2rem]">
       <div className="pb-[2rem] border-b-[.1rem] border-b-gray-300 ">
         <h2 className="text-[2.5rem] font-bold text-gray-600">Hồ sơ của tôi</h2>
         <p className="text-[1.4rem] text-gray-600">
@@ -123,8 +156,8 @@ function Profile() {
             src={
               avatarUrl
                 ? avatarUrl
-                : typeof dataUpdate.avatar === "string"
-                  ? dataUpdate.avatar
+                : typeof dataUpdate.user.avatar === "string"
+                  ? dataUpdate.user.avatar
                   : avatarDefault
             }
             alt="Avatar"
@@ -139,7 +172,7 @@ function Profile() {
               className="text-gray-600 text-[1.4rem]"
               onClick={() => setIsUpdate(true)}
             >
-              {dataUpdate.avatar ? "Thay đổi" : "Thêm hình ảnh"}
+              {dataUpdate.user.avatar ? "Thay đổi" : "Thêm hình ảnh"}
             </span>
             <input
               type="file"
@@ -156,7 +189,7 @@ function Profile() {
             Định dạng: .JPEG, .PNG
           </span>
         </div>
-        <div className="flex-1 flex flex-col gap-[3rem] pl-[5rem] border-l-[.1rem] border-l-gray-300">
+        <div className="flex-1 flex flex-col gap-[2rem] pl-[5rem] border-l-[.1rem] border-l-gray-300">
           <h3 className="text-[1.8rem] text-gray-600 font-bold">
             Thông tin cá nhân
           </h3>
@@ -169,7 +202,7 @@ function Profile() {
             </label>
             <input
               type="text"
-              value={dataUpdate.username}
+              value={dataUpdate.user.username}
               id="username"
               name="username"
               className={`w-[40rem] h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg outline-none ${isUpdate ? "text-gray-800" : "text-gray-400 cursor-not-allowed"}`}
@@ -182,7 +215,7 @@ function Profile() {
             </label>
             <input
               type="email"
-              value={dataUpdate.email}
+              value={dataUpdate.user.email}
               id="email"
               name="email"
               className={`w-[40rem] h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg outline-none ${isUpdate ? "text-gray-800" : "text-gray-400 cursor-not-allowed"}`}
@@ -197,11 +230,53 @@ function Profile() {
               type="text"
               value={
                 isUpdate
-                  ? dataUpdate.phone
-                  : (dataUpdate.phone ?? "Chưa cập nhật")
+                  ? dataUpdate.user.phone
+                  : (dataUpdate.user.phone ?? "Chưa cập nhật")
               }
               id="phone"
               name="phone"
+              className={`w-[40rem] h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg outline-none ${isUpdate ? "text-gray-800" : "text-gray-400 cursor-not-allowed"}`}
+              onChange={(e) => handleChangeInput(e)}
+            />
+          </div>
+          <div className="flex items-center gap-[2rem]">
+            <label
+              htmlFor="birthday"
+              className="text-gray-600 w-[14rem] text-end"
+            >
+              Ngày sinh
+            </label>
+            <input
+              type="text"
+              value={
+                isUpdate
+                  ? dataUpdate.birthday
+                  : (dataUpdate.birthday ?? "Chưa cập nhật")
+              }
+              id="birthday"
+              name="birthday"
+              className={`w-[40rem] h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg outline-none ${isUpdate ? "text-gray-800" : "text-gray-400 cursor-not-allowed"}`}
+              onChange={(e) => handleChangeInput(e)}
+            />
+          </div>
+          <div className="flex items-center gap-[2rem]">
+            <label
+              htmlFor="gender"
+              className="text-gray-600 w-[14rem] text-end"
+            >
+              Giới tính
+            </label>
+            <input
+              type="text"
+              value={
+                isUpdate
+                  ? (dataUpdate.gender ?? "Chưa cập nhật")
+                  : ((dataUpdate &&
+                      (dataUpdate.gender === "female" ? "Nữ" : "Nam")) ??
+                    "Chưa cập nhật")
+              }
+              id="gender"
+              name="gender"
               className={`w-[40rem] h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg outline-none ${isUpdate ? "text-gray-800" : "text-gray-400 cursor-not-allowed"}`}
               onChange={(e) => handleChangeInput(e)}
             />

@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react";
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 import { toast } from "react-toastify";
 import axiosConfig from "../../configs/axiosConfig";
-import type { UseQueryResult } from "@tanstack/react-query";
 import { useUser } from "../../hooks/useUser";
 
 interface ReviewProp {
@@ -14,7 +13,7 @@ interface ReviewProp {
   item: orderItemsType | null;
   dataGuest?: { customerEmail: string; customerName: string };
   onClose: () => void;
-  refetch: () => Promise<UseQueryResult<any>>;
+  refetch: any;
 }
 
 interface ReviewData {
@@ -119,7 +118,7 @@ function Review({ open, item, dataGuest, onClose, refetch }: ReviewProp) {
     }
     setIsSubmitting(true);
     const formData = new FormData();
-    
+
     if (!user && dataGuest) {
       formData.append("customerEmail", dataGuest?.customerEmail);
       formData.append("customerName", dataGuest?.customerName);

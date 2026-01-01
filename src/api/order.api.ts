@@ -3,8 +3,10 @@ import axiosConfig from "../configs/axiosConfig";
 export const ordersForAdmin = async (filter: {
   searchOrder: string;
   status: string;
+  limit: number;
+  page: number;
 }) => {
-  const params: Record<string, string> = {};
+  const params: Record<string, string | number> = {};
   if (filter.searchOrder) {
     params.searchOrder = filter.searchOrder;
   }
@@ -12,11 +14,13 @@ export const ordersForAdmin = async (filter: {
   if (filter.status) {
     params.status = filter.status;
   }
+  params.limit = filter.limit;
+  params.page = filter.page;
 
   const res = await axiosConfig.get("/api/v1/orders/orders-for-admin", {
     params: params,
   });
-  return res.data;
+  return res;
 };
 
 export const getOrders = async (queryOrders: any) => {

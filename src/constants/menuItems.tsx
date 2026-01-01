@@ -40,27 +40,32 @@ export const menuItems = [
   },
   {
     id: 7,
-    label: "Khách hàng",
-    path: "customer",
+    label: "Khách hàng thành viên",
+    path: "customers",
   },
   {
     id: 8,
+    label: "Khách vãng lai",
+    path: "guest-customers",
+  },
+  {
+    id: 9,
     label: "Giảm giá",
     path: "discount",
   },
   {
-    id: 9,
+    id: 10,
     label: "Banner",
     path: "banner-slide",
   },
   {
-    id: 10,
+    id: 11,
     label: "Cá nhân",
     path: "profile",
   },
 
   {
-    id: 11,
+    id: 12,
     label: "Cài đặt",
     path: "setting",
   },

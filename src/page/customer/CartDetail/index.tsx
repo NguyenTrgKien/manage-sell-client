@@ -322,172 +322,291 @@ export default function CartDetail() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 py-8 px-4 lg:px-[12rem]">
-      <div className="flex items-center gap-4 mb-8">
-        <FontAwesomeIcon icon={faCartPlus} className="text-4xl text-red-500" />
-        <h1 className="text-3xl font-bold text-gray-800">Giỏ hàng của bạn</h1>
-        <span className="text-[1.4rem] text-gray-500">
+    <div className="w-full min-h-screen bg-gray-50 py-4 sm:py-8 px-4 sm:px-6 lg:px-8 xl:px-[12rem]">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="flex items-center gap-3">
+          <FontAwesomeIcon
+            icon={faCartPlus}
+            className="text-2xl sm:text-3xl lg:text-4xl text-red-500"
+          />
+          <h1 className=" font-bold text-gray-800">Giỏ hàng của bạn</h1>
+        </div>
+        <span className="text-sm sm:text-base lg:text-[1.4rem] text-gray-500 pl-0 sm:pl-4">
           ({cartItems.filter((it: any) => it.selected).length} sản phẩm được
           chọn)
         </span>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1 bg-white rounded-xl shadow-lg overflow-hidden">
-          <table className="w-full text-[1.6rem]">
-            <thead className="bg-gray-100 text-gray-800">
-              <tr>
-                <th className="py-5 text-left pl-6 font-normal">
-                  <div className="flex items-center gap-3">
-                    <button onClick={toggleSelectAll}>
-                      <FontAwesomeIcon
-                        icon={selectAll ? faCheckSquare : faSquare}
-                        className={`text-[2rem] ${
-                          selectAll ? "text-blue-600" : "text-gray-300"
-                        }`}
-                      />
-                    </button>
-                    <span>Sản phẩm</span>
-                  </div>
-                </th>
-                <th className="py-5 font-normal">Đơn giá</th>
-                <th className="py-5 font-normal">Số lượng</th>
-                <th className="py-5 font-normal">Thành tiền</th>
-                <th className="py-5 font-normal">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cartItems.map((item: any) => (
-                <tr
-                  key={item.id}
-                  className="border-t border-gray-200 hover:bg-gray-50 transition"
-                >
-                  <td className="py-6 pl-6">
-                    <div className="flex items-center gap-4">
-                      <button onClick={() => toggleItem(item.id)}>
-                        <FontAwesomeIcon
-                          icon={item.selected ? faCheckSquare : faSquare}
-                          className={`text-[2rem] ${
-                            item.selected ? "text-blue-600" : "text-gray-300"
-                          }`}
-                        />
-                      </button>
-                      <img
-                        src={item.product.mainImage}
-                        alt={item.product.productName}
-                        className="w-20 h-20 rounded-lg object-cover"
-                      />
-                      <div className="max-w-xs">
-                        <p className=" text-gray-800 line-clamp-1">
-                          {item.product.productName}
-                        </p>
-                        {item.inventory < 5 && (
-                          <p className="text-sm text-red-500 mt-1">
-                            Chỉ còn {item.inventory} sản phẩm
-                          </p>
-                        )}
-                        <div className="text-[1.2rem] text-gray-600 flex items-center gap-[.5rem]">
-                          <span>size: {item.variantSize.name}</span>
-                          <span className="h-[1.5rem] border-r border-r-gray-400"></span>
-                          <span>màu: {item.variantColor.name}</span>
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+        <div className="flex-1 bg-white rounded-xl shadow-lg overflow-x-auto">
+          <div className="lg:hidden">
+            {cartItems.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <p className="text-[1.4rem] sm:text-[1.6rem]">Giỏ hàng trống</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {cartItems.map((item: any) => (
+                  <div
+                    key={item.id}
+                    className={`p-4 ${item.selected ? "bg-blue-50" : ""} hover:bg-gray-50 transition`}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start gap-3 flex-1">
+                        <button
+                          onClick={() => toggleItem(item.id)}
+                          className="mt-1"
+                        >
+                          <FontAwesomeIcon
+                            icon={item.selected ? faCheckSquare : faSquare}
+                            className={`text-[1.4rem] ${item.selected ? "text-blue-600" : "text-gray-300"}`}
+                          />
+                        </button>
+                        <div className="flex-1">
+                          <div className="flex items-start gap-3">
+                            <img
+                              src={item.product.mainImage}
+                              alt={item.product.productName}
+                              className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[1.4rem] sm:text-[1.6rem] font-medium text-gray-800 line-clamp-2">
+                                {item.product.productName}
+                              </p>
+                              {item.inventory < 5 && (
+                                <p className="text-[1.2rem] text-red-500 mt-1">
+                                  Chỉ còn {item.inventory} sản phẩm
+                                </p>
+                              )}
+                              <div className="text-[1.2rem] text-gray-600 mt-1 flex flex-wrap items-center gap-1">
+                                <span>Size: {item.variantSize.name}</span>
+                                <span className="mx-1">•</span>
+                                <span>Màu: {item.variantColor.name}</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
+                      <button
+                        className="text-red-500 hover:text-red-700 transition ml-2"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          className="text-[1.4rem]"
+                        />
+                      </button>
                     </div>
-                  </td>
 
-                  <td className="text-center">
-                    <div>
-                      <p className=" text-[1.4rem] text-red-600">
-                        {formatPrice(Number(item.price || item.product.price))}
-                      </p>
-                      {item.price && (
-                        <p className="text-sm text-gray-400 line-through">
-                          {formatPrice(item.price)}
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <p className="text-[1.2rem] sm:text-[1.6rem] font-semibold text-red-600">
+                          {formatPrice(
+                            Number(item.price || item.product.price)
+                          )}
                         </p>
-                      )}
-                    </div>
-                  </td>
+                        {item.price && (
+                          <p className="text-[1.4rem] text-gray-400 line-through">
+                            {formatPrice(item.price)}
+                          </p>
+                        )}
+                      </div>
 
-                  <td className="text-center">
-                    <div className="flex items-center justify-center gap-3">
-                      <button
-                        onClick={() => handleQuantity(item.id, "decre")}
-                        disabled={item.quantity <= 1}
-                        className="w-10 h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleQuantity(item.id, "decre")}
+                          disabled={item.quantity <= 1}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        >
+                          <FontAwesomeIcon
+                            icon={faMinus}
+                            className="text-gray-500 text-xs sm:text-sm"
+                          />
+                        </button>
+                        <span className="w-6 sm:w-8 text-center text-[1.2rem] sm:text-base text-gray-600">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => handleQuantity(item.id, "incre")}
+                          disabled={item.quantity >= item.inventory}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        >
+                          <FontAwesomeIcon
+                            icon={faPlus}
+                            className="text-gray-500 text-xs sm:text-sm"
+                          />
+                        </button>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-[1.4rem] sm:text-base font-semibold text-red-600">
+                          {formatPrice(
+                            Number(item.price || item.product.price) *
+                              Number(item.quantity)
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="hidden lg:block">
+            <table className="w-full text-[1.6rem]">
+              <thead className="bg-gray-100 text-gray-800">
+                <tr>
+                  <th className="py-5 text-left pl-6 font-normal">
+                    <div className="flex items-center gap-3">
+                      <button onClick={toggleSelectAll}>
                         <FontAwesomeIcon
-                          icon={faMinus}
-                          className="text-gray-500"
+                          icon={selectAll ? faCheckSquare : faSquare}
+                          className={`text-[2rem] ${selectAll ? "text-blue-600" : "text-gray-300"}`}
                         />
                       </button>
-                      <span className="w-8 text-center text-gray-600">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => handleQuantity(item.id, "incre")}
-                        disabled={item.quantity >= item.inventory}
-                        className="w-10 h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <FontAwesomeIcon
-                          icon={faPlus}
-                          className="text-gray-500"
-                        />
-                      </button>
+                      <span>Sản phẩm</span>
                     </div>
-                  </td>
-
-                  <td className="text-center text-[1.4rem] text-red-600">
-                    {formatPrice(
-                      Number(item.price || item.product.price) *
-                        Number(item.quantity)
-                    )}
-                  </td>
-
-                  <td className="text-center">
-                    <button
-                      className="text-red-500 hover:text-red-700 transition p-3"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        className="text-[1.4rem]"
-                      />
-                    </button>
-                  </td>
+                  </th>
+                  <th className="py-5 font-normal">Đơn giá</th>
+                  <th className="py-5 font-normal">Số lượng</th>
+                  <th className="py-5 font-normal">Thành tiền</th>
+                  <th className="py-5 font-normal">Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {cartItems.map((item: any) => (
+                  <tr
+                    key={item.id}
+                    className="border-t border-gray-200 hover:bg-gray-50 transition"
+                  >
+                    <td className="py-6 pl-6">
+                      <div className="flex items-center gap-4">
+                        <button onClick={() => toggleItem(item.id)}>
+                          <FontAwesomeIcon
+                            icon={item.selected ? faCheckSquare : faSquare}
+                            className={`text-[2rem] ${item.selected ? "text-blue-600" : "text-gray-300"}`}
+                          />
+                        </button>
+                        <img
+                          src={item.product.mainImage}
+                          alt={item.product.productName}
+                          className="w-20 h-20 rounded-lg object-cover"
+                        />
+                        <div className="max-w-xs">
+                          <p className="text-gray-800 line-clamp-1">
+                            {item.product.productName}
+                          </p>
+                          {item.inventory < 5 && (
+                            <p className="text-sm text-red-500 mt-1">
+                              Chỉ còn {item.inventory} sản phẩm
+                            </p>
+                          )}
+                          <div className="text-[1.2rem] text-gray-600 flex items-center gap-[.5rem]">
+                            <span>size: {item.variantSize.name}</span>
+                            <span className="h-[1.5rem] border-r border-r-gray-400"></span>
+                            <span>màu: {item.variantColor.name}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
 
-          {cartItems.length === 0 && (
-            <div className="text-center py-20 text-gray-500">
-              <p className="text-2xl">Giỏ hàng trống</p>
-            </div>
-          )}
+                    <td className="text-center">
+                      <div>
+                        <p className="text-[1.4rem] text-red-600">
+                          {formatPrice(
+                            Number(item.price || item.product.price)
+                          )}
+                        </p>
+                        {item.price && (
+                          <p className="text-sm text-gray-400 line-through">
+                            {formatPrice(item.price)}
+                          </p>
+                        )}
+                      </div>
+                    </td>
+
+                    <td className="text-center">
+                      <div className="flex items-center justify-center gap-3">
+                        <button
+                          onClick={() => handleQuantity(item.id, "decre")}
+                          disabled={item.quantity <= 1}
+                          className="w-10 h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <FontAwesomeIcon
+                            icon={faMinus}
+                            className="text-gray-500"
+                          />
+                        </button>
+                        <span className="w-8 text-center text-gray-600">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => handleQuantity(item.id, "incre")}
+                          disabled={item.quantity >= item.inventory}
+                          className="w-10 h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <FontAwesomeIcon
+                            icon={faPlus}
+                            className="text-gray-500"
+                          />
+                        </button>
+                      </div>
+                    </td>
+
+                    <td className="text-center text-[1.4rem] text-red-600">
+                      {formatPrice(
+                        Number(item.price || item.product.price) *
+                          Number(item.quantity)
+                      )}
+                    </td>
+
+                    <td className="text-center">
+                      <button
+                        className="text-red-500 hover:text-red-700 transition p-3"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          className="text-[1.4rem]"
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {cartItems.length === 0 && (
+              <div className="text-center py-20 text-gray-500">
+                <p className="text-2xl">Giỏ hàng trống</p>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="w-[40rem]">
-          <div className="bg-white rounded-xl shadow-lg p-6 sticky top-6">
-            <h2 className="font-bold text-gray-800 mb-6">
+        <div className="w-full lg:w-[40rem]">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 sticky top-4 sm:top-6">
+            <h2 className="font-bold text-gray-800 text-[1.4rem] sm:text-[1.6rem] mb-4 sm:mb-6">
               Thông tin thanh toán
             </h2>
 
-            <div className="space-y-6 text-[1.4rem] text-gray-600">
+            <div className="space-y-4 sm:space-y-6 text-[1.4rem] sm:text-[1.6rem] text-gray-600">
               <div className="flex justify-between">
                 <span>Tạm tính ({selectedCount} sản phẩm):</span>
                 <span className="font-semibold">{formatPrice(subTotal())}</span>
               </div>
-              <div className="">
+              <div>
                 <span>Phí vận chuyển:</span>
-                <div className="mt-4 text-[1.4rem] text-green-600">
+                <div className="mt-2 sm:mt-4 text-[1.4rem] sm:text-[1.6rem] text-green-600">
                   Phí vận chuyển sẽ được tính chính xác dựa trên địa chỉ nhận
                   hàng
                 </div>
               </div>
-              <div className="border-t border-t-gray-400 pt-6">
-                <div className="flex justify-between text-[1.4rem]">
+              <div className="border-t border-t-gray-400 pt-4 sm:pt-6">
+                <div className="flex justify-between text-[1.4rem] sm:text-[1.6rem]">
                   <span className="font-bold">Tổng cộng:</span>
-                  <span className="font-bold text-[1.8rem] text-red-600">
+                  <span className="font-bold text-[1.6rem] sm:text-[1.8rem] text-red-600">
                     {formatPrice(subTotal())}
                   </span>
                 </div>
@@ -496,7 +615,7 @@ export default function CartDetail() {
 
             <button
               disabled={cartItems.length === 0}
-              className={`w-full mt-8 py-4 rounded-xl font-bold text-[1.4rem] transition ${
+              className={`w-full mt-6 sm:mt-8 py-3 sm:py-4 rounded-xl font-bold text-[1.4rem] sm:text-[1.6rem] transition ${
                 selectedCount === 0
                   ? "bg-gray-200 text-gray-600 cursor-not-allowed"
                   : "bg-red-500 hover:bg-red-600 shadow-lg text-white"
@@ -508,7 +627,7 @@ export default function CartDetail() {
                 : "Thanh toán ngay"}
             </button>
 
-            <div className="mt-4 text-center text-[1.2rem] text-gray-500">
+            <div className="mt-3 sm:mt-4 text-center text-[1rem] sm:text-[1.2rem] text-gray-500">
               Miễn phí vận chuyển cho đơn từ 500.000₫
             </div>
           </div>

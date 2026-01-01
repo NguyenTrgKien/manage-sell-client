@@ -103,7 +103,7 @@ export default function OrderConfirmation() {
           <p className="text-gray-600 mb-4">
             Cảm ơn bạn đã đặt hàng tại shop của chúng tôi.
           </p>
-          <p className="text-center text-gray-600">
+          <p className="text-center text-[1.4rem] w-4xl text-gray-600">
             Thông tin đơn hàng sẽ được thông báo qua email mà bạn đã cung cấp!
           </p>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-[1rem]">

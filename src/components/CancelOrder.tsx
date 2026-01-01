@@ -7,7 +7,6 @@ import {
 import { useState } from "react";
 import { toast } from "react-toastify";
 import axiosConfig from "../configs/axiosConfig";
-import type { UseQueryResult } from "@tanstack/react-query";
 import { CancelReasonType, OrderStatus } from "@nguyentrungkien/shared";
 import { useUser } from "../hooks/useUser";
 
@@ -23,7 +22,7 @@ interface CancelOrderProp {
   open: boolean;
   onClose: () => void;
   orderCode: string | null;
-  refetch?: () => Promise<UseQueryResult<any>>;
+  refetch?: any;
   status?: OrderStatus;
   cancelReason?: CancelReasonType;
   cancelledAt?: string;

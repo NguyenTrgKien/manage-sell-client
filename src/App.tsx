@@ -38,6 +38,16 @@ import ProductList from "./page/customer/ProductList";
 import Discount from "./page/Dashboard/Discount";
 import FavoriteProduct from "./page/customer/CustomerProfile/favoriteProduct";
 import MyVoucher from "./page/customer/CustomerProfile/MyVoucher";
+import CustomerManage from "./page/Dashboard/customer";
+import Customers from "./page/Dashboard/customer/Customers";
+import Purchased from "./page/Dashboard/customer/Purchased";
+import NoOrder from "./page/Dashboard/customer/NoOrder";
+import Statistic from "./page/Dashboard/customer/Statistic";
+import DetailCustomer from "./page/Dashboard/customer/CustomerDetail";
+import CustomerDetail from "./page/Dashboard/customer/CustomerDetail";
+import GuestCustomers from "./page/Dashboard/guest-customer";
+import StatisticGuest from "./page/Dashboard/guest-customer/StatisticGuest";
+import GuestDetail from "./page/Dashboard/guest-customer/DetailGuest";
 
 function App() {
   return (
@@ -121,6 +131,20 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="orders/list-order" element={<Order />} />
           <Route path="staff" element={<Staffs />} />
+          <Route path="customers" element={<CustomerManage />}>
+            <Route index element={<Customers />} />
+            <Route path="purchased" element={<Purchased />} />
+            <Route path="no-order" element={<NoOrder />} />
+            <Route path="statistic" element={<Statistic />} />
+          </Route>
+          <Route
+            path="detail-customer/:customerCode"
+            element={<CustomerDetail />}
+          />
+          <Route path="guest-detail/:guestEmail" element={<GuestDetail />} />
+          <Route path="guest-customers" element={<GuestCustomers />}>
+            <Route path="statistic" element={<StatisticGuest />} />
+          </Route>
           <Route path="banner-slide" element={<BannerSlide />} />
           <Route path="discount" element={<Discount />} />
         </Route>

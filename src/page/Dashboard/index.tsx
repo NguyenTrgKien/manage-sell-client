@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import HeaderDashboard from "./components/HeaderDashboard";
 import SidebarDashboard from "./components/SidebarDashboard";
 
-function Dashboard({}) {
+function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br">
       <HeaderDashboard />

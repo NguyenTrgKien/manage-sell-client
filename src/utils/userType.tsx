@@ -56,6 +56,7 @@ export interface StaffType {
 
 export interface CustomerType {
   id: number;
+  customerCode: string;
   fullName: string;
   gender: Gender;
   birthday: string;
@@ -65,4 +66,5 @@ export interface CustomerType {
   memberRank: MemberRank;
   createdAt: string;
   updatedAt: string;
+  user: UserType;
 }

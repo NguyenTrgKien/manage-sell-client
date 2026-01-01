@@ -7,7 +7,7 @@ function CustomerOnlyHeader() {
     <div>
       <Header />
       <div
-        className={`w-full h-auto ${!location.pathname.includes("/customer") ? "mt-[17rem]" : "mt-[2.5rem]"}`}
+        className={`w-full h-auto ${!location.pathname.includes("/customer") ? "mt-[15rem] md:mt-[17rem]" : "mt-[2.5rem]"}`}
       >
         <Outlet />
       </div>

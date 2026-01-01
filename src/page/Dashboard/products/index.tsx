@@ -1,4 +1,6 @@
 import {
+  faAngleLeft,
+  faAngleRight,
   faArrowLeft,
   faCirclePlus,
   faClose,
@@ -34,19 +36,6 @@ function Products() {
     data: null,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [filterProduct, setFilterProduct] = useState<{
-    page: number;
-    limit: number;
-    price: number | null;
-    productName: "";
-    categoryId: number | null;
-  }>({
-    page: 1,
-    limit: 20,
-    price: null,
-    productName: "",
-    categoryId: null,
-  });
   const [filterInput, setFilterInput] = useState<{
     productName: "";
     price: null;
@@ -56,20 +45,27 @@ function Products() {
     price: null,
     categoryId: null,
   });
+  const [filterProduct, setFilterProduct] = useState({
+    ...filterInput,
+    page: 1,
+    limit: 30,
+  });
   const {
-    data: products,
+    data,
     isLoading: isLoadingProduct,
     isError,
     refetch,
   } = useQuery({
     queryKey: ["products", filterProduct],
     queryFn: getProduct,
-  });
+  }) as any;
 
   const { data: dataCategories = [] } = useQuery({
     queryKey: ["getAllCategory"],
     queryFn: getAllCategory,
   });
+  const products = (data && data.data) || [];
+  const totalPages = data?.totalPages || 1;
 
   const handleHiddenProduct = async (product: ProductT | null) => {
     if (!product || !product.id) {
@@ -244,122 +240,169 @@ function Products() {
                   <p className="text-red-500">Có lỗi xảy ra khi tải dữ liệu!</p>
                 </div>
               ) : (
-                <table className="min-w-full table-auto text-[1.4rem] rounded-lg shadow-sm overflow-hidden">
-                  <thead className="bg-gray-100 border-b border-b-gray-200">
-                    <tr>
-                      <th className="text-left px-6 py-4 text-gray-600 font-semibold tracking-wide">
-                        STT
-                      </th>
-                      <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
-                        Sản phẩm
-                      </th>
-                      <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
-                        Trạng thái
-                      </th>
-                      <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
-                        Danh mục
-                      </th>
-                      <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
-                        Giá
-                      </th>
-                      <th className="px-6 py-4 text-center text-gray-600 font-semibold tracking-wide">
-                        Hành động
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {products.length > 0 ? (
-                      products?.map((product: ProductT, index: number) => (
-                        <tr
-                          key={product.id}
-                          className="hover:bg-gray-50 transition-colors duration-200"
-                        >
-                          <td className=" px-6 py-4">{index}</td>
-                          <td className=" px-6 py-4">
-                            <div className="flex items-center gap-4">
-                              <img
-                                src={product.mainImage}
-                                alt="main image"
-                                className="w-16 h-16 object-cover rounded-md"
-                              />
-                              <div>
-                                <h4 className="max-w-[25rem] font-medium text-gray-900 text-limit-1">
-                                  {product.productName}
-                                </h4>
-                                <p className="text-gray-500 text-[1.2rem]">
-                                  ID: {product.id}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <p
-                              className={`py-1 ${product.isActive ? "text-green-600 bg-green-100 rounded-md" : "text-red-600 bg-red-100 rounded-md "} text-center`}
-                            >
-                              {product.isActive
-                                ? "Đang hoạt động"
-                                : "Dừng hoạt động"}
-                            </p>
-                          </td>
-                          <td className="px-6 py-4 text-gray-700">
-                            {dataCategories?.find(
-                              (cat: any) => cat.id === product.category?.id
-                            )?.categoryName ?? "Chưa có danh mục"}
-                          </td>
-                          <td className="px-6 py-4 text-gray-900 font-medium">
-                            {Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            }).format(product.price)}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex justify-center gap-2">
-                              <button
-                                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                                onClick={() =>
-                                  setOpenActionProduct({
-                                    action: "edit",
-                                    id: product.id,
-                                    open: true,
-                                  })
-                                }
-                              >
-                                <FontAwesomeIcon
-                                  icon={faEdit}
-                                  className="w-4 h-4"
+                <>
+                  <table className="min-w-full table-auto text-[1.4rem] rounded-lg shadow-sm overflow-hidden">
+                    <thead className="bg-gray-100 border-b border-b-gray-200">
+                      <tr>
+                        <th className="text-left px-6 py-4 text-gray-600 font-semibold tracking-wide">
+                          STT
+                        </th>
+                        <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
+                          Sản phẩm
+                        </th>
+                        <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
+                          Trạng thái
+                        </th>
+                        <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
+                          Danh mục
+                        </th>
+                        <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
+                          Giá
+                        </th>
+                        <th className="px-6 py-4 text-center text-gray-600 font-semibold tracking-wide">
+                          Hành động
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {products.length > 0 ? (
+                        products?.map((product: ProductT, index: number) => (
+                          <tr
+                            key={product.id}
+                            className="hover:bg-gray-50 transition-colors duration-200"
+                          >
+                            <td className=" px-6 py-4">{index}</td>
+                            <td className=" px-6 py-4">
+                              <div className="flex items-center gap-4">
+                                <img
+                                  src={product.mainImage}
+                                  alt="main image"
+                                  className="w-16 h-16 object-cover rounded-md"
                                 />
-                                <span>Sửa</span>
-                              </button>
-                              <button
-                                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                                onClick={() => {
-                                  setOpenToggleHidden({
-                                    open: true,
-                                    data: product,
-                                  });
-                                }}
+                                <div>
+                                  <h4 className="max-w-[25rem] font-medium text-gray-900 text-limit-1">
+                                    {product.productName}
+                                  </h4>
+                                  <p className="text-gray-500 text-[1.2rem]">
+                                    ID: {product.id}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <p
+                                className={`py-1 ${product.isActive ? "text-green-600 bg-green-100 rounded-md" : "text-red-600 bg-red-100 rounded-md "} text-center`}
                               >
-                                <span>
-                                  {product.isActive ? "Ẩn" : "Hiện"} sản phẩm
-                                </span>
-                              </button>
-                            </div>
+                                {product.isActive
+                                  ? "Đang hoạt động"
+                                  : "Dừng hoạt động"}
+                              </p>
+                            </td>
+                            <td className="px-6 py-4 text-gray-700">
+                              {dataCategories?.find(
+                                (cat: any) => cat.id === product.category?.id
+                              )?.categoryName ?? "Chưa có danh mục"}
+                            </td>
+                            <td className="px-6 py-4 text-gray-900 font-medium">
+                              {Intl.NumberFormat("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              }).format(product.price)}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex justify-center gap-2">
+                                <button
+                                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                                  onClick={() =>
+                                    setOpenActionProduct({
+                                      action: "edit",
+                                      id: product.id,
+                                      open: true,
+                                    })
+                                  }
+                                >
+                                  <FontAwesomeIcon
+                                    icon={faEdit}
+                                    className="w-4 h-4"
+                                  />
+                                  <span>Sửa</span>
+                                </button>
+                                <button
+                                  className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                                  onClick={() => {
+                                    setOpenToggleHidden({
+                                      open: true,
+                                      data: product,
+                                    });
+                                  }}
+                                >
+                                  <span>
+                                    {product.isActive ? "Ẩn" : "Hiện"} sản phẩm
+                                  </span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr aria-colspan={6}>
+                          <td>
+                            <div>Không có sản phẩm nào</div>
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr aria-colspan={6}>
-                        <td>
-                          <div>Không có sản phẩm nào</div>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      )}
+                    </tbody>
+                  </table>
+                </>
               )}
             </div>
           </>
         )}
+        <div className="flex justify-center gap-2 mt-8">
+          <button
+            onClick={() =>
+              setFilterProduct((prev) => ({
+                ...prev,
+                page: Math.max(prev.page - 1, 1),
+              }))
+            }
+            disabled={filterProduct.page === 1}
+            className="w-[3.5rem] h-[3.5rem] bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            <FontAwesomeIcon icon={faAngleLeft} className="text-gray-500" />
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((num) => Math.abs(num - filterProduct.page) <= 2)
+            .map((num) => (
+              <button
+                key={num}
+                onClick={() =>
+                  setFilterProduct((prev) => ({ ...prev, page: num }))
+                }
+                className={`w-[3.5rem] h-[3.5rem] rounded hover:bg-gray-300 ${
+                  filterProduct.page === num
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
+              >
+                {num}
+              </button>
+            ))}
+
+          <button
+            onClick={() =>
+              setFilterProduct((prev) => ({
+                ...prev,
+                page: Math.min(prev.page + 1, totalPages),
+              }))
+            }
+            disabled={filterProduct.page === totalPages}
+            className="w-[3.5rem] h-[3.5rem] bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            <FontAwesomeIcon icon={faAngleRight} className="text-gray-500" />
+          </button>
+        </div>
       </div>
 
       {openToggleHidden.open && (

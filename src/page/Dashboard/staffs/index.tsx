@@ -91,7 +91,7 @@ function Staffs() {
 
   return (
     <div className="w-full min-h-[calc(100vh-12rem)] bg-white shadow-lg rounded-xl p-[2rem]">
-      <div className="flex justify-between items-center">
+      <div className="sticky top-0 flex justify-between items-center border-b border-b-gray-300 pb-8">
         <h3 className="text-[2rem] font-semibold text-gray-600">
           Danh sách nhân viên
         </h3>
@@ -107,7 +107,7 @@ function Staffs() {
           </button>
         </div>
       </div>
-      <div className="flex items-center gap-[2rem] mt-[2rem]">
+      <div className="flex items-center gap-[1.5rem] mt-[2rem]">
         <input
           type="text"
           id="search"
@@ -177,7 +177,7 @@ function Staffs() {
           <span>Lọc</span>
         </button>
       </div>
-      <table className="w-full border border-gray-300 mt-[2rem] select-none">
+      <table className="w-full border border-gray-300 mt-[2rem] text-[1.4rem] select-none">
         <thead>
           <tr className="bg-gray-50 divide-x divide-gray-300">
             <th className="text-start px-[1.5rem] py-[1rem] border border-gray-300 font-semibold text-gray-600">

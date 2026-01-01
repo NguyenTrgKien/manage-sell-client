@@ -11,7 +11,7 @@ export const getProduct = async ({ queryKey }: { queryKey: any }) => {
   const res = await axiosConfig.get("/api/v1/product/get-product", {
     params: filterParams,
   });
-  return res.data;
+  return res;
 };
 
 export const getVariants = async () => {

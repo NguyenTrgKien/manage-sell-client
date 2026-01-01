@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 import type { AddressForm } from "./ActionAddress";
 import Select from "react-select";
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getProvince } from "../api/province.api";
 import { useEffect } from "react";
 import axiosConfig from "../configs/axiosConfig";
@@ -14,7 +14,7 @@ interface ChangeAddressOrderProp {
   open: boolean;
   onClose: () => void;
   dataChange: AddressForm & { orderCode?: string };
-  refetchOrder: () => Promise<UseQueryResult<any>>;
+  refetchOrder: any;
 }
 
 function ChangeAddressOrder({

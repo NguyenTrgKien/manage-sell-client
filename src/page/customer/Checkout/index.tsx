@@ -398,19 +398,22 @@ export default function Checkout() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 py-4 px-[12rem]">
+    <div className="w-full min-h-screen bg-gray-50 py-4 px-4 sm:px-6 lg:px-8 xl:px-[12rem]">
+      {/* Header */}
       <div className="mb-8">
         <button
           onClick={() => navigate("/cart/detail")}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6"
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 sm:mb-6"
         >
           <FontAwesomeIcon icon={faArrowLeft} />
           <span>Quay lại giỏ hàng</span>
         </button>
-        <h1 className="text-4xl font-bold text-gray-800">Thanh toán</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800">
+          Thanh toán
+        </h1>
         {!user && (
           <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-800">
+            <p className="text-blue-800 text-[1.4rem]">
               Bạn đang mua hàng với tư cách <strong>khách vãng lai</strong>.
               <button
                 onClick={() =>
@@ -427,19 +430,19 @@ export default function Checkout() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white rounded-xl shadow-lg pt-10 px-10 pb-18 ">
-              <div className="flex items-center gap-3 mb-6">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="lg:col-span-2 space-y-6 lg:space-y-8">
+            <div className="bg-white rounded-xl shadow-lg pt-6 lg:pt-10 px-4 sm:px-6 lg:px-10 pb-6 lg:pb-18">
+              <div className="flex items-center gap-3 mb-4 lg:mb-6">
                 <FontAwesomeIcon
                   icon={faMapMarkerAlt}
-                  className="text-2xl text-red-500"
+                  className="text-xl lg:text-2xl text-red-500"
                 />
-                <h2 className=" font-bold">Thông tin giao hàng</h2>
+                <h2 className="font-bold">Thông tin giao hàng</h2>
               </div>
 
-              <div className="space-y-6">
-                <div className="w-full flex items-start gap-[2rem]">
+              <div className="space-y-4 lg:space-y-6">
+                <div className="flex flex-col sm:flex-row items-start gap-4 lg:gap-[2rem]">
                   <div className="w-full space-y-1">
                     <label
                       htmlFor="customerName"
@@ -450,7 +453,7 @@ export default function Checkout() {
                     <input
                       type="text"
                       placeholder="Họ và tên *"
-                      className="w-full h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg focus:outline-none focus:border-cyan-300"
+                      className="w-full h-[4rem] pl-[1rem] lg:pl-[1.5rem] border border-gray-300 rounded-lg focus:outline-none focus:border-cyan-300"
                       {...register("customerName", {
                         required: "Vui lòng nhập họ tên!",
                       })}
@@ -471,7 +474,7 @@ export default function Checkout() {
                     <input
                       type="tel"
                       placeholder="Số điện thoại *"
-                      className="w-full h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg focus:outline-none focus:border-cyan-300"
+                      className="w-full h-[4rem] pl-[1rem] lg:pl-[1.5rem] border border-gray-300 rounded-lg focus:outline-none focus:border-cyan-300"
                       readOnly={!!user?.phone}
                       {...register("customerPhone", {
                         required: "Vui lòng nhập số điện thoại!",
@@ -484,6 +487,8 @@ export default function Checkout() {
                     )}
                   </div>
                 </div>
+
+                {/* Email */}
                 <div className="w-full space-y-1">
                   <label
                     htmlFor="customerEmail"
@@ -494,7 +499,7 @@ export default function Checkout() {
                   <input
                     type="email"
                     placeholder="Email (tùy chọn)"
-                    className="w-full h-[4rem] pl-[1.5rem] border border-gray-300 rounded-lg focus:outline-none focus:border-cyan-300 md:col-span-2 select-none"
+                    className="w-full h-[4rem] pl-[1rem] lg:pl-[1.5rem] border border-gray-300 rounded-lg focus:outline-none focus:border-cyan-300 md:col-span-2 select-none"
                     readOnly={!!user?.email}
                     {...register("customerEmail", {
                       required: "Vui lòng nhập email!",
@@ -506,6 +511,8 @@ export default function Checkout() {
                     </span>
                   )}
                 </div>
+
+                {/* Shipping Address */}
                 <div className="w-full space-y-2">
                   <label className="block text-gray-600 font-medium">
                     Địa chỉ giao hàng
@@ -514,14 +521,17 @@ export default function Checkout() {
                     {selectedAddress ? (
                       <div
                         key={selectedAddress.id}
-                        className="flex items-center justify-between border border-dashed rounded-md p-[2rem] border-gray-300"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between border border-dashed rounded-md p-4 lg:p-[2rem] border-gray-300 gap-4"
                       >
-                        <div className="space-y-2" key={selectedAddress.id}>
-                          <div className="flex items-center gap-[1rem] text-gray-500">
+                        <div
+                          className="space-y-2 flex-1"
+                          key={selectedAddress.id}
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 lg:gap-[1rem] text-gray-500">
                             <span className="text-gray-800">
                               {selectedAddress.recipentName}
                             </span>
-                            <span className="block h-[1.5rem] border-l border-l-gray-300"></span>
+                            <span className="hidden sm:block h-[1.5rem] border-l border-l-gray-300"></span>
                             <span className="text-[1.4rem]">
                               {selectedAddress.phone}
                             </span>
@@ -536,16 +546,16 @@ export default function Checkout() {
                           {selectedAddress.isDefault && (
                             <button
                               type="button"
-                              className="text-[1.2rem] px-[.8rem] py-[.2rem] text-red-500 border border-red-300 rounded-sm"
+                              className="text-[1.2rem] px-[.8rem] py-[.2rem] text-red-500 border border-red-300 rounded-sm inline-block mt-2"
                             >
                               Mặc định
                             </button>
                           )}
                         </div>
-                        <div className="flex flex-col space-y-4">
+                        <div className="flex space-y-2 sm:flex-col sm:space-y-4">
                           <button
                             type="button"
-                            className="flex-1 px-[1rem] py-[.4rem] text-[1.4rem] border text-amber-500 border-amber-400 hover:border-amber-600 hover:text-amber-600 rounded-sm"
+                            className="px-[1rem] py-[.4rem] text-[1.4rem] border text-amber-500 border-amber-400 hover:border-amber-600 hover:text-amber-600 rounded-sm w-full sm:w-auto"
                             onClick={() => {
                               if (user) {
                                 setIsSelectAddressOpen({
@@ -568,7 +578,7 @@ export default function Checkout() {
                     ) : (
                       <button
                         type="button"
-                        className="flex items-center gap-[.5rem] text-center rounded-md px-[2rem] py-[.6rem] border border-dashed border-blue-500 cursor-pointer hover:border-blue-600 text-blue-500 hover:text-blue-600"
+                        className="flex items-center justify-center gap-[.5rem] text-center rounded-md px-4 lg:px-[2rem] py-3 lg:py-[.6rem] border border-dashed border-blue-500 cursor-pointer hover:border-blue-600 text-blue-500 hover:text-blue-600 w-full"
                         onClick={() => {
                           if (user) {
                             setIsSelectAddressOpen({
@@ -584,8 +594,11 @@ export default function Checkout() {
                           }
                         }}
                       >
-                        <FontAwesomeIcon icon={faAdd} className="text-[2rem]" />
-                        <p className="text-gra-500 text-[1.6rem] select-none">
+                        <FontAwesomeIcon
+                          icon={faAdd}
+                          className="text-[1.5rem] lg:text-[2rem]"
+                        />
+                        <p className="text-gray-500 text-[1.4rem] lg:text-[1.6rem] select-none">
                           Thêm địa chỉ
                         </p>
                       </button>
@@ -593,6 +606,7 @@ export default function Checkout() {
                   </div>
                 </div>
 
+                {/* Note */}
                 <div className="w-full space-y-1">
                   <label htmlFor="customerNote" className="block text-gray-600">
                     Ghi chú
@@ -600,7 +614,7 @@ export default function Checkout() {
                   <textarea
                     placeholder="Ghi chú cho shop (tùy chọn)"
                     rows={2}
-                    className="w-full pl-[1.5rem] py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-400 md:col-span-2"
+                    className="w-full pl-[1rem] lg:pl-[1.5rem] py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-400 md:col-span-2"
                     {...register("customerNote")}
                   />
                 </div>
@@ -608,31 +622,33 @@ export default function Checkout() {
             </div>
           </div>
 
+          {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg px-6 py-10 top-6">
-              <h2 className="font-bold text-gray-800 mb-6 flex items-center gap-3">
+            <div className="bg-white rounded-xl shadow-lg px-4 sm:px-6 py-6 lg:py-10 sticky top-4 lg:top-6">
+              <h2 className="font-bold text-gray-800 mb-4 lg:mb-6 flex items-center gap-3">
                 <FontAwesomeIcon icon={faTruck} className="text-red-500" />
-                Đơn hàng ({checkoutData.items.length} sản phẩm)
+                <span>Đơn hàng ({checkoutData.items.length} sản phẩm)</span>
               </h2>
 
-              <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+              {/* Order Items List */}
+              <div className="space-y-4 max-h-64 sm:max-h-80 lg:max-h-96 overflow-y-auto pr-2 mb-4 lg:mb-6">
                 {checkoutData.items.map((item, index) => (
                   <div
                     key={index}
-                    className="flex justify-between gap-4 pb-4 border-b border-gray-100 last:border-0"
+                    className="flex justify-between gap-3 lg:gap-4 pb-4 border-b border-gray-100 last:border-0"
                   >
-                    <div className="flex items-center gap-[1rem]">
+                    <div className="flex items-center gap-3 lg:gap-[1rem] min-w-0">
                       <img
                         src={item.mainImage}
                         alt={item.productName}
-                        className="w-20 h-20 rounded-lg object-cover border"
+                        className="w-16 h-16 lg:w-20 lg:h-20 rounded-lg object-cover border flex-shrink-0"
                       />
-                      <div className="max-w-[15rem]">
+                      <div className="min-w-0 flex-1">
                         <p className="text-gray-800 line-clamp-1 text-[1.4rem]">
                           {item.productName}
                         </p>
                         {item.size && item.color && (
-                          <p className="text-[1.2rem] text-gray-500">
+                          <p className="text-[1.2rem] text-gray-500 truncate">
                             {item.color} / {item.size}
                           </p>
                         )}
@@ -641,16 +657,17 @@ export default function Checkout() {
                         </p>
                       </div>
                     </div>
-                    <p className="text-red-600 whitespace-nowrap text-[1.4rem]">
+                    <p className="text-red-600 whitespace-nowrap text-[1.4rem] flex-shrink-0">
                       {formatPrice(item.price * item.quantity)}
                     </p>
                   </div>
                 ))}
               </div>
 
+              {/* Voucher Section */}
               <div className="py-4 border-t border-b border-gray-200">
                 {selectVoucher.voucher ? (
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <p className="text-blue-600">Đã áp dụng voucher:</p>
                     <div className="flex space-x-4 gap-2">
                       <button
@@ -680,38 +697,28 @@ export default function Checkout() {
                   </div>
                 ) : (
                   <div className="py-4 border-t border-b border-gray-200">
-                    {selectVoucher.voucher ? (
-                      <p
-                        className="text-blue-600 cursor-pointer hover:text-blue-700 select-none"
-                        onClick={() =>
-                          setSelectVoucher((prev) => ({ ...prev, open: true }))
+                    <p
+                      className="text-blue-600 cursor-pointer hover:text-blue-700 select-none text-center sm:text-left"
+                      onClick={() => {
+                        if (user) {
+                          setSelectVoucher({
+                            open: true,
+                            voucher: null,
+                            conditionValue: checkoutData.subtotal,
+                          });
+                        } else {
+                          setShowLogin(true);
                         }
-                      >
-                        Đã áp dụng 1 voucher
-                      </p>
-                    ) : (
-                      <p
-                        className="text-blue-600 cursor-pointer hover:text-blue-700 select-none"
-                        onClick={() => {
-                          if (user) {
-                            setSelectVoucher({
-                              open: true,
-                              voucher: null,
-                              conditionValue: checkoutData.subtotal,
-                            });
-                          } else {
-                            setShowLogin(true);
-                          }
-                        }}
-                      >
-                        Chọn hoặc nhập mã voucher
-                      </p>
-                    )}
+                      }}
+                    >
+                      Chọn hoặc nhập mã voucher
+                    </p>
                   </div>
                 )}
               </div>
 
-              <div className="mt-6 pt-6 space-y-6">
+              {/* Order Summary */}
+              <div className="mt-4 lg:mt-6 pt-4 lg:pt-6 space-y-4 lg:space-y-6">
                 <div className="flex justify-between text-[1.4rem]">
                   <span className="text-gray-800">Tạm tính:</span>
                   <span>{formatPrice(checkoutData.subtotal)}</span>
@@ -744,6 +751,7 @@ export default function Checkout() {
                 </div>
               </div>
 
+              {/* Payment Method */}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center gap-2 mb-4">
                   <FontAwesomeIcon
@@ -778,9 +786,11 @@ export default function Checkout() {
                               icon={faMoneyBillWave}
                               className="text-lg text-green-600"
                             />
-                            <div>
-                              <p className="text-[1.4rem] uppercase">{item}</p>
-                              <p className="text-[1.2rem] text-gray-600">
+                            <div className="min-w-0">
+                              <p className="text-[1.4rem] uppercase truncate">
+                                {item}
+                              </p>
+                              <p className="text-[1.2rem] text-gray-600 truncate">
                                 Thanh toán khi nhận hàng
                               </p>
                             </div>
@@ -789,7 +799,7 @@ export default function Checkout() {
                         {paymentMethod === item && (
                           <FontAwesomeIcon
                             icon={faCheckCircle}
-                            className="text-lg text-pink-500"
+                            className="text-lg text-pink-500 flex-shrink-0"
                           />
                         )}
                       </label>
@@ -798,8 +808,9 @@ export default function Checkout() {
                 </div>
               </div>
 
+              {/* Submit Button */}
               <button
-                className="w-full mt-6 py-5 uppercase bg-red-500 hover:bg-red-600 text-white text-xl font-bold rounded-xl shadow-lg transition transform hover:scale-105"
+                className="w-full mt-6 py-3 lg:py-5 uppercase bg-red-500 hover:bg-red-600 text-white text-lg lg:text-xl font-bold rounded-xl shadow-lg transition transform hover:scale-105 active:scale-95"
                 type="submit"
                 disabled={isSubmitting}
               >
@@ -810,6 +821,7 @@ export default function Checkout() {
         </div>
       </form>
 
+      {/* Modals */}
       {isSelectAddressOpen.open && (
         <SelectAddress
           open={isSelectAddressOpen.open}
