@@ -142,15 +142,19 @@ function ProductDetail() {
   }
 
   return (
-    <div className="relative w-full h-auto px-[12rem]">
-      <div className="flex items-center space-x-2 text-[1.4rem] px-[3rem]">
-        <Link to="/" className="block space-x-2 text-blue-800 ">
+    <div className="relative w-full h-auto px-[1rem] md:px-[3rem] xl:px-[12rem]">
+      <div className="w-full flex flex-wrap items-center gap-1 sm:gap-2 text-[1.2rem] md:text-[1.4rem] px-2 sm:px-4 md:px-6 lg:px-[3rem] py-2">
+        <Link
+          to="/"
+          className="flex items-center gap-1 sm:gap-2 text-blue-800 hover:text-blue-600 transition-colors whitespace-nowrap"
+        >
           <span>Home</span>
           <FontAwesomeIcon
             icon={faAngleRight}
-            className="text-gray-400 cursor-pointer"
+            className="text-gray-400 text-[0.8rem] sm:text-[1rem]"
           />
         </Link>
+
         {(() => {
           if (!product?.category) return null;
 
@@ -163,35 +167,47 @@ function ProductDetail() {
           }
 
           return categories.reverse().map((cat, index) => (
-            <Link
-              key={cat.id}
-              to={`/category/${cat.slug}`}
-              className="flex items-center hover:text-blue-600 transition-colors"
-            >
-              <span className="text-blue-800">{cat.categoryName}</span>
-              {index <= categories.length - 1 && (
+            <div key={cat.id} className="flex items-center whitespace-nowrap">
+              <Link
+                to={`/category/${cat.slug}`}
+                className="flex items-center hover:text-blue-600 transition-colors text-blue-800"
+              >
+                <span className="line-clamp-1 max-w-[80px] sm:max-w-[120px] md:max-w-[150px] lg:max-w-none">
+                  {cat.categoryName}
+                </span>
+              </Link>
+              {index < categories.length - 1 && (
                 <FontAwesomeIcon
                   icon={faAngleRight}
-                  className="mx-2 text-gray-400"
+                  className="mx-1 sm:mx-2 text-gray-400 text-[0.8rem] sm:text-[1rem]"
                 />
               )}
-            </Link>
+              <FontAwesomeIcon
+                icon={faAngleRight}
+                className="text-gray-400 text-[0.8rem] sm:text-[1rem]"
+              />
+            </div>
           ));
         })()}
 
-        <span>{product?.productName}</span>
+        <span className="text-gray-600 line-clamp-1 max-w-[100px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[300px] xl:max-w-none">
+          {product?.productName}
+        </span>
       </div>
-      <div className="w-full h-auto flex gap-[4rem] rounded-lg mt-[1rem] bg-white p-[1.5rem]">
-        <div className="w-[50rem] h-auto">
+      <div className="w-full h-auto flex md:flex-row flex-col gap-[4rem] rounded-lg mt-[1rem] bg-white p-[1rem] md:p-[1.5rem]">
+        <div className="w-full md:w-[40rem] xl:w-[50rem] h-auto">
           <img
             src={product?.mainImage}
             alt={product?.productName}
-            className="w-full h-[50rem] object-cover"
+            className="w-full md:h-[40rem] h-[25rem] xl:h-[50rem] object-cover"
           />
           <div className="flex items-center space-x-4 mt-[1rem]">
             {product?.listImageProduct.map((imgItem) => {
               return (
-                <div key={imgItem.id} className="w-[8rem] h-[8rem] rounded-md ">
+                <div
+                  key={imgItem.id}
+                  className="w-[6rem] h-[6rem] md:w-[8rem] md:h-[8rem] rounded-md "
+                >
                   <img
                     src={imgItem.imageUrl}
                     alt={`imageItem-${imgItem.id}`}
@@ -202,11 +218,11 @@ function ProductDetail() {
             })}
           </div>
         </div>
-        <div className="flex-1 space-y-4">
-          <h3 className="text-[2.2rem] text-gray-800">
+        <div className="flex-1 space-y-2 md:space-y-4">
+          <h3 className="text-[1.4rem] md:text-[2rem] xl:text-[2.2rem] text-gray-800">
             {product?.productName}
           </h3>
-          <div className="flex items-center space-x-6 ">
+          <div className="flex items-center space-x-6 text-[1.2rem] md:text-[1.6rem]">
             <div className="flex items-center space-x-1">
               <span className="text-gray-800">{product.averageRating}</span>
               <div className="flex items-center">
@@ -215,7 +231,7 @@ function ProductDetail() {
                     <FontAwesomeIcon
                       icon={faStar}
                       key={star}
-                      className={`text-[1.4rem] ${
+                      className={`${
                         star <= product.averageRating
                           ? "text-yellow-400"
                           : "text-gray-300"
@@ -228,29 +244,27 @@ function ProductDetail() {
             <span className="h-[1.5rem] border-r border-r-gray-400"></span>
             <p className="flex items-center space-x-2">
               <span className="text-gray-800">{product.reviewCount}</span>
-              <span className="text-[1.4rem] text-gray-500 mt-0.5">
-                Đánh giá
-              </span>
+              <span className=" text-gray-500 mt-0.5">Đánh giá</span>
             </p>
             <span className="h-[1.5rem] border-r border-r-gray-400"></span>
             <div className="flex items-center space-x-2">
-              <span className="text-[1.4rem] text-gray-500 mt-0.5">Đã bán</span>
+              <span className=" text-gray-500 mt-0.5">Đã bán</span>
               <p className="text-gray-800">{product.soldCount}</p>
             </div>
           </div>
           <div className="flex items-center">
-            <p className="text-red-500 text-[2.5rem]">
+            <p className="text-red-500 text-[2rem] md:text-[2.2rem] xl:text-[2.5rem]">
               {formatPrice(product?.price)}
             </p>
           </div>
 
-          <div className="space-x-4 mt-[2rem]">
+          <div className="space-x-4 mt-[2rem] text-[1.4rem] md:text-[1.6rem]">
             <span className="block text-gray-600 text-start">
               Mã giảm giá bạn có thể sử dụng:
             </span>
             <div className="flex items-center space-x-8 mt-[1rem]">
               <span
-                className="relative block px-[2.5rem] py-[.5rem] text-[1.4rem] bg-gray-800 text-white select-none rounded-xl"
+                className="relative block px-[2.5rem] py-[.5rem] text-[1.2rem] md:text-[1.4rem] bg-gray-800 text-white select-none rounded-xl"
                 onClick={() => {
                   navigator.clipboard.writeText("Hello");
                 }}
@@ -259,25 +273,10 @@ function ProductDetail() {
                 <span className="absolute w-[1.8rem] h-[1rem] top-[50%] translate-y-[-50%] left-[-1rem] bg-white rounded-full"></span>
                 <span className="absolute top-[50%] translate-y-[-50%] right-[-1rem] w-[1.8rem] h-[1rem] bg-white rounded-full"></span>
               </span>
-              <span className="relative block px-[2.5rem] py-[.5rem] text-[1.4rem] bg-gray-800 text-white select-none rounded-xl">
-                DECL01
-                <span className="absolute w-[1.8rem] h-[1rem] top-[50%] translate-y-[-50%] left-[-1rem] bg-white rounded-full"></span>
-                <span className="absolute top-[50%] translate-y-[-50%] right-[-1rem] w-[1.8rem] h-[1rem] bg-white rounded-full"></span>
-              </span>
-              <span className="relative block px-[2.5rem] py-[.5rem] text-[1.4rem] bg-gray-800 text-white select-none rounded-xl">
-                DECL01
-                <span className="absolute w-[1.8rem] h-[1rem] top-[50%] translate-y-[-50%] left-[-1rem] bg-white rounded-full"></span>
-                <span className="absolute top-[50%] translate-y-[-50%] right-[-1rem] w-[1.8rem] h-[1rem] bg-white rounded-full"></span>
-              </span>
-              <span className="relative block px-[2.5rem] py-[.5rem] text-[1.4rem] bg-gray-800 text-white select-none rounded-xl">
-                DECL01
-                <span className="absolute w-[1.8rem] h-[1rem] top-[50%] translate-y-[-50%] left-[-1rem] bg-white rounded-full"></span>
-                <span className="absolute top-[50%] translate-y-[-50%] right-[-1rem] w-[1.8rem] h-[1rem] bg-white rounded-full"></span>
-              </span>
             </div>
           </div>
 
-          <div className="flex items-start space-x-4 mt-[2rem]">
+          <div className="flex items-start space-x-4 mt-[2rem] text-[1.4rem] md:text-[1.6rem]">
             <span className="block text-gray-600 w-[12rem] text-start">
               Chọn màu
             </span>
@@ -302,7 +301,7 @@ function ProductDetail() {
               })}
             </div>
           </div>
-          <div className="flex items-start space-x-4 mt-[2rem]">
+          <div className="flex items-start space-x-4 mt-[2rem] text-[1.4rem] md:text-[1.6rem]">
             <span className="block text-gray-600 w-[12rem] text-start">
               Chọn size
             </span>
@@ -319,7 +318,7 @@ function ProductDetail() {
                 return (
                   <button
                     key={size.id}
-                    className={`flex items-center gap-[.5rem] px-[2rem] py-[.6rem] border rounded-[.5rem] ${!disableSize ? "border-gray-200 text-gray-200" : selectVariantSize?.id === size.id ? "border-[.1rem] bg-blue-50 border-blue-600" : "border-gray-300"} cursor-pointer`}
+                    className={`flex items-center gap-[.5rem] px-[1rem] md:px-[2rem] py-[.4rem] md:py-[.6rem] border rounded-[.5rem] ${!disableSize ? "border-gray-200 text-gray-200" : selectVariantSize?.id === size.id ? "border-[.1rem] bg-blue-50 border-blue-600" : "border-gray-300"} cursor-pointer`}
                     disabled={!disableSize}
                     onClick={() => setSelectVariantSize(size)}
                   >
@@ -329,7 +328,7 @@ function ProductDetail() {
               })}
             </div>
           </div>
-          <div className="flex items-start gap-[2rem] mt-[2rem]">
+          <div className="flex items-start gap-[2rem] mt-[2rem] text-[1.4rem] md:text-[1.6rem]">
             <span className="block text-gray-600 w-[12rem] text-start">
               Số lượng
             </span>
@@ -377,7 +376,7 @@ function ProductDetail() {
                   <FontAwesomeIcon icon={faPlus} className="text-[1rem]" />
                 </span>
               </div>
-              <span className="text-[1.4rem] text-gray-600 uppercase select-none">
+              <span className="text-[1rem] md:text-[1.4rem] text-gray-600 uppercase select-none">
                 {!isQuantity
                   ? TotalInventory > 0
                     ? "Còn hàng"
@@ -386,11 +385,13 @@ function ProductDetail() {
               </span>
             </div>
           </div>
-          <p className="text-[1.4rem] text-red-500 mt-[4rem]">{message}</p>
-          <div className="flex items-center  gap-[1rem] mt-[.5rem]">
+          <p className="text-[1.2rem] md:text-[1.4rem] text-red-500 mt-[4rem]">
+            {message}
+          </p>
+          <div className="flex items-center  gap-[1rem] mt-[.5rem] text-[1.4rem] md:text-[1.6rem]">
             <button
               type="button"
-              className="px-[2.5rem] py-[1.2rem] border border-amber-500 hover:border-amber-600 text-amber-600 hover:text-amber-700 rounded-[.5rem] hover-linear select-none cursor-pointer"
+              className="px-[1rem] md:px-[2.5rem] py-[.8rem] md:py-[1.2rem] border border-amber-500 hover:border-amber-600 text-amber-600 hover:text-amber-700 rounded-[.5rem] hover-linear select-none cursor-pointer"
               disabled={isLoading}
               onClick={() => handleAddCartOrBuyNow("add")}
             >
@@ -405,7 +406,7 @@ function ProductDetail() {
             </button>
             <button
               type="button"
-              className="px-[2.5rem] py-[1.2rem] bg-red-500 text-white hover:bg-red-600 rounded-[.5rem] hover-linear cursor-pointer"
+              className="px-[1rem] md:px-[2.5rem] py-[.8rem] md:py-[1.2rem] bg-red-500 text-white hover:bg-red-600 rounded-[.5rem] hover-linear cursor-pointer"
               disabled={isLoading}
               onClick={() => handleAddCartOrBuyNow("buy")}
             >
@@ -414,12 +415,12 @@ function ProductDetail() {
           </div>
         </div>
       </div>
-      <div className="w-full mt-[2rem] rounded-lg h-auto bg-white p-[2.5rem]">
-        <div className="w-full py-[1rem] px-[2rem] bg-gray-100 text-[2rem] text-pink-600 mb-8 uppercase">
+      <div className="w-full mt-[2rem] rounded-lg h-auto bg-white p-[1rem] md:p-[2.5rem]">
+        <div className="w-full py-[1rem] px-[1rem] md:px-[2rem] bg-gray-100 text-[1.4rem] md:text-[2rem] text-pink-600 mb-8 uppercase">
           Mô tả sản phẩm
         </div>
         <div
-          className="prose prose-2xl max-w-none text-gray-600 px-[2rem]"
+          className="prose prose-2xl max-w-none text-gray-600 px-[1rem] md:px-[2rem] text-[1.4rem]"
           dangerouslySetInnerHTML={{ __html: product.description }}
         ></div>
       </div>

@@ -86,12 +86,12 @@ function Login() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white shadow-2xl rounded-2xl p-[2.5rem] transform transition-all">
+    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center md:p-4">
+      <div className="w-[90%] md:max-w-2xl bg-white shadow-2xl rounded-2xl p-5 md:p-[2.5rem] transform transition-all">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+          <div className="w-15 md:w-20 h-15 md:h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
             <svg
-              className="w-10 h-10 text-white"
+              className="w-6 md:w-10 h-6 md:h-10 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -104,13 +104,18 @@ function Login() {
               />
             </svg>
           </div>
-          <h2 className="text-[2.2rem] font-bold text-gray-800 mb-2">
+          <h2 className="text-[1.8rem] md:text-[2.2rem] font-bold text-gray-800 mb-2">
             Đăng nhập
           </h2>
-          <p className="text-gray-500">Chào mừng bạn trở lại! 👋</p>
+          <p className="text-gray-500 text-[1.4rem] md:text-[1.6rem]">
+            Chào mừng bạn trở lại! 👋
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 text-[1.4rem] md:text-[1.6rem]"
+        >
           <div>
             <label
               htmlFor="email"
@@ -219,7 +224,7 @@ function Login() {
           </button>
         </form>
 
-        <div className="mt-6 space-y-3 text-center">
+        <div className="mt-6 space-y-3 text-center ">
           <Link
             to="/"
             className="block text-[1.4rem] text-blue-600 hover:text-blue-700 font-medium"

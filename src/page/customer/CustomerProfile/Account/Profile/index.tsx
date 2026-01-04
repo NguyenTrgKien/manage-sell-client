@@ -160,17 +160,16 @@ function ProfileCustomer() {
         </p>
       </div>
       <div className="flex flex-col lg:flex-row mt-[2rem] sm:mt-[3rem] gap-6 lg:gap-0">
-        {/* Form Section */}
         <div className="flex-1 order-2 lg:order-1">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-6 sm:space-y-8 md:space-y-10"
+            className="space-y-8 md:space-y-10"
           >
-            <div>
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-[1rem] md:gap-[2rem]">
+            <>
+              <div className="flex text-[1.4rem] md:text-[1.6rem] items-center gap-[1rem] md:gap-[2rem]">
                 <label
                   htmlFor="username"
-                  className="block w-full md:w-[14rem] text-start md:text-end text-gray-600"
+                  className="block md:w-[14rem] text-start md:text-end text-gray-600"
                 >
                   Tên
                 </label>
@@ -187,13 +186,13 @@ function ProfileCustomer() {
                   {errors.user.username.message}
                 </p>
               )}
-            </div>
+            </>
 
             <div>
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-[1rem] md:gap-[2rem]">
+              <div className="flex md:flex-row items-center gap-[1rem] md:gap-[2rem] text-[1.4rem] md:text-[1.6rem]">
                 <label
                   htmlFor="email"
-                  className="block w-full md:w-[14rem] text-start md:text-end text-gray-600"
+                  className="block md:w-[14rem] text-start md:text-end text-gray-600"
                 >
                   Email
                 </label>
@@ -212,8 +211,7 @@ function ProfileCustomer() {
               )}
             </div>
 
-            {/* Phone */}
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-[1rem] md:gap-[2rem]">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-[1rem] md:gap-[2rem] text-[1.4rem] md:text-[1.6rem]">
               <label
                 htmlFor="phone"
                 className="block w-full md:w-[14rem] text-start md:text-end text-gray-600"
@@ -241,8 +239,7 @@ function ProfileCustomer() {
               )}
             </div>
 
-            {/* Gender */}
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-[1rem] md:gap-[2rem]">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-[1rem] md:gap-[2rem] text-[1.4rem] md:text-[1.6rem]">
               <label
                 htmlFor="gender"
                 className="block w-full md:w-[14rem] text-start md:text-end text-gray-600"
@@ -271,8 +268,7 @@ function ProfileCustomer() {
               </div>
             </div>
 
-            {/* Birthday */}
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-[1rem] md:gap-[2rem]">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-[1rem] md:gap-[2rem] text-[1.4rem] md:text-[1.6rem]">
               <label
                 htmlFor="birthday"
                 className="block w-full md:w-[14rem] text-start md:text-end text-gray-600"
@@ -287,7 +283,6 @@ function ProfileCustomer() {
               />
             </div>
 
-            {/* Submit Button */}
             <div className="flex items-center justify-start md:justify-end pt-4">
               <button
                 className="w-full sm:w-auto px-[2rem] py-[.8rem] rounded-md bg-red-500 hover:bg-red-600 text-white transition duration-150 cursor-pointer"
@@ -300,11 +295,10 @@ function ProfileCustomer() {
           </form>
         </div>
 
-        {/* Avatar Section */}
         <div className="w-full lg:w-[30rem] h-auto pl-0 lg:pl-[4rem] ml-0 lg:ml-[4rem] border-l-0 lg:border-l border-l-gray-300 mb-[2rem] lg:mb-0 order-1 lg:order-2">
           <div className="flex items-center justify-center flex-col">
             {avatarUrl ? (
-              <div className="w-[12rem] h-[12rem] sm:w-[14rem] sm:h-[14rem] rounded-full flex items-center justify-center">
+              <div className="w-[10rem] md:w-[12rem] h-[10rem] md:h-[12rem] sm:w-[14rem] sm:h-[14rem] rounded-full flex items-center justify-center">
                 <img
                   src={avatarUrl}
                   alt="avatar"
@@ -321,7 +315,7 @@ function ProfileCustomer() {
             )}
             <label
               htmlFor="avatar"
-              className="flex items-center justify-center w-[12rem] h-[3.8rem] rounded-md border border-gray-300 cursor-pointer mt-[2rem] text-gray-600 hover:bg-gray-50 transition duration-150"
+              className="text-[1.4rem] md:text-[1.6rem] flex items-center justify-center w-[12rem] h-[3.8rem] rounded-md border border-gray-500 border-dashed cursor-pointer mt-[2rem] text-gray-600 hover:bg-gray-50 transition duration-150"
             >
               <input
                 type="file"
@@ -336,7 +330,6 @@ function ProfileCustomer() {
         </div>
       </div>
 
-      {/* Change Phone Modal */}
       <MotionWrapper
         open={changePhone}
         className="relative w-[90vw] sm:w-[32rem] md:w-2xl max-w-[90vw] min-h-[18rem] bg-white rounded-md p-[1.5rem] sm:p-[2rem]"
@@ -384,7 +377,6 @@ function ProfileCustomer() {
         </button>
       </MotionWrapper>
 
-      {/* Success Message Modal */}
       <MotionWrapper
         open={showMessage}
         className="relative w-[90vw] sm:w-[30rem] max-w-[90vw] min-h-[15rem] bg-white rounded-md p-[2rem] sm:p-[3rem] shadow-lg"

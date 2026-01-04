@@ -54,12 +54,12 @@ function Register() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white shadow-2xl rounded-2xl p-[2rem] transform transition-all">
+    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center md:p-4">
+      <div className="w-[90%] md:max-w-2xl bg-white shadow-2xl rounded-2xl p-5 md:p-[2.5rem] transform transition-all">
         <div className="text-center mb-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-orange-300 to-orange-600 rounded-full mx-auto mb-2 flex items-center justify-center shadow-lg">
+          <div className="w-15 md:w-20 h-15 md:h-20 bg-gradient-to-br from-orange-300 to-orange-600 rounded-full mx-auto mb-2 flex items-center justify-center shadow-lg">
             <svg
-              className="w-10 h-10 text-white"
+              className="w-6 md:w-10 h-6 md:h-10 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -72,10 +72,15 @@ function Register() {
               />
             </svg>
           </div>
-          <h2 className="text-[2rem] font-bold text-gray-800 mb-2">Đăng ký</h2>
+          <h2 className="text-[1.8rem] md:text-[2.2rem] font-bold text-gray-800 mb-2">
+            Đăng ký
+          </h2>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6 text-[1.4rem] md:text-[1.6rem]"
+        >
           <div>
             <label
               htmlFor="email"

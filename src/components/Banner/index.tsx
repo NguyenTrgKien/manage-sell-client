@@ -124,13 +124,13 @@ function Banner() {
                   </div>
 
                   <div className="absolute bottom-0 left-0 right-0 p-4 xs:p-6 sm:p-8 md:p-10 lg:p-12 text-white">
-                    <h3 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-2 xs:mb-3 leading-tight">
+                    <h3 className="xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-2 xs:mb-3 leading-tight">
                       {banner.title}
                     </h3>
-                    <p className="text-sm xs:text-base sm:text-lg md:text-xl text-white/90 mb-4 xs:mb-6 max-w-full sm:max-w-xl md:max-w-2xl line-clamp-2 xs:line-clamp-none">
+                    <p className="text-lg xs:text-base sm:text-lg md:text-xl text-white/90 mb-4 xs:mb-6 max-w-full sm:max-w-xl md:max-w-2xl line-clamp-2 xs:line-clamp-none">
                       {banner.subTitle}
                     </p>
-                    <button className="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 xs:py-3 sm:py-4 px-6 xs:px-8 sm:px-10 rounded-full text-sm xs:text-base sm:text-lg inline-flex items-center gap-2 xs:gap-3 transition-all transform hover:scale-105 shadow-lg">
+                    <button className="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 xs:py-3 sm:py-4 px-6 xs:px-8 sm:px-10 rounded-full text-[1.4rem] md:text-[1.6rem] inline-flex items-center gap-2 xs:gap-3 transition-all transform hover:scale-105 shadow-lg">
                       Mua ngay
                       <FontAwesomeIcon
                         icon={faArrowRight}

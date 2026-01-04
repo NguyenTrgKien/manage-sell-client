@@ -14,7 +14,7 @@ import { getCart, getVariantByIds } from "../../api/user.api";
 import { toast } from "react-toastify";
 import type { VariantsType } from "../../utils/types";
 import axiosConfig from "../../configs/axiosConfig";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
 
 interface CartProp {
@@ -170,12 +170,12 @@ function Cart({ showCart, setShowCart }: CartProp) {
   return (
     <MotionWrapper
       open={showCart}
-      className="w-[50rem] min-h-[20rem] max-h-[55rem] bg-white rounded-md shadow-xl overflow-hidden p-5"
+      className="w-[90%] md:w-[50rem] max-h-[55rem] bg-white rounded-md shadow-xl overflow-hidden px-2 py-4 md:p-5"
     >
       <>
         <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
           <FontAwesomeIcon icon={faCartPlus} className="text-red-500" />
-          <div className="font-semibold text-gray-700">
+          <div className="text-[1.4rem] md:text-[1.6rem] font-semibold text-gray-700">
             GIỎ HÀNG ({cartItems?.length})
           </div>
           <span
@@ -189,30 +189,31 @@ function Cart({ showCart, setShowCart }: CartProp) {
         {cartItems?.length > 0 ? (
           <div className="overflow-y-auto hide-scrollbar max-h-[40rem]">
             {cartItems.map((item: any) => (
-              <div
+              <Link
+                to={`/product-detail/${item.product.slug}`}
                 key={item.id}
-                className="flex items-center justify-between p-5 border-b border-gray-200"
+                className="flex items-center justify-between p-4 md:p-5 border-b border-gray-200"
               >
-                <div className="flex items-center gap-[1rem]">
+                <div className=" flex items-center gap-[1rem]">
                   <img
                     src={item.product.mainImage}
                     alt=""
                     className="w-[4.8rem] h-[4.8rem] rounded-md object-cover"
                   />
                   <div className="w-[20rem]">
-                    <div className="text-[1.4rem] text-gray-800 text-limit-1">
+                    <div className="text-[1.2rem] md:text-[1.4rem] text-gray-800 text-limit-1">
                       {item.product.productName}
                     </div>
-                    <div className="flex items-center gap-[1rem]">
-                      <p className="flex items-center gap-2 text-gray-600 text-[1.2rem]">
+                    <div className="flex items-center gap-1 md:gap-[1rem]">
+                      <p className="flex items-center gap-2 text-gray-600 text-[1rem] md:text-[1.2rem]">
                         Size: <span className="">{item.variantSize.name}</span>
                       </p>
                       <span className="block h-[1.2rem] border-l border-l-gray-400"></span>
-                      <p className="flex items-center gap-2 text-gray-600 text-[1.2rem]">
+                      <p className="flex items-center gap-2 text-gray-600 text-[1rem] md:text-[1.2rem]">
                         Màu: <span className="">{item.variantColor.name}</span>
                       </p>
                     </div>
-                    <div className="text-red-500 text-[1.4rem]">
+                    <div className="text-red-500 text-[1rem] md:text-[1.4rem]">
                       {Intl.NumberFormat("vi-VN", {
                         style: "currency",
                         currency: "VND",
@@ -224,7 +225,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    className="h-[2.4rem] w-[2.4rem] flex items-center justify-center border border-gray-400 rounded hover:bg-gray-100"
+                    className="h-[2rem] w-[2rem] md:h-[2.4rem] md:w-[2.4rem] text-[1.4rem] md:text-[1.6rem] flex items-center justify-center border border-gray-400 rounded hover:bg-gray-100"
                     onClick={() => handleQuantity(item.id, "decre")}
                   >
                     <FontAwesomeIcon
@@ -232,11 +233,11 @@ function Cart({ showCart, setShowCart }: CartProp) {
                       className="text-[1.2rem] text-gray-600"
                     />
                   </button>
-                  <span className="text-gray-600 text-[1.4rem]">
+                  <span className="text-gray-600 text-[1.2rem] md:text-[1.4rem]">
                     {item.quantity}
                   </span>
                   <button
-                    className="h-[2.4rem] w-[2.4rem] flex items-center justify-center border border-gray-400 rounded hover:bg-gray-100"
+                    className="h-[2rem] w-[2rem] md:h-[2.4rem] md:w-[2.4rem] text-[1.4rem] md:text-[1.6rem] flex items-center justify-center border border-gray-400 rounded hover:bg-gray-100"
                     onClick={() => handleQuantity(item.id, "incre")}
                   >
                     <FontAwesomeIcon
@@ -256,7 +257,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
                     />
                   </button>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         ) : (
@@ -267,7 +268,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
             </p>
           </div>
         )}
-        <div className="mt-[2rem] flex items-center justify-end gap-[1rem]">
+        <div className="mt-[2rem] flex items-center justify-end gap-[1rem] text-[1.2rem] md:text-[1.6rem]">
           <button
             className="px-[2rem] h-[3.5rem] rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300 transition duration-300"
             onClick={() => setShowCart(false)}

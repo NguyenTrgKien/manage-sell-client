@@ -40,7 +40,7 @@ function PopularProduct() {
   return (
     <section className="mt-[2rem] rounded-[.5rem] bg-white p-[1.5rem] md:p-[2rem]">
       <div className="flex items-center justify-between mb-6">
-        <h4 className="text-[1.6rem] md:text-[1.8rem] font-bold text-blue-500">
+        <h4 className="text-[1.4rem] md:text-[1.8rem] font-bold text-blue-500">
           Sản phẩm nổi bật
         </h4>
         <Link to="/" className="text-blue-500 text-[1.4rem] hover:underline">
@@ -49,15 +49,13 @@ function PopularProduct() {
       </div>
 
       <div className="relative">
-        {/* Nút Prev */}
         <button className="feature-prev-btn absolute top-1/2 left-2 md:left-4 z-10 -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:shadow-xl transition hidden sm:flex items-center justify-center w-10 h-10">
           <span className="text-2xl">&larr;</span>
         </button>
 
-        {/* Swiper */}
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
-          spaceBetween={15}
+          spaceBetween={10}
           loop={true}
           autoplay={{ delay: 4000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
@@ -67,12 +65,16 @@ function PopularProduct() {
           }}
           breakpoints={{
             320: {
-              slidesPerView: 1,
-              slidesPerGroup: 1,
+              slidesPerView: 2,
+              slidesPerGroup: 2,
+              pagination: false,
+              spaceBetween: 5,
             },
             480: {
               slidesPerView: 2,
               slidesPerGroup: 2,
+              pagination: false,
+              spaceBetween: 5,
             },
             640: {
               slidesPerView: 3,
@@ -90,8 +92,7 @@ function PopularProduct() {
           className="popular-swiper py-8"
         >
           {isLoading
-            ? // Skeleton loading - dùng SwiperSlide để đồng bộ layout
-              Array.from({ length: 10 }).map((_, i) => (
+            ? Array.from({ length: 10 }).map((_, i) => (
                 <SwiperSlide key={`skeleton-${i}`}>
                   <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-product animate-pulse">
                     <div className="h-[18rem] md:h-[20rem] bg-gray-200 rounded-xl mb-4" />
@@ -116,10 +117,9 @@ function PopularProduct() {
                       className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-300"
                     />
 
-                    {/* Overlay + Actions */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="hidden xl:block absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    <div className="absolute w-full h-[4rem] bottom-[.5rem] right-[50%] translate-x-[50%] flex gap-[1rem] items-center justify-center rounded-xl translate-y-[4.5rem] group-hover:translate-y-0 transition duration-300">
+                    <div className="hidden xl:flex absolute w-full h-[4rem] bottom-[.5rem] right-[50%] translate-x-[50%] gap-[1rem] items-center justify-center rounded-xl translate-y-[4.5rem] group-hover:translate-y-0 transition duration-300">
                       <button
                         className="w-[10rem] h-[3.4rem] bg-white hover:bg-gray-200 rounded-md cursor-pointer transition duration-300 flex items-center justify-center gap-2"
                         onClick={(e) => {
@@ -139,7 +139,7 @@ function PopularProduct() {
                         className="w-[4rem] h-[3.4rem] flex items-center justify-center bg-green-500 hover:bg-green-600 rounded-md cursor-pointer transition duration-300"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/product-detail/${product.id}`);
+                          navigate(`/product-detail/${product.slug}`);
                         }}
                       >
                         <FontAwesomeIcon
@@ -150,22 +150,42 @@ function PopularProduct() {
                     </div>
                   </div>
 
-                  <div className="mt-4 px-2 text-center md:text-left">
-                    <h5 className="text-limit-1 text-[1.4rem] md:text-[1.6rem] text-gray-700 font-medium">
+                  <div className="mt-4 px-2 text-left">
+                    <h5 className="text-limit-1 text-[1.2rem] md:text-[1.6rem] text-gray-700 font-medium">
                       {product.productName}
                     </h5>
-                    <p className="mt-2 text-red-600 text-[1.5rem] md:text-[1.6rem] font-bold">
+                    <p className="mt-2 text-red-600 text-[1.4rem] md:text-[1.6rem]">
                       {Intl.NumberFormat("vi-VN", {
                         style: "currency",
                         currency: "VND",
                       }).format(product.price)}
                     </p>
                   </div>
+                  <div className="flex items-center xl:hidden gap-x-4 justify-end mt-2.5">
+                    <button
+                      className="text-blue-600 hover:text-blue-700 text-[1.2rem] mdtext-[1.4rem]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/product-detail/${product.slug}`);
+                      }}
+                    >
+                      Chi tiết
+                    </button>
+                    <button
+                      className="w-[8rem] md:w-[10rem] h-[3rem] md:h-[3.4rem] text-[1.2rem] mdtext-[1.4rem] bg-red-500 hover:bg-red-600 text-white rounded-md cursor-pointer transition duration-300 flex items-center justify-center gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAddCart({ open: true, data: product });
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faCartPlus} />
+                      <span>Thêm</span>
+                    </button>
+                  </div>
                 </SwiperSlide>
               ))}
         </Swiper>
 
-        {/* Nút Next */}
         <button className="feature-next-btn absolute top-1/2 right-2 md:right-4 z-10 -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:shadow-xl transition hidden sm:flex items-center justify-center w-10 h-10">
           <span className="text-2xl">&rarr;</span>
         </button>

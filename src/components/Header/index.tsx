@@ -11,7 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Cart from "../Cart";
 import useAuth from "../../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -36,6 +36,7 @@ function Header() {
   const navigate = useNavigate();
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const location = useLocation();
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const [showVouchers, setShowVouchers] = useState<{
     open: boolean;
     data: VoucherT[] | null;
@@ -68,6 +69,23 @@ function Header() {
     }
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location]);
+
+  useEffect(() => {
+    const handleClickOutSide = (e: MouseEvent) => {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e?.target as Node)
+      ) {
+        setShowMobileMenu(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutSide);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutSide);
+    };
+  }, []);
 
   const handleAccountClick = (redirect: string) => {
     if (!user) {
@@ -177,7 +195,10 @@ function Header() {
               </div>
               <button
                 className="flex flex-col items-center justify-center gap-1 group transition-colors"
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMobileMenu(!showMobileMenu);
+                }}
               >
                 <FontAwesomeIcon
                   icon={faBars}
@@ -388,7 +409,7 @@ function Header() {
             <div className="relative">
               <input
                 type="text"
-                className="text-[1.4rem] w-full h-[3.5rem] pl-10 pr-4 border-2 border-gray-300 rounded-full outline-none focus:border-pink-500 transition-colors"
+                className="text-[1.4rem] w-full h-[3.5rem] pl-12 pr-4 border-2 border-gray-300 rounded-full outline-none focus:border-pink-500 transition-colors"
                 placeholder="Tìm kiếm sản phẩm..."
               />
               <FontAwesomeIcon
@@ -401,9 +422,19 @@ function Header() {
 
         {showMobileMenu && (
           <div
-            className={`absolute px-4 shadow-2xl top-[100%] md:hidden w-full py-8 bg-white border-t border-gray-200`}
+            ref={mobileMenuRef}
+            className={`fixed top-0 right-0 md:hidden w-full h-full bg-[#3e3e3e6f] border-t border-gray-200`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMobileMenu(false);
+            }}
           >
-            <div className="flex flex-col gap-8">
+            <div
+              className="flex flex-col gap-8 bg-white w-[80%] h-full p-[2rem]"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
               {user ? (
                 <>
                   <div className="flex items-center gap-[1rem] pb-[2rem] border-b border-b-gray-200">
