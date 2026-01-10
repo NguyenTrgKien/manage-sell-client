@@ -84,7 +84,7 @@ function Banner() {
             clickable: true,
             bulletClass: "swiper-pagination-bullet",
             bulletActiveClass: "swiper-pagination-bullet-active",
-            renderBullet: function (index, className) {
+            renderBullet: function (_, className) {
               return `<span class="${className} !bg-gray-300 hover:!bg-pink-500"></span>`;
             },
           }}

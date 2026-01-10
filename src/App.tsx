@@ -43,7 +43,6 @@ import Customers from "./page/Dashboard/customer/Customers";
 import Purchased from "./page/Dashboard/customer/Purchased";
 import NoOrder from "./page/Dashboard/customer/NoOrder";
 import Statistic from "./page/Dashboard/customer/Statistic";
-import DetailCustomer from "./page/Dashboard/customer/CustomerDetail";
 import CustomerDetail from "./page/Dashboard/customer/CustomerDetail";
 import GuestCustomers from "./page/Dashboard/guest-customer";
 import StatisticGuest from "./page/Dashboard/guest-customer/StatisticGuest";

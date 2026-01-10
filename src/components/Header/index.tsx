@@ -25,6 +25,7 @@ import { getVouchers } from "../../api/voucher.api";
 import type { VoucherT } from "../../utils/voucher.type";
 import ShowVouchers from "../ShowVouchers";
 import RequireLogin from "../RequireLogin";
+import Sidebar from "../Sidebar";
 
 function Header() {
   const [showCart, setShowCart] = useState(false);
@@ -37,6 +38,8 @@ function Header() {
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const location = useLocation();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const [showSidebar, setShowSideBar] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showVouchers, setShowVouchers] = useState<{
     open: boolean;
     data: VoucherT[] | null;
@@ -55,6 +58,14 @@ function Header() {
     queryKey: ["getAllCategory"],
     queryFn: () => getAllCategory(),
   });
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.addEventListener("resize", onResize);
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -194,15 +205,15 @@ function Header() {
                 )}
               </div>
               <button
-                className="flex flex-col items-center justify-center gap-1 group transition-colors"
+                className={`w-12 h-12 border-2 ${user ? "border-pink-500" : "border-gray-400"} rounded-full flex flex-col items-center justify-center gap-1 group transition-colors`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowMobileMenu(!showMobileMenu);
                 }}
               >
                 <FontAwesomeIcon
-                  icon={faBars}
-                  className="text-gray-600 group-hover:text-pink-600 text-[2rem]"
+                  icon={faUser}
+                  className={`${user ? "text-pink-500" : "text-gray-400"} group-hover:text-pink-600 text-[1.6rem]`}
                 />
               </button>
             </div>
@@ -582,16 +593,22 @@ function Header() {
           </div>
         )}
       </div>
-      <div className="hidden md:block border-t border-t-gray-300 py-[1rem] px-4 md:px-8 lg:px-12 xl:px-[12rem]">
+      <div className="md:block w-[100%] border-t border-t-gray-300 py-[1rem] px-4 md:px-8 lg:px-12 xl:px-[12rem]">
         <nav className="flex items-center justify-between h-12">
           <ul className="flex items-center gap-4 lg:gap-8 overflow-x-auto scrollbar-hide">
-            <li className="relative group shrink-0">
+            <li className="relative group shrink-0 gap-2">
               <button
-                className="flex items-center gap-1 text-[1.2rem] lg:text-[1.4rem] font-semibold text-pink-600 hover:text-pink-700 whitespace-nowrap"
-                onClick={() => handleClickCate()}
+                className="flex items-center text-[1.2rem] lg:text-[1.4rem] font-medium text-pink-600 hover:text-pink-700 whitespace-nowrap mt-1"
+                onClick={() => {
+                  if (isMobile) {
+                    setShowSideBar(true);
+                  } else {
+                    handleClickCate();
+                  }
+                }}
               >
                 <FontAwesomeIcon icon={faBars} />
-                DANH MỤC
+                <span>DANH MỤC</span>
               </button>
             </li>
             {!isLoading ? (
@@ -646,7 +663,19 @@ function Header() {
         </nav>
       </div>
       <Cart setShowCart={setShowCart} showCart={showCart} />
-
+      {isMobile && showSidebar && (
+        <div
+          className="fixed top-0 left-0 h-full w-full bg-[#36363650] z-[999]"
+          onClick={() => setShowSideBar(false)}
+        >
+          <div
+            className="w-[85%] max-w-[36rem] h-full bg-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Sidebar onClose={() => setShowSideBar(false)} />
+          </div>
+        </div>
+      )}
       <ShowVouchers
         open={showVouchers.open}
         onClose={() =>

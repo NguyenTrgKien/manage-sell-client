@@ -77,3 +77,12 @@ export const getProductByCategorySlugs = async (
   });
   return res;
 };
+
+export const getChildOfCate = async (currentSlug: string) => {
+  const res = await axiosConfig.get(`/api/v1/product/child-of-cate`, {
+    params: {
+      currentSlug: currentSlug,
+    },
+  });
+  return res;
+};
