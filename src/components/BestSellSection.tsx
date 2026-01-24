@@ -6,8 +6,6 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 import { useQuery } from "@tanstack/react-query";
-import { getPopular } from "../../api/product.api";
-import type { ProductT } from "../../utils/types";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,10 +13,12 @@ import {
   faCartPlus,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
-import AddCart from "../AddCart";
 import { Link, useNavigate } from "react-router-dom";
+import type { ProductT } from "../utils/types";
+import { getBestSell } from "../api/product.api";
+import AddCart from "./AddCart";
 
-function PopularProduct() {
+function BestSellSection() {
   const navigate = useNavigate();
   const [queryDefault] = useState<{
     limit: number;
@@ -36,19 +36,19 @@ function PopularProduct() {
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["populars", queryDefault],
-    queryFn: () => getPopular(queryDefault),
+    queryKey: ["bestsell", queryDefault],
+    queryFn: () => getBestSell(queryDefault),
   });
-  const populars = data?.data ?? [];
+  const bestSells = data?.data ?? [];
 
   return (
     <section className="mt-[2rem] rounded-[.5rem] bg-white p-[1.5rem] md:p-[2rem]">
       <div className="flex items-center justify-between mb-6">
         <h4 className="text-[1.4rem] md:text-[1.8rem] font-bold text-blue-500">
-          Sản phẩm nổi bật
+          Sản phẩm bán chạy
         </h4>
         <Link
-          to={`/products?q=popular`}
+          to={`/products?q=best_seller`}
           className="flex items-center space-x-1 text-gray-500 text-[1.2rem] md:text-[1.6rem] hover:underline"
         >
           <span>Xem tất cả</span>
@@ -56,7 +56,7 @@ function PopularProduct() {
         </Link>
       </div>
 
-      <div className="relative">
+      <div className="relative ">
         <button className="feature-prev-btn absolute top-1/2 left-2 md:left-4 z-10 -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:shadow-xl transition hidden sm:flex items-center justify-center w-10 h-10">
           <span className="text-2xl">&larr;</span>
         </button>
@@ -65,11 +65,11 @@ function PopularProduct() {
           modules={[Navigation, Pagination, Autoplay]}
           spaceBetween={10}
           loop={true}
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          autoplay={{ delay: 4000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
           navigation={{
-            nextEl: ".popular-next",
-            prevEl: ".popular-prev",
+            nextEl: ".bestsell-next",
+            prevEl: ".bestsell-prev",
           }}
           breakpoints={{
             320: {
@@ -85,8 +85,8 @@ function PopularProduct() {
               spaceBetween: 5,
             },
             640: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
+              slidesPerView: 3,
+              slidesPerGroup: 3,
             },
             1024: {
               slidesPerView: 4,
@@ -109,7 +109,7 @@ function PopularProduct() {
                   </div>
                 </SwiperSlide>
               ))
-            : populars.map((product: ProductT) => (
+            : bestSells.map((product: ProductT) => (
                 <SwiperSlide
                   key={product.id}
                   className="group bg-white rounded-xl p-4 shadow hover:shadow-lg cursor-pointer relative overflow-hidden"
@@ -211,4 +211,4 @@ function PopularProduct() {
   );
 }
 
-export default PopularProduct;
+export default BestSellSection;

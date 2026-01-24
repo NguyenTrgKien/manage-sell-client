@@ -2,9 +2,8 @@ import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import axiosConfig from "../../../../../configs/axiosConfig";
-import { AnimatePresence, motion } from "framer-motion";
-import MotionWrapper from "../../../../../components/ui/MotionWrapper";
+import axiosConfig from "../../../../configs/axiosConfig";
+import MotionWrapper from "../../../../components/ui/MotionWrapper";
 
 interface AddSizeColorProp {
   openAddSizeColor: { open: boolean; node: "size" | "color" };

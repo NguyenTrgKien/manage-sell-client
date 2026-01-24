@@ -9,6 +9,7 @@ import React, {
 import axiosConfig from "../../../../configs/axiosConfig";
 import { toast } from "react-toastify";
 import type { CategoriesType } from "../../../../utils/types";
+import ParentOption from "../../../../utils/ParentOption";
 
 interface ActionCategoryProp {
   setOpenAction: Dispatch<SetStateAction<any>>;
@@ -39,29 +40,6 @@ function ActionCategory({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [urlImage, setUrlImage] = useState<string | null>(null);
-
-  const renderParentOption = (
-    category: CategoriesType,
-    allCategories: CategoriesType[],
-    level: number = 0
-  ): React.ReactNode => {
-    const children = allCategories.filter((c) => c.parentId === category.id);
-    const paddingLeft = level * 24;
-
-    return (
-      <React.Fragment key={category.id}>
-        <option value={category.id} style={{ paddingLeft: `${paddingLeft}px` }}>
-          {"└─ ".repeat(level)}
-          {category.categoryName}
-          {!category.isActive && " (đã dừng)"}
-        </option>
-
-        {children
-          .filter((c) => c.isActive)
-          .map((child) => renderParentOption(child, allCategories, level + 1))}
-      </React.Fragment>
-    );
-  };
 
   useEffect(() => {
     if (openAction?.action === "edit") {
@@ -167,7 +145,7 @@ function ActionCategory({
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       )) as any;
       if (res.status) {
         toast.success(res.message || "Đã lưu thay đổi!");
@@ -232,10 +210,10 @@ function ActionCategory({
                 .filter((cat) =>
                   openAction?.action === "edit"
                     ? cat.id !== dataUpdate?.id
-                    : true
+                    : true,
                 )
                 .filter((cat) => !cat.parentId)
-                .map((parent) => renderParentOption(parent, parents, 0))}
+                .map((parent) => ParentOption(parent, parents, 0))}
             </select>
           </div>
 

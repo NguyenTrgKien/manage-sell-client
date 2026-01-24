@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 
 function CustomerOnlyHeader() {
   const location = useLocation();
@@ -7,10 +8,11 @@ function CustomerOnlyHeader() {
     <div>
       <Header />
       <div
-        className={`w-full h-auto ${!location.pathname.includes("/customer") ? "mt-[15rem] md:mt-[17rem]" : "mt-[2.5rem]"}`}
+        className={`w-full h-auto ${!location.pathname.includes("/customer") ? "mt-[20rem] md:mt-[17rem]" : "mt-[2.5rem]"}`}
       >
         <Outlet />
       </div>
+      <Footer />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import axiosConfig from "../configs/axiosConfig";
 
 export const getCategory = async ({ queryKey }: any) => {
@@ -19,9 +20,41 @@ export const getAllCategory = async () => {
 };
 
 export const getCategoryBySlugs = async (slugs: string[]) => {
-  const slugsPath = slugs.join("/");
-  const res = await axiosConfig.get(`/api/v1/category/get-category-by-slugs`, {
-    params: { slugs: slugsPath },
-  });
-  return res.data;
+  try {
+    if (!slugs || slugs.length === 0) {
+      throw new Error("Slugs phải là một mảng!");
+    }
+
+    const validSlugs = slugs.filter(
+      (slug) => slug && typeof slug === "string" && slug.trim().length > 0,
+    );
+
+    if (validSlugs.length === 0) {
+      throw new Error("Slugs không hợp lệ!");
+    }
+
+    const slugsPath = validSlugs.join("/");
+
+    const res = await axiosConfig.get(
+      `/api/v1/category/get-category-by-slugs`,
+      {
+        params: { slugs: slugsPath },
+      },
+    );
+    return res.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response) {
+        throw new Error(
+          error.response.data?.message || "Lấy dữ liệu thất bại!",
+        );
+      } else if (error.request) {
+        throw new Error(
+          "Không có kết nối mạng. Vui lòng kiểm tra kết nối của bạn!",
+        );
+      }
+    }
+
+    throw error;
+  }
 };

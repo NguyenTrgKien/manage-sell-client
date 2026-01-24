@@ -10,6 +10,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { getCategoryBySlugs } from "../../api/category.api";
 import { useState } from "react";
+import Footer from "../../components/Footer";
 
 function CategoryLayout() {
   const location = useLocation();
@@ -17,10 +18,16 @@ function CategoryLayout() {
   const slugs = pathSegments.slice(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const { data: categories, isLoading } = useQuery({
+  const {
+    data: categories,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["categories-by-slugs", slugs],
     queryFn: () => getCategoryBySlugs(slugs),
     enabled: slugs.length > 0,
+    retry: 2,
   });
 
   return (
@@ -38,9 +45,17 @@ function CategoryLayout() {
             className="text-gray-400 cursor-pointer"
           />
         </Link>
-        {isLoading ? (
-          <div className="flex-shrink-0">Đang tải...</div>
-        ) : (
+        {isLoading && (
+          <div className="flex-shrink-0 text-gray-500">Đang tải...</div>
+        )}
+        {isError && (
+          <div className="flex-shrink-0 text-red-600">
+            {error instanceof Error ? error.message : "Có lỗi xảy ra"}
+          </div>
+        )}
+        {!isLoading &&
+          !isError &&
+          categories &&
           slugs.map((slug, index) => {
             const category = categories[index];
             const name = category.categoryName;
@@ -61,8 +76,7 @@ function CategoryLayout() {
                 )}
               </span>
             );
-          })
-        )}
+          })}
       </div>
 
       <button
@@ -113,6 +127,7 @@ function CategoryLayout() {
           <Outlet />
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

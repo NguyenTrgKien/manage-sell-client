@@ -4,7 +4,6 @@ import {
   faBox,
   faEdit,
   faHeart,
-  faSearch,
   faSignOutAlt,
   faTicket,
   faUser,
@@ -26,6 +25,8 @@ import type { VoucherT } from "../../utils/voucher.type";
 import ShowVouchers from "../ShowVouchers";
 import RequireLogin from "../RequireLogin";
 import Sidebar from "../Sidebar";
+import SearchInput from "../SearchInput";
+import Logo from "../Logo";
 
 function Header() {
   const [showCart, setShowCart] = useState(false);
@@ -165,19 +166,7 @@ function Header() {
         <div className="px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             <div className="flex items-center gap-2">
-              <Link to="/" className="flex items-center gap-2">
-                <div className="bg-gradient-to-br from-pink-500 to-red-600 text-white w-14 h-14 md:w-[3.5rem] md:h-[3.5rem] rounded-lg flex items-center justify-center font-bold text-lg md:text-xl">
-                  K
-                </div>
-                <div className="block">
-                  <div className="text-[1.8rem] md:text-[2.2rem] font-bold bg-gradient-to-r from-pink-600 to-red-600 bg-clip-text text-transparent">
-                    NTK.
-                  </div>
-                  <div className="text-[1rem] md:text-[1.2rem] text-gray-500 -mt-1">
-                    Style Your Life
-                  </div>
-                </div>
-              </Link>
+              <Logo />
             </div>
 
             <div className="md:hidden flex items-center space-x-12">
@@ -204,32 +193,30 @@ function Header() {
                   </span>
                 )}
               </div>
-              <button
-                className={`w-12 h-12 border-2 ${user ? "border-pink-500" : "border-gray-400"} rounded-full flex flex-col items-center justify-center gap-1 group transition-colors`}
+              <div
+                className={`w-15 h-15 ${user ? "border-1" : "border-2"} border-gray-400 rounded-full flex flex-col items-center justify-center gap-1 group transition-colors`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowMobileMenu(!showMobileMenu);
                 }}
               >
-                <FontAwesomeIcon
-                  icon={faUser}
-                  className={`${user ? "text-pink-500" : "text-gray-400"} group-hover:text-pink-600 text-[1.6rem]`}
-                />
-              </button>
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={`avatar user`}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faUser}
+                    className={`${user ? "text-pink-500" : "text-gray-400"} group-hover:text-pink-600 text-[1.6rem]`}
+                  />
+                )}
+              </div>
             </div>
 
-            <div className="hidden md:flex flex-1 max-w-2xl mx-4 lg:mx-8">
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  className="text-[1.4rem] w-full h-[3.5rem] md:h-[4rem] pl-10 md:pl-[3.4rem] pr-4 border-2 border-gray-300 rounded-full outline-none focus:border-pink-500 transition-colors"
-                  placeholder="Tìm áo thun, quần jean, giày sneaker..."
-                />
-                <FontAwesomeIcon
-                  icon={faSearch}
-                  className="w-4 h-4 md:w-5 md:h-5 text-gray-400 absolute left-3 md:left-4 top-1/2 -translate-y-1/2"
-                />
-              </div>
+            <div className="relative hidden md:flex flex-1 max-w-2xl mx-4 lg:mx-8">
+              <SearchInput isMobile={false} />
             </div>
 
             <div className="hidden md:flex items-center gap-4 lg:gap-6 z-[900]">
@@ -417,24 +404,14 @@ function Header() {
           </div>
 
           <div className="md:hidden mt-4 mb-2">
-            <div className="relative">
-              <input
-                type="text"
-                className="text-[1.4rem] w-full h-[3.5rem] pl-12 pr-4 border-2 border-gray-300 rounded-full outline-none focus:border-pink-500 transition-colors"
-                placeholder="Tìm kiếm sản phẩm..."
-              />
-              <FontAwesomeIcon
-                icon={faSearch}
-                className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
-              />
-            </div>
+            <SearchInput isMobile={true} />
           </div>
         </div>
 
         {showMobileMenu && (
           <div
             ref={mobileMenuRef}
-            className={`fixed top-0 right-0 md:hidden w-full h-full bg-[#3e3e3e6f] border-t border-gray-200`}
+            className={`fixed top-0 right-0 md:hidden w-full h-full bg-[#3e3e3e6f] border-t border-gray-200 z-[100]`}
             onClick={(e) => {
               e.stopPropagation();
               setShowMobileMenu(false);

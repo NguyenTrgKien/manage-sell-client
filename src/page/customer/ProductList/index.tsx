@@ -179,15 +179,13 @@ function ProductList() {
           </span>
         </div>
       ) : childOfCate && childOfCate.length > 0 ? (
-        <div className="mb-[3rem]">
-          <div className="flex items-center justify-between mb-[1.5rem]">
-            <h2 className="text-[1.6rem] md:text-[2rem] mt-[1rem]">
-              Danh mục con
-            </h2>
+        <div className="my-[3rem]">
+          {/* <div className="flex items-center justify-between mb-[1.5rem]">
+            <h2 className="md:text-[2rem] mt-[1rem]">Danh mục con</h2>
             <span className="text-[1.2rem] md:text-[1.4rem] text-gray-500">
               {childOfCate.length} danh mục
             </span>
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4">
             {childOfCate.map((cate: CategoriesType) => {
@@ -215,55 +213,57 @@ function ProductList() {
           </div>
         </div>
       ) : null}
-
       {isLoading ? (
-        <div className="w-full h-auto flex flex-col gap-y-[2rem] items-center justify-center mt-[10rem] md:mt-[15rem]">
+        <div className="w-full h-auto flex flex-col gap-y-[2rem] items-center justify-center mt-25">
           <div className="w-16 h-16 md:w-20 md:h-20 border-4 border-dashed border-blue-500 rounded-full animate-spin [animation-duration:2s]"></div>
           <span className="text-[1.4rem] md:text-[1.6rem]">
             Đang tải dữ liệu...
           </span>
         </div>
       ) : products.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 mt-[2rem]">
-          {products?.map((product: ProductT) => {
-            return (
-              <Link
-                to={`/product-detail/${product.slug}`}
-                key={product.id}
-                className="flex flex-col w-full h-[28rem] md:h-[31rem] border rounded-md border-gray-200 shadow-sm hover:shadow-md hover:shadow-red-300 hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-              >
-                <img
-                  src={product.mainImage}
-                  alt={`mainImage-${product.productName}`}
-                  className="w-full h-[16rem] md:h-[20rem] rounded-tl-md rounded-tr-md object-cover"
-                />
-                <div className="flex flex-col flex-1 p-2 md:p-4 space-y-1 md:space-y-1.5">
-                  <span className="line-clamp-2 text-[1.3rem] md:text-[1.5rem] leading-snug">
-                    {product.productName}
-                  </span>
-                  <span className="text-red-500 font-semibold text-[1.3rem] md:text-[1.5rem]">
-                    {formatPrice(product.price)}
-                  </span>
-                  <div className="flex items-center space-x-3 md:space-x-5 text-[1.1rem] md:text-[1.2rem] mt-auto">
-                    <span className="flex items-center space-x-1">
-                      <span className="block mt-0.5">
-                        {product.averageRating}
+        <>
+          <h2 className="md:text-[2rem] mt-[1rem]">Danh sách sản phẩm</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 mt-[2rem]">
+            {products?.map((product: ProductT) => {
+              return (
+                <Link
+                  to={`/product-detail/${product.slug}`}
+                  key={product.id}
+                  className="flex flex-col w-full h-[28rem] md:h-[31rem] border rounded-md border-gray-200 shadow-sm hover:shadow-md hover:shadow-red-300 hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                >
+                  <img
+                    src={product.mainImage}
+                    alt={`mainImage-${product.productName}`}
+                    className="w-full h-[16rem] md:h-[20rem] rounded-tl-md rounded-tr-md object-cover"
+                  />
+                  <div className="flex flex-col flex-1 p-2 md:p-4 space-y-1 md:space-y-1.5">
+                    <span className="line-clamp-2 text-[1.3rem] md:text-[1.5rem] leading-snug">
+                      {product.productName}
+                    </span>
+                    <span className="text-red-500 font-semibold text-[1.3rem] md:text-[1.5rem]">
+                      {formatPrice(product.price)}
+                    </span>
+                    <div className="flex items-center space-x-3 md:space-x-5 text-[1.1rem] md:text-[1.2rem] mt-auto">
+                      <span className="flex items-center space-x-1">
+                        <span className="block mt-0.5">
+                          {product.averageRating}
+                        </span>
+                        <FontAwesomeIcon
+                          icon={faStar}
+                          className="text-yellow-500 text-[1.1rem] md:text-[1.2rem]"
+                        />
                       </span>
-                      <FontAwesomeIcon
-                        icon={faStar}
-                        className="text-yellow-500 text-[1.1rem] md:text-[1.2rem]"
-                      />
-                    </span>
-                    <span className="flex items-center space-x-1">
-                      <span>Đã bán</span>
-                      <span>{product.soldCount}</span>
-                    </span>
+                      <span className="flex items-center space-x-1">
+                        <span>Đã bán</span>
+                        <span>{product.soldCount}</span>
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+                </Link>
+              );
+            })}
+          </div>
+        </>
       ) : (
         <div className="w-full h-[30rem] md:h-[40rem] flex flex-col items-center justify-center select-none">
           <img

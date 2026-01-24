@@ -136,12 +136,12 @@ function EvaluateProduct({ productId, averageRating }: EvaluateProductProp) {
                     ? item.helpfulCount - 1
                     : item.helpfulCount + 1,
                 }
-              : item
+              : item,
           ),
         };
       });
       const res = (await axiosConfig.post(
-        `/api/v1/evaluate/toggle-helpful/${itemId}`
+        `/api/v1/evaluate/toggle-helpful/${itemId}`,
       )) as any;
 
       if (res.data.status) {
@@ -156,7 +156,7 @@ function EvaluateProduct({ productId, averageRating }: EvaluateProductProp) {
                     isLiked: res.data.isLiked,
                     helpfulCount: res.data.helpfulCount ?? item.helpfulCount,
                   }
-                : item
+                : item,
             ),
           };
         });
@@ -175,7 +175,7 @@ function EvaluateProduct({ productId, averageRating }: EvaluateProductProp) {
 
       <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-8 border border-[#bdb600] p-4 sm:p-6 md:p-[3rem] rounded-sm bg-[#fffff9] mb-4 sm:mb-6 md:mb-[2rem]">
         <div className="flex flex-col items-center sm:items-start justify-center">
-          <p className="text-2xl sm:text-3xl md:text-[2.5rem] font-bold text-gray-800">
+          <p className="text-2xl sm:text-3xl md:text-[2.8rem] text-gray-800">
             {averageRating} / 5
           </p>
           <div className="mt-2">{renderStars(averageRating)}</div>
@@ -244,7 +244,7 @@ function EvaluateProduct({ productId, averageRating }: EvaluateProductProp) {
                 key={item.id}
                 className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 hover:shadow-md transition-shadow duration-300"
               >
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="flex flex-row gap-3 sm:gap-4">
                   <div className="flex-shrink-0 flex sm:block">
                     {item.showAccount ? (
                       !item?.user?.avatar ? (
@@ -276,15 +276,15 @@ function EvaluateProduct({ productId, averageRating }: EvaluateProductProp) {
                   </div>
 
                   <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
-                      <span className="font-semibold text-gray-900 text-sm sm:text-base">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                      <span className="text-[1.4rem] md:text-[1.6rem]">
                         {item.showAccount
                           ? item.user?.username ||
                             item.customerName ||
                             "Khách hàng"
                           : "Ẩn danh"}
                       </span>
-                      <span className="text-xs sm:text-[1.4rem] text-gray-500">
+                      <span className="text-[1.2rem] md:text-[1.4rem] text-gray-500">
                         • {formatDate(item.createdAt)}
                       </span>
                     </div>
@@ -294,7 +294,7 @@ function EvaluateProduct({ productId, averageRating }: EvaluateProductProp) {
                     </div>
 
                     {item.message && (
-                      <p className="mt-2 sm:mt-4 text-gray-700 leading-relaxed text-sm sm:text-base">
+                      <p className="mt-2 sm:mt-4 text-gray-700 leading-relaxed text-[1.4rem] md:text-[1.6rem]">
                         {item.message}
                       </p>
                     )}
@@ -329,7 +329,7 @@ function EvaluateProduct({ productId, averageRating }: EvaluateProductProp) {
                     )}
 
                     <div className="flex items-center space-x-2 sm:space-x-4 mt-3 sm:mt-[1rem]">
-                      <span className="text-xs sm:text-[1.4rem] text-gray-600">
+                      <span className="text-[1.2rem] sm:text-[1.4rem] text-gray-600">
                         Bài đánh giá này hữu ích
                       </span>
                       <button
@@ -350,6 +350,28 @@ function EvaluateProduct({ productId, averageRating }: EvaluateProductProp) {
                         </span>
                       </button>
                     </div>
+
+                    {item.hasAdminResponse && (
+                      <div className="text-[1.4rem] border border-gray-300 p-5 mt-5 rounded-md">
+                        <span>Đã phản hồi</span>
+                        <div className="mt-5 flex items-center space-x-5">
+                          <div className="w-12 h-12 sm:w-[4rem] sm:h-[4rem] bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-base sm:text-lg">
+                            Admin
+                          </div>
+                          <div>
+                            <p className="text-[1.6rem]">
+                              Admin •{" "}
+                              <span className="text-[1.2rem]">
+                                {formatDate(item.adminResponseAt)}
+                              </span>
+                            </p>
+                            <p className="text-[1.6rem] mt-1">
+                              {item.adminResponse}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {expandedReviewId === item.id &&
                       item.images &&

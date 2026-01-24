@@ -69,7 +69,7 @@ function CustomerProfile() {
     navCustomerProfile.forEach((item) => {
       if (item.children) {
         const hasActiveChild = item.children.some((child) =>
-          currentPath.includes(child.path)
+          currentPath.includes(child.path),
         );
         if (hasActiveChild && !showChildren.includes(item.id)) {
           setShowChildren((prev) => [...prev, item.id]);
@@ -83,7 +83,7 @@ function CustomerProfile() {
     setShowChildren((prev) =>
       prev.includes(item.id)
         ? prev.filter((id) => id !== item.id)
-        : [...prev, item.id]
+        : [...prev, item.id],
     );
   };
 
@@ -92,7 +92,7 @@ function CustomerProfile() {
   };
 
   return (
-    <div className="px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem] mt-[15rem] md:mt-[1rem]">
+    <div className="px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem] mt-[20rem] md:mt-[1rem]">
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-0">
         <div className="hidden md:block w-full lg:w-[24rem] h-auto py-[1rem] px-[1rem] sm:px-[2rem] bg-white lg:bg-transparent rounded-md lg:rounded-none shadow-md lg:shadow-none">
           <div className="flex items-center gap-[1rem] pb-[2rem] border-b border-b-gray-200">

@@ -35,7 +35,7 @@ function HeaderDashboard() {
   }, [openMenu]);
 
   return (
-    <header className="fixed w-full h-[6rem] bg-white backdrop-blur-md bg-opacity-95 flex items-center justify-between px-[2rem] shadow-lg border-b border-gray-200 z-50">
+    <header className="fixed w-full h-[6rem] bg-white backdrop-blur-md bg-opacity-95 flex items-center justify-between px-[2rem] shadow-lg border-b border-gray-200 z-[500]">
       <div className="flex items-center gap-[1rem]">
         <h1 className="text-[2.4rem] font-bold bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">
           NTK.

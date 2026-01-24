@@ -13,7 +13,7 @@ function RequireLogin({ open, onClose }: RequireLoginProp) {
   return (
     <MotionWrapper
       open={open}
-      className="relative w-[50rem] h-auto rounded-lg bg-white p-[2rem]"
+      className="relative w-[95%] md:w-[45rem] xl:w-[50rem] h-auto rounded-lg bg-white p-[2rem]"
     >
       <h2 className="text-[2rem] text-gray-600">
         Vui lòng đăng nhập để thực hiện

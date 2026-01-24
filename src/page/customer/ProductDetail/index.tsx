@@ -10,6 +10,7 @@ import type {
 import Loading from "../../../components/Loading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faAngleLeft,
   faAngleRight,
   faCartPlus,
   faMinus,
@@ -18,10 +19,12 @@ import {
   faShoePrints,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Notify from "../../../components/Notify";
 import { useAddCart } from "../../../hooks/useAddCart";
 import EvaluateProduct from "../../../components/EvaluateProduct";
+import { getFlashSaleForProduct } from "../../../api/flashsale.api";
+import { calculatorTimeLeft } from "../../../utils/calculateTimeLeft";
 
 function ProductDetail() {
   const { productSlug } = useParams<{ productSlug: string }>();
@@ -32,6 +35,18 @@ function ProductDetail() {
     queryFn: () => getProductDetail(productSlug),
     enabled: !!productSlug,
   }) as any;
+  const { data: flashSaleForProduct, isLoading: isLoadingFsForProduct } =
+    useQuery({
+      queryKey: ["flashSaleForProduct"],
+      queryFn: () => getFlashSaleForProduct(productSlug as string),
+    });
+  const flashSale = flashSaleForProduct && flashSaleForProduct.data;
+  const [timeLeft, setTimeLeft] = useState<{
+    hours: number;
+    minutes: number;
+    seconds: number;
+  }>({ hours: 0, minutes: 0, seconds: 0 });
+  const days = Math.floor(timeLeft.hours / 24);
   const product: ProductT = data?.product;
   const [selectVariantSize, setSelectVariantSize] =
     useState<VariantSizeType | null>(null);
@@ -40,11 +55,12 @@ function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState<string | null>(null);
   const { addToCart, isLoading, notify, setNotify } = useAddCart();
-
+  const [images, setImages] = useState<string[]>([]);
+  const [index, setIndex] = useState(0);
   const colors = useMemo(() => {
     const map = new Map();
     product?.variants?.forEach((v) =>
-      map.set(v.variantColor.id, v.variantColor)
+      map.set(v.variantColor.id, v.variantColor),
     );
     return [...map.values()];
   }, [product]);
@@ -53,6 +69,44 @@ function ProductDetail() {
     product?.variants?.forEach((v) => map.set(v.variantSize.id, v.variantSize));
     return [...map.values()];
   }, [product]);
+
+  useEffect(() => {
+    if (product) {
+      if (product.mainImage && product.listImageProduct) {
+        const listImage =
+          product.listImageProduct.map((it) => it.imageUrl) || [];
+        const filteredImages = listImage.filter(
+          (img) => img !== product.mainImage,
+        );
+        setImages([product.mainImage, ...filteredImages]);
+      }
+    }
+  }, [product]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    if (!flashSale) return;
+    const updateTime = () => {
+      const newTimes = calculatorTimeLeft(flashSale.endDate);
+      setTimeLeft(newTimes);
+    };
+    updateTime();
+    if (timeLeft.hours >= 24) return;
+    const timer = setInterval(() => {
+      updateTime();
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [flashSale, timeLeft.hours]);
+
+  const calculateFlashPrice = (
+    originPrice: number,
+    discountPercent: number,
+  ) => {
+    return Math.round(originPrice * (1 - discountPercent / 100));
+  };
 
   const getMaxInventory = () => {
     const found = product?.variants.find((it) => {
@@ -95,7 +149,7 @@ function ProductDetail() {
     const variantId = product?.variants.find(
       (v: any) =>
         v.variantColor.id === selectVariantColor.id &&
-        v.variantSize.id === selectVariantSize.id
+        v.variantSize.id === selectVariantSize.id,
     )?.id;
 
     if (quantity <= 0) {
@@ -137,13 +191,33 @@ function ProductDetail() {
     );
   };
 
+  const handleNext = () => {
+    setIndex((prev) => {
+      if (prev + 1 > images.length - 1) {
+        return 0;
+      } else {
+        return prev + 1;
+      }
+    });
+  };
+
+  const handlePrev = () => {
+    setIndex((prev) => {
+      if (prev - 1 < 0) {
+        return images.length - 1;
+      } else {
+        return prev - 1;
+      }
+    });
+  };
+
   if (LoadingData) {
     return <Loading />;
   }
 
   return (
     <div className="relative w-full h-auto px-[1rem] md:px-[3rem] xl:px-[12rem]">
-      <div className="w-full flex flex-wrap items-center gap-1 sm:gap-2 text-[1.2rem] md:text-[1.4rem] px-2 sm:px-4 md:px-6 lg:px-[3rem] py-2">
+      <div className="w-full flex flex-wrap items-center gap-1 sm:gap-2 text-[1.2rem] md:text-[1.4rem] px-2 sm:px-4 md:px-6 lg:px-[3rem] md:py-2 py-1">
         <Link
           to="/"
           className="flex items-center gap-1 sm:gap-2 text-blue-800 hover:text-blue-600 transition-colors whitespace-nowrap"
@@ -195,28 +269,48 @@ function ProductDetail() {
         </span>
       </div>
       <div className="w-full h-auto flex md:flex-row flex-col gap-[4rem] rounded-lg mt-[1rem] bg-white p-[1rem] md:p-[1.5rem]">
-        <div className="w-full md:w-[40rem] xl:w-[50rem] h-auto">
+        <div className="relative w-full md:w-[40rem] xl:w-[50rem] h-auto">
           <img
-            src={product?.mainImage}
+            src={images[index]}
             alt={product?.productName}
-            className="w-full md:h-[40rem] h-[25rem] xl:h-[50rem] object-cover"
+            className="w-full md:h-[40rem] h-[35rem] xl:h-[50rem] object-cover"
           />
+
+          <button
+            onClick={handlePrev}
+            className="absolute w-18 h-18 flex items-center justify-center top-1/2 left-2 -translate-y-1/2 text-gray-500 rounded-full bg-gray-200 hover:bg-gray-300 hover:text-gray-600 transition-colors duration-300"
+          >
+            <FontAwesomeIcon icon={faAngleLeft} className="text-[1.8rem]" />
+          </button>
+
+          <button
+            onClick={handleNext}
+            className="absolute w-18 h-18 flex items-center justify-center top-1/2 right-2 -translate-y-1/2 text-gray-500 rounded-full bg-gray-200 hover:bg-gray-300 hover:text-gray-600 transition-colors duration-300"
+          >
+            <FontAwesomeIcon icon={faAngleRight} className="text-[1.8rem]" />
+          </button>
           <div className="flex items-center space-x-4 mt-[1rem]">
-            {product?.listImageProduct.map((imgItem) => {
+            {images.map((imgItem, idx) => {
               return (
                 <div
-                  key={imgItem.id}
-                  className="w-[6rem] h-[6rem] md:w-[8rem] md:h-[8rem] rounded-md "
+                  key={imgItem}
+                  className={`w-[6rem] h-[6rem] md:w-[8rem] md:h-[8rem] rounded-md border ${index === idx ? "border-2 border-amber-500" : "border-gray-300"} `}
+                  onClick={() => setIndex(idx)}
                 >
                   <img
-                    src={imgItem.imageUrl}
-                    alt={`imageItem-${imgItem.id}`}
+                    src={imgItem}
+                    alt={`imageItem-${idx}`}
                     className="w-full h-full object-cover rounded-md"
                   />
                 </div>
               );
             })}
           </div>
+          {flashSale && (
+            <div className="absolute top-2 right-2 bg-red-600 text-white text-[1.4rem] px-4 py-1 rounded-tl-4xl rounded-br-4xl shadow-lg z-10">
+              FLASH SALE -{flashSale.discount}%
+            </div>
+          )}
         </div>
         <div className="flex-1 space-y-2 md:space-y-4">
           <h3 className="text-[1.4rem] md:text-[2rem] xl:text-[2.2rem] text-gray-800">
@@ -244,37 +338,60 @@ function ProductDetail() {
             <span className="h-[1.5rem] border-r border-r-gray-400"></span>
             <p className="flex items-center space-x-2">
               <span className="text-gray-800">{product.reviewCount}</span>
-              <span className=" text-gray-500 mt-0.5">Đánh giá</span>
+              <span className=" text-gray-500">Đánh giá</span>
             </p>
             <span className="h-[1.5rem] border-r border-r-gray-400"></span>
             <div className="flex items-center space-x-2">
-              <span className=" text-gray-500 mt-0.5">Đã bán</span>
+              <span className=" text-gray-500">Đã bán</span>
               <p className="text-gray-800">{product.soldCount}</p>
             </div>
           </div>
-          <div className="flex items-center">
-            <p className="text-red-500 text-[2rem] md:text-[2.2rem] xl:text-[2.5rem]">
-              {formatPrice(product?.price)}
-            </p>
-          </div>
+          {flashSale && (
+            <div className="flex items-center">
+              <div className="flex items-center gap-4 mt-4">
+                <p className="text-red-600 text-[1.4rem] md:text-[2rem] xl:text-[2.2rem]">
+                  {formatPrice(
+                    calculateFlashPrice(product.price, flashSale.discount),
+                  )}
+                </p>
 
-          <div className="space-x-4 mt-[2rem] text-[1.4rem] md:text-[1.6rem]">
-            <span className="block text-gray-600 text-start">
-              Mã giảm giá bạn có thể sử dụng:
-            </span>
-            <div className="flex items-center space-x-8 mt-[1rem]">
-              <span
-                className="relative block px-[2.5rem] py-[.5rem] text-[1.2rem] md:text-[1.4rem] bg-gray-800 text-white select-none rounded-xl"
-                onClick={() => {
-                  navigator.clipboard.writeText("Hello");
-                }}
-              >
-                DECL01
-                <span className="absolute w-[1.8rem] h-[1rem] top-[50%] translate-y-[-50%] left-[-1rem] bg-white rounded-full"></span>
-                <span className="absolute top-[50%] translate-y-[-50%] right-[-1rem] w-[1.8rem] h-[1rem] bg-white rounded-full"></span>
-              </span>
+                <p className="text-gray-500 text-[1.4rem] md:text-[1.6rem] line-through">
+                  {formatPrice(product.price)}
+                </p>
+
+                <span className="bg-red-600 text-white text-[1.2rem] md:text-[1.4rem] px-3 py-1 rounded-md">
+                  -{flashSale.discount}%
+                </span>
+              </div>
             </div>
-          </div>
+          )}
+          {flashSale && (
+            <div className="flex items-center gap-4 text-[1.4rem]">
+              <div className="flex gap-3 text-[1.2rem] md:text-[1.4rem]">
+                {timeLeft.hours > 24 ? (
+                  <div className="bg-gradient-to-tr from-red-500 to-pink-500 rounded-lg px-4 py-2 text-center min-w-[70px] text-white ">
+                    Thời hạn {days} ngày
+                  </div>
+                ) : (
+                  ["hours", "minutes", "seconds"].map((unit, idx) => (
+                    <div className="flex items-center space-x-2" key={idx}>
+                      <div
+                        key={idx}
+                        className="bg-gradient-to-tr from-pink-600 to-red-500 rounded-lg px-3 py-1 text-center min-w-[70px] text-white"
+                      >
+                        <div className=" text-white">
+                          {String(
+                            timeLeft[unit as keyof typeof timeLeft],
+                          ).padStart(2, "0")}
+                        </div>
+                      </div>
+                      {idx !== 2 && <span className="text-[2.2rem]">:</span>}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="flex items-start space-x-4 mt-[2rem] text-[1.4rem] md:text-[1.6rem]">
             <span className="block text-gray-600 w-[12rem] text-start">
@@ -311,7 +428,7 @@ function ProductDetail() {
                   ? product.variants.find(
                       (it) =>
                         it.variantColor.id === selectVariantColor.id &&
-                        it.variantSize.id === size?.id
+                        it.variantSize.id === size?.id,
                     )
                   : false;
 
@@ -364,10 +481,10 @@ function ProductDetail() {
                               (it) =>
                                 it.variantColor.id ===
                                   (selectVariantColor as VariantColorType).id &&
-                                it.variantSize.id === selectVariantSize?.id
-                            )?.inventory
+                                it.variantSize.id === selectVariantSize?.id,
+                            )?.inventory,
                           ),
-                          Number(prev) + 1
+                          Number(prev) + 1,
                         );
                       });
                     }

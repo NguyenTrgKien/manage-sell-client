@@ -22,7 +22,7 @@ function ConfirmReceivedOrder({
   const handleConfirm = async () => {
     try {
       const res = await axiosConfig.patch(
-        `/api/v1/orders/confirm-received/${data?.id}`
+        `/api/v1/orders/confirm-received/${data?.id}`,
       );
       if (res.status) {
         onClose();
@@ -36,9 +36,9 @@ function ConfirmReceivedOrder({
   return (
     <MotionWrapper
       open={open}
-      className="relative w-[60rem] rounded-lg bg-white p-[2rem]"
+      className="relative w-[95%] md:w-[60rem] rounded-lg bg-white p-[2rem]"
     >
-      <h2 className="text-[2rem] text-amber-600 mb-[3rem]">
+      <h2 className="text-amber-600 mb-[3rem] text-[1.4rem] md:text-[2rem]">
         Vui lòng xác nhận bạn đã nhận được đơn hàng!
       </h2>
       <div
@@ -53,7 +53,7 @@ function ConfirmReceivedOrder({
           className="text-[1.8rem] text-gray-500 hover:text-gray-800 cursor-pointer"
         />
       </div>
-      <div className="flex items-center justify-end gap-[1rem]">
+      <div className="flex items-center justify-end gap-[1rem] text-[1.4rem] md:text-[1.6rem]">
         <button
           type="button"
           className="text-gray-600 px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"

@@ -67,7 +67,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
   const isQuantity = selectVariantColor && selectVariantSize;
   const TotalInventory =
     (showAddCart.data &&
-      showAddCart.data.variants.reduce((init, curr) => {
+      showAddCart.data?.variants?.reduce((init, curr) => {
         return init + curr.inventory;
       }, 0)) ||
     0;
@@ -77,7 +77,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
     const map = new Map();
     if (showAddCart.data) {
       showAddCart.data.variants.forEach((v) =>
-        map.set(v.variantColor.id, v.variantColor)
+        map.set(v.variantColor.id, v.variantColor),
       );
     }
     return [...map.values()];
@@ -87,7 +87,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
     const map = new Map();
     if (showAddCart.data) {
       showAddCart.data.variants.forEach((v) =>
-        map.set(v.variantSize.id, v.variantSize)
+        map.set(v.variantSize.id, v.variantSize),
       );
     }
     return [...map.values()];
@@ -113,7 +113,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
     const variantId = showAddCart.data?.variants.find(
       (v) =>
         v.variantColor.id === selectVariantColor.id &&
-        v.variantSize.id === selectVariantSize.id
+        v.variantSize.id === selectVariantSize.id,
     )?.id;
 
     if (quantity <= 0) {
@@ -131,56 +131,66 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
     <>
       <MotionWrapper
         open={showAddCart.open}
-        className="relative w-[68rem] min-h-[20rem] max-h-[55rem] bg-white rounded-lg shadow-xl p-[2rem]"
+        className="relative 
+          w-[92vw] max-w-[90%] sm:max-w-[80%] md:max-w-[70%] lg:max-w-[55%]
+          min-h-[30vh] max-h-[90vh] sm:max-h-[85vh] md:max-h-[80vh]
+          bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-y-auto
+          px-4 py-5 sm:px-6 sm:py-6 md:p-8 lg:p-10"
       >
         <button
-          className="absolute top-[-.5rem] right-[-.5rem] w-[2.4rem] h-[2.4rem] rounded-full flex items-center justify-center bg-gray-800 cursor-pointer hover:scale-110 transition-transform"
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 
+            w-9 h-9 sm:w-10 sm:h-10 rounded-full 
+            flex items-center justify-center bg-gray-800 
+            cursor-pointer hover:scale-110 transition-transform z-10"
           onClick={() => setShowAddCart({ open: false, data: null })}
         >
           <FontAwesomeIcon
             icon={faXmark}
-            className="text-white text-[1.4rem]"
+            className="text-white text-xl sm:text-2xl"
           />
         </button>
 
-        <div className="flex gap-[2rem]">
-          <div className="w-[25rem] h-auto">
-            {!showImage ? (
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-10">
+          <div className="w-full md:w-[38%] lg:w-[40%] flex-shrink-0">
+            <div className="aspect-square w-full max-w-[380px] mx-auto md:mx-0">
               <img
-                src={showAddCart.data?.mainImage}
+                src={showImage || showAddCart.data?.mainImage}
                 alt="mainImage"
-                className="w-[25rem] h-[25rem] rounded-lg object-cover"
+                className="w-full h-full rounded-xl object-cover shadow-sm"
               />
-            ) : (
-              <img
-                src={showImage}
-                alt="mainImage"
-                className="w-[25rem] h-[25rem] rounded-lg object-cover"
-              />
-            )}
-            <div className="w-full grid grid-cols-4 gap-[1rem] mt-[1rem] overflow-x-auto">
-              {showAddCart.data?.listImageProduct.map((img) => {
-                return (
-                  <div key={img.id} onClick={() => setShowImage(img.imageUrl)}>
-                    <img
-                      src={img.imageUrl}
-                      alt={`image-${showAddCart.data?.productName}`}
-                      className="w-full h-auto rounded-lg object-cover"
-                    />
-                  </div>
-                );
-              })}
+            </div>
+
+            <div className="mt-4 grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin">
+              {showAddCart.data?.listImageProduct.map((img) => (
+                <div
+                  key={img.id}
+                  className="cursor-pointer flex-shrink-0 w-20 sm:w-24 aspect-square"
+                  onClick={() => setShowImage(img.imageUrl)}
+                >
+                  <img
+                    src={img.imageUrl}
+                    alt={`thumb-${showAddCart.data?.productName}`}
+                    className={`w-full h-full rounded-lg object-cover border-2 transition-all ${
+                      showImage === img.imageUrl
+                        ? "border-blue-500 shadow-md"
+                        : "border-transparent hover:border-gray-300"
+                    }`}
+                  />
+                </div>
+              ))}
             </div>
           </div>
-          <div className="flex-1 space-y-2">
-            <h2 className="text-[1.8rem] font-bold text-gray-800 text-limit-1">
+
+          <div className="flex-1 space-y-4 sm:space-y-5">
+            <h2 className="text-[1.8rem] font-bold text-gray-800 line-clamp-2">
               {showAddCart.data?.productName}
             </h2>
-            <div className="flex items-center text-gray-600 text-[1.4rem] gap-[1rem]">
+
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-gray-600 text-[1.4rem]">
               <span>
                 Mã sản phẩm: <strong>{showAddCart.data?.id}</strong>
               </span>
-              <span className="border-l border-gray-400 h-[1.5rem]"></span>
+              <span className="hidden sm:inline-block border-l border-gray-400 h-5"></span>
               <span>
                 Tình trạng:{" "}
                 <strong>
@@ -190,135 +200,145 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
                 </strong>
               </span>
             </div>
-            <div className="flex items-center gap-[2rem] ">
-              <span className="text-gray-600">Giá:</span>
-              <span className="text-red-500 font-bold">
+
+            <div className="flex items-center gap-3 sm:gap-4">
+              <span className="text-gray-600 text-[1.4rem]">Giá:</span>
+              <span className="text-red-500 font-bold text-[1.6rem] sm:text-[1.8rem]">
                 {Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
                 }).format(Number(showAddCart.data?.price))}
               </span>
             </div>
-            <div className="mt-[1rem]">
-              <span className="block text-[1.4rem] text-gray-600">
+
+            <div>
+              <span className="block text-[1.4rem] text-gray-600 mb-2">
                 Chọn màu:
               </span>
-              <div className="flex items-center gap-[1rem] w-full flex-wrap mt-[.5rem]">
-                {colors.map((color: VariantColorType) => {
-                  return (
-                    <button
-                      key={color.id}
-                      className={`flex items-center gap-[.5rem] px-[1rem] py-[.6rem] border-[.1rem] rounded-[.5rem] hover:border-blue-300 ${selectVariantColor?.id === color.id ? "border-[.1rem] bg-blue-50 border-blue-600" : "border-gray-300"} cursor-pointer`}
-                      onClick={() => setSelectVariantColor(color)}
-                      onFocus={() => setMessage(null)}
-                    >
-                      <FontAwesomeIcon
-                        icon={getProductIcon()}
-                        className="bg-gray-100 p-[.2rem]"
-                        style={{ color: color.hexCode }}
-                      />
-                      <span className="text-[1.4rem] text-gray-600">
-                        {color.name}
-                      </span>
-                    </button>
-                  );
-                })}
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                {colors.map((color: VariantColorType) => (
+                  <button
+                    key={color.id}
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2 border rounded-lg text-[1.4rem] transition-all ${
+                      selectVariantColor?.id === color.id
+                        ? "border-blue-600 bg-blue-50 shadow-sm"
+                        : "border-gray-300 hover:border-blue-300"
+                    }`}
+                    onClick={() => setSelectVariantColor(color)}
+                    onFocus={() => setMessage(null)}
+                  >
+                    <FontAwesomeIcon
+                      icon={getProductIcon()}
+                      className="p-1 rounded bg-gray-100"
+                      style={{ color: color.hexCode }}
+                    />
+                    <span className="text-gray-700">{color.name}</span>
+                  </button>
+                ))}
               </div>
-              <span className="block text-[1.4rem] text-gray-600 mt-[2rem]">
+            </div>
+
+            <div>
+              <span className="block text-[1.4rem] text-gray-600 mb-2 mt-5 sm:mt-6">
                 Chọn size:
               </span>
-              <div className="flex items-center gap-[1rem] flex-wrap mt-[.5rem]">
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 {sizes?.map((size: VariantSizeType) => {
-                  const disableSize =
-                    selectVariantColor && showAddCart.data
-                      ? showAddCart.data.variants.find(
-                          (it) =>
-                            it.variantColor.id === selectVariantColor.id &&
-                            it.variantSize.id === size?.id
-                        )
-                      : false;
+                  const available =
+                    selectVariantColor &&
+                    showAddCart.data?.variants.some(
+                      (it) =>
+                        it.variantColor.id === selectVariantColor.id &&
+                        it.variantSize.id === size.id,
+                    );
 
                   return (
                     <button
                       key={size.id}
-                      className={`flex items-center gap-[.5rem] px-[2rem] py-[.6rem] border rounded-[.5rem] ${!disableSize ? "border-gray-200 text-gray-200" : selectVariantSize?.id === size.id ? "border-[.1rem] bg-blue-50 border-blue-600" : "border-gray-300"} cursor-pointer`}
-                      disabled={!disableSize}
+                      className={`px-5 sm:px-6 py-2 border rounded-lg text-[1.4rem] transition-all ${
+                        !available
+                          ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                          : selectVariantSize?.id === size.id
+                            ? "border-blue-600 bg-blue-50 shadow-sm"
+                            : "border-gray-300 hover:border-blue-300"
+                      }`}
+                      disabled={!available}
                       onClick={() => setSelectVariantSize(size)}
                       onFocus={() => setMessage(null)}
                     >
-                      <span className="text-[1.4rem]">{size.name}</span>
+                      {size.name}
                     </button>
                   );
                 })}
               </div>
-              <div className="flex items-center gap-[2rem] mt-[2rem]">
-                <span className="block text-[1.4rem] text-gray-600 ">
-                  Số lượng:
-                </span>
-                <div className="flex items-center gap-[.5rem]">
-                  <span
-                    className={`w-[3rem] h-[3rem] flex items-center justify-center rounded-lg border border-gray-300 bg-gray-100 cursor-pointer ${isQuantity ? "" : "pointer-events-none select-none opacity-[.5] cursor-not-allowed"}`}
-                    onClick={() => {
-                      if (selectVariantColor && selectVariantSize) {
-                        setQuantity((prev) => {
-                          return Math.max(1, prev - 1);
-                        });
-                      }
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faMinus} className="text-[1rem]" />
-                  </span>
-                  <input
-                    type="number"
-                    value={quantity}
-                    className={`flex items-center justify-center text-[1.4rem] w-[6rem] h-[3rem] rounded-lg bg-white border  text-gray-800 select-none outline-none pl-[1rem] border-gray-200`}
-                    disabled={!isQuantity}
-                    min={1}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                  />
-                  <span
-                    className={`w-[3rem] h-[3rem] flex items-center justify-center rounded-lg border border-gray-300 bg-gray-100 cursor-pointer ${isQuantity ? "" : "pointer-events-none select-none opacity-[.5] cursor-not-allowed"}`}
-                    onClick={() => {
-                      if (selectVariantSize && selectVariantColor) {
-                        setQuantity((prev) => {
-                          return Math.min(
-                            Number(
-                              showAddCart.data &&
-                                showAddCart.data.variants.find(
-                                  (it) =>
-                                    it.variantColor.id ===
-                                      (selectVariantColor as VariantColorType)
-                                        .id &&
-                                    it.variantSize.id === selectVariantSize?.id
-                                )?.inventory
-                            ),
-                            Number(prev) + 1
-                          );
-                        });
-                      }
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faPlus} className="text-[1rem]" />
-                  </span>
-                </div>
-                <span className="text-[1.2rem] text-gray-600 uppercase select-none">
-                  {!isQuantity
-                    ? TotalInventory > 0
-                      ? "Còn hàng"
-                      : "Hết hàng"
-                    : `Còn ${maxQuantity} sản phẩm`}
-                </span>
-              </div>
             </div>
-            <p className="text-red-500 text-[1.5rem] mt-[2rem] ml-auto">
-              {message}
-            </p>
+
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-6 sm:mt-8">
+              <span className="text-[1.4rem] text-gray-600">Số lượng:</span>
+
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button
+                  className={`w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-gray-700 transition ${
+                    isQuantity
+                      ? "hover:bg-gray-100 active:bg-gray-200"
+                      : "opacity-50 cursor-not-allowed"
+                  }`}
+                  disabled={!isQuantity}
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                >
+                  <FontAwesomeIcon icon={faMinus} className="text-base" />
+                </button>
+
+                <input
+                  type="number"
+                  value={quantity}
+                  min={1}
+                  disabled={!isQuantity}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (!isNaN(val)) setQuantity(val);
+                  }}
+                  className={`w-20 sm:w-24 h-10 sm:h-11 text-center text-[1.4rem] border rounded-lg outline-none ${
+                    isQuantity
+                      ? "border-gray-300 focus:border-blue-400"
+                      : "bg-gray-100 text-gray-500 cursor-not-allowed"
+                  }`}
+                />
+
+                <button
+                  className={`w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-gray-700 transition ${
+                    isQuantity
+                      ? "hover:bg-gray-100 active:bg-gray-200"
+                      : "opacity-50 cursor-not-allowed"
+                  }`}
+                  disabled={!isQuantity}
+                  onClick={() =>
+                    setQuantity((prev) => Math.min(maxQuantity, prev + 1))
+                  }
+                >
+                  <FontAwesomeIcon icon={faPlus} className="text-base" />
+                </button>
+              </div>
+
+              <span className="text-[1.2rem] text-gray-600 font-medium uppercase">
+                {!isQuantity
+                  ? TotalInventory > 0
+                    ? "Còn hàng"
+                    : "Hết hàng"
+                  : `Còn ${maxQuantity} sản phẩm`}
+              </span>
+            </div>
+
+            {message && (
+              <p className="text-red-500 text-[1.5rem] mt-4">{message}</p>
+            )}
           </div>
         </div>
-        <div className={`flex items-center justify-end mt-[1rem] gap-[1rem]`}>
+
+        <div className="flex flex-row items-center justify-end gap-3 sm:gap-4 mt-6 sm:mt-8">
           <button
             type="button"
-            className="px-[2rem] py-[.6rem] bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-300 cursor-pointer"
+            className="w-full sm:w-auto px-8 sm:px-[2rem] py-3 sm:py-[.7rem] bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-300 text-[1.4rem]"
             onClick={() => setShowAddCart({ open: false, data: null })}
             disabled={isLoading}
           >
@@ -326,14 +346,15 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
           </button>
           <button
             type="button"
-            className="px-[2rem] py-[.6rem] bg-red-500 rounded-lg text-white hover:bg-red-600 transition duration-300 cursor-pointer"
-            onClick={() => handleAddCart()}
-            disabled={isLoading}
+            className="w-full sm:w-auto px-8 sm:px-[2rem] py-3 sm:py-[.7rem] bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-[1.4rem] font-medium"
+            onClick={handleAddCart}
+            disabled={isLoading || !isQuantity}
           >
             {isLoading ? "Đang xử lý..." : "Thêm vào giỏ"}
           </button>
         </div>
       </MotionWrapper>
+
       <Notify
         showNotify={notify.show}
         content={notify.content}

@@ -79,7 +79,7 @@ function Privacy() {
     try {
       const res = (await axiosConfig.post(
         "/api/v1/user/delete-account",
-        dataDelete
+        dataDelete,
       )) as any;
       if (res.status) {
         localStorage.removeItem("guest_address");
@@ -102,7 +102,7 @@ function Privacy() {
   };
 
   return (
-    <div className="p-[2rem]">
+    <div className="p-[2rem] text-[1.4rem] md:text-[1.6rem]">
       <div className="flex items-center justify-between pb-[2rem] border-b border-b-gray-300">
         <h3 className="text-[1.8rem] text-gray-800">
           Quyền riêng tư & Xóa tài khoản

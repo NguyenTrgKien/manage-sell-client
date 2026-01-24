@@ -50,22 +50,27 @@ export const menuItems = [
   },
   {
     id: 9,
+    label: "FlashSale",
+    path: "flashsale",
+  },
+  {
+    id: 10,
     label: "Giảm giá",
     path: "discount",
   },
   {
-    id: 10,
+    id: 11,
     label: "Banner",
     path: "banner-slide",
   },
   {
-    id: 11,
+    id: 12,
     label: "Cá nhân",
     path: "profile",
   },
 
   {
-    id: 12,
+    id: 13,
     label: "Cài đặt",
     path: "setting",
   },

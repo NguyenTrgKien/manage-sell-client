@@ -99,25 +99,27 @@ function Sidebar({ onClose }: SidebarProps) {
 
   return (
     <div className="bg-white h-full text-[1.4rem] md:text-[1.6rem] w-full md:w-[26rem] shadow-xl md:shadow-none">
-      {/* Header - Chỉ hiện trên mobile */}
       <div className="md:hidden sticky top-0 bg-white z-10 border-b border-gray-200 px-4 py-4 flex items-center justify-between">
-        <h4 className="text-[1.8rem] font-bold text-gray-800">Danh mục sản phẩm</h4>
+        <h4 className="text-[1.8rem] font-bold text-gray-800">
+          Danh mục sản phẩm
+        </h4>
         {onClose && (
           <button
             onClick={onClose}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
           >
-            <FontAwesomeIcon icon={faTimes} className="text-[2rem] text-gray-600" />
+            <FontAwesomeIcon
+              icon={faTimes}
+              className="text-[2rem] text-gray-600"
+            />
           </button>
         )}
       </div>
 
-      {/* Title - Chỉ hiện trên desktop */}
       <h4 className="hidden md:block font-bold mb-[1rem] text-gray-600 pl-[1rem] px-1.5 py-1.5 md:px-[1rem] md:py-[1rem]">
         Danh mục
       </h4>
 
-      {/* Content */}
       <div className="px-3 md:px-[1rem] pb-4 overflow-y-auto h-[calc(100vh-8rem)] md:h-auto">
         {isLoading ? (
           <div className="space-y-2">
@@ -170,9 +172,7 @@ function Sidebar({ onClose }: SidebarProps) {
                         )}
                         <span
                           className={`text-[1.3rem] md:text-[1.5rem] truncate ${
-                            isRootActive
-                              ? "text-pink-600"
-                              : "text-gray-700"
+                            isRootActive ? "text-pink-600" : "text-gray-700"
                           }`}
                         >
                           {cate.categoryName}

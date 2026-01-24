@@ -1,31 +1,31 @@
-import { Autoplay, Navigation, Pagination } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
-
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import type { ProductT } from "../../../utils/types";
 import { useQuery } from "@tanstack/react-query";
-import { getPopular } from "../../api/product.api";
-import type { ProductT } from "../../utils/types";
-import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faAngleRight,
-  faCartPlus,
-  faEye,
-} from "@fortawesome/free-solid-svg-icons";
-import AddCart from "../AddCart";
-import { Link, useNavigate } from "react-router-dom";
+import { faCartPlus, faEye } from "@fortawesome/free-solid-svg-icons";
+import AddCart from "../../../components/AddCart";
+import { getProducts } from "../../../api/product.api";
+import { useUser } from "../../../hooks/useUser";
+import noProduct from "../../../assets/images/no-product.png";
 
-function PopularProduct() {
+function ProductsPage() {
   const navigate = useNavigate();
-  const [queryDefault] = useState<{
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("q");
+  const { user } = useUser();
+  const [queryDefault, setQueryDefault] = useState<{
     limit: number;
     page: number;
+    productName: string;
+    sort: "popular" | "latest" | "best_seller";
+    price: "asc" | "desc";
   }>({
     limit: 10,
     page: 1,
+    productName: "",
+    sort: "popular",
+    price: "asc",
   });
   const [showAddCart, setShowAddCart] = useState<{
     open: boolean;
@@ -35,82 +35,50 @@ function PopularProduct() {
     data: null,
   });
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    if (query) {
+      setQueryDefault((prev) => ({
+        ...prev,
+        sort: query as "popular" | "latest" | "best_seller",
+      }));
+    }
+  }, [query]);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["populars", queryDefault],
-    queryFn: () => getPopular(queryDefault),
+    queryKey: ["products", queryDefault],
+    queryFn: () => getProducts({ query: queryDefault, userId: user?.id }),
   });
-  const populars = data?.data ?? [];
+  const ProductsPages = data?.data ?? [];
+
+  const Skeleton = () => {
+    return (
+      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-product animate-pulse">
+        <div className="h-[18rem] md:h-[20rem] bg-gray-200 rounded-xl mb-4" />
+        <div className="h-5 bg-gray-200 rounded w-4/5 mb-2" />
+        <div className="h-5 bg-gray-200 rounded w-1/3" />
+      </div>
+    );
+  };
 
   return (
-    <section className="mt-[2rem] rounded-[.5rem] bg-white p-[1.5rem] md:p-[2rem]">
-      <div className="flex items-center justify-between mb-6">
-        <h4 className="text-[1.4rem] md:text-[1.8rem] font-bold text-blue-500">
-          Sản phẩm nổi bật
-        </h4>
-        <Link
-          to={`/products?q=popular`}
-          className="flex items-center space-x-1 text-gray-500 text-[1.2rem] md:text-[1.6rem] hover:underline"
-        >
-          <span>Xem tất cả</span>
-          <FontAwesomeIcon icon={faAngleRight} />
-        </Link>
-      </div>
-
-      <div className="relative">
-        <button className="feature-prev-btn absolute top-1/2 left-2 md:left-4 z-10 -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:shadow-xl transition hidden sm:flex items-center justify-center w-10 h-10">
-          <span className="text-2xl">&larr;</span>
-        </button>
-
-        <Swiper
-          modules={[Navigation, Pagination, Autoplay]}
-          spaceBetween={10}
-          loop={true}
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
-          pagination={{ clickable: true }}
-          navigation={{
-            nextEl: ".popular-next",
-            prevEl: ".popular-prev",
-          }}
-          breakpoints={{
-            320: {
-              slidesPerView: 2,
-              slidesPerGroup: 2,
-              pagination: false,
-              spaceBetween: 5,
-            },
-            480: {
-              slidesPerView: 2,
-              slidesPerGroup: 2,
-              pagination: false,
-              spaceBetween: 5,
-            },
-            640: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
-            },
-            1024: {
-              slidesPerView: 4,
-              slidesPerGroup: 4,
-            },
-            1280: {
-              slidesPerView: 5,
-              slidesPerGroup: 5,
-            },
-          }}
-          className="popular-swiper !py-6 !px-4"
-        >
-          {isLoading
-            ? Array.from({ length: 10 }).map((_, i) => (
-                <SwiperSlide key={`skeleton-${i}`}>
-                  <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-product animate-pulse">
-                    <div className="h-[18rem] md:h-[20rem] bg-gray-200 rounded-xl mb-4" />
-                    <div className="h-5 bg-gray-200 rounded w-4/5 mb-2" />
-                    <div className="h-5 bg-gray-200 rounded w-1/3" />
-                  </div>
-                </SwiperSlide>
-              ))
-            : populars.map((product: ProductT) => (
-                <SwiperSlide
+    <div className="mt-[20rem] md:mt-[17rem] px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem] ">
+      <div className="bg-white p-5 rounded-xl">
+        <h3 className="text-[2rem] mb-6 font-bold">Sản phẩm nổi bật</h3>
+        {isLoading ? (
+          Array.from({ length: 10 }).map((_, i) => (
+            <div key={i}>
+              <Skeleton />
+            </div>
+          ))
+        ) : ProductsPages.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {ProductsPages.map((product: ProductT) => {
+              return (
+                <div
                   key={product.id}
                   className="group bg-white rounded-xl p-4 shadow hover:shadow-lg cursor-pointer relative overflow-hidden"
                 >
@@ -136,9 +104,11 @@ function PopularProduct() {
 
                     <div className="hidden xl:flex absolute w-full h-[4rem] bottom-[.5rem] right-[50%] translate-x-[50%] gap-[1rem] items-center justify-center rounded-xl translate-y-[4.5rem] group-hover:translate-y-0 transition duration-300">
                       <button
+                        type="button"
                         className="w-[10rem] h-[3.4rem] bg-white hover:bg-gray-200 rounded-md cursor-pointer transition duration-300 flex items-center justify-center gap-2"
                         onClick={(e) => {
                           e.stopPropagation();
+                          e.preventDefault();
                           setShowAddCart({ open: true, data: product });
                         }}
                       >
@@ -151,6 +121,7 @@ function PopularProduct() {
                         </span>
                       </button>
                       <button
+                        type="button"
                         className="w-[4rem] h-[3.4rem] flex items-center justify-center bg-green-500 hover:bg-green-600 rounded-md cursor-pointer transition duration-300"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -181,6 +152,7 @@ function PopularProduct() {
                       className="hidden md:block text-blue-600 hover:text-blue-700 text-[1.2rem] mdtext-[1.4rem]"
                       onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         navigate(`/product-detail/${product.slug}`);
                       }}
                     >
@@ -197,18 +169,26 @@ function PopularProduct() {
                       <span>Thêm</span>
                     </button>
                   </div>
-                </SwiperSlide>
-              ))}
-        </Swiper>
-
-        <button className="feature-next-btn absolute top-1/2 right-2 md:right-4 z-10 -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:shadow-xl transition hidden sm:flex items-center justify-center w-10 h-10">
-          <span className="text-2xl">&rarr;</span>
-        </button>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="w-full h-[30rem] md:h-[40rem] flex flex-col items-center justify-center select-none">
+            <img
+              src={noProduct}
+              alt="no-product"
+              className="w-[15rem] md:w-[20rem]"
+            />
+            <span className="text-[1.4rem] md:text-[1.6rem] mt-4">
+              Không có sản phẩm nào!
+            </span>
+          </div>
+        )}
       </div>
-
       <AddCart showAddCart={showAddCart} setShowAddCart={setShowAddCart} />
-    </section>
+    </div>
   );
 }
 
-export default PopularProduct;
+export default ProductsPage;

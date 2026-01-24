@@ -2,6 +2,7 @@ import {
   faAngleLeft,
   faAngleRight,
   faCirclePlus,
+  faEdit,
   faEllipsisVertical,
   faEye,
   faFileExport,
@@ -300,7 +301,10 @@ function Order() {
                           <div className="relative z-[200]" ref={optionRef}>
                             <button
                               className="w-[3.2rem] h-[3.2rem] rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 hover-linear"
-                              onClick={() => setSelectOption(order)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectOption(isSelectOption ? null : order);
+                              }}
                             >
                               <FontAwesomeIcon
                                 icon={faEllipsisVertical}
@@ -311,23 +315,22 @@ function Order() {
                             {isSelectOption && (
                               <div className="absolute right-[100%] top-0  min-w-[14rem] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] rounded-xl py-[.8rem] border border-gray-200">
                                 <button
+                                  type="button"
                                   className="w-full px-[1.2rem] py-[.8rem] flex items-center gap-[.8rem] text-left hover:bg-gray-100 hover-linear text-[1.4rem] text-gray-700"
-                                  onClick={() => {}}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenUpdate({
+                                      open: true,
+                                      data: selectOption,
+                                    });
+                                    setSelectOption(null);
+                                  }}
                                 >
                                   <FontAwesomeIcon
-                                    icon={faEye}
-                                    className="text-green-600"
+                                    icon={faEdit}
+                                    className="text-amber-600"
                                   />
-                                  <span
-                                    className="text-green-600"
-                                    onClick={() => {
-                                      setOpenUpdate({
-                                        open: true,
-                                        data: selectOption,
-                                      });
-                                      setSelectOption(null);
-                                    }}
-                                  >
+                                  <span className="text-amber-600">
                                     Cập nhật
                                   </span>
                                 </button>

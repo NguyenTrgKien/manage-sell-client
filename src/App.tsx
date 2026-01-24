@@ -47,6 +47,14 @@ import CustomerDetail from "./page/Dashboard/customer/CustomerDetail";
 import GuestCustomers from "./page/Dashboard/guest-customer";
 import StatisticGuest from "./page/Dashboard/guest-customer/StatisticGuest";
 import GuestDetail from "./page/Dashboard/guest-customer/DetailGuest";
+import ActionFlashSale from "./page/Dashboard/flashsale/ActionFlashSale";
+import FlashSale from "./page/Dashboard/flashsale";
+import DetailFlashSale from "./page/Dashboard/flashsale/DetailFlashSale";
+import FlashSaleDetail from "./page/customer/FlashSaleDetail";
+import DetailProductAdmin from "./page/Dashboard/products/DetailProductAdmin";
+import ActionProduct from "./page/Dashboard/products/components/ActionProduct";
+import SearchProducts from "./page/customer/Search";
+import ProductsPage from "./page/customer/ProductsPage";
 
 function App() {
   return (
@@ -111,6 +119,9 @@ function App() {
             path="product-detail/:productSlug"
             element={<ProductDetail />}
           />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="search" element={<SearchProducts />} />
+          <Route path="flash-sale/:slug" element={<FlashSaleDetail />} />
         </Route>
 
         <Route
@@ -126,6 +137,9 @@ function App() {
         >
           <Route index element={<DashboardHome />} />
           <Route path="products" element={<Products />} />
+          <Route path="products/detail/:id" element={<DetailProductAdmin />} />
+          <Route path="products/action" element={<ActionProduct />} />
+          <Route path="products/action/:id" element={<ActionProduct />} />
           <Route path="categories" element={<Categories />} />
           <Route path="profile" element={<Profile />} />
           <Route path="orders/list-order" element={<Order />} />
@@ -146,6 +160,10 @@ function App() {
           </Route>
           <Route path="banner-slide" element={<BannerSlide />} />
           <Route path="discount" element={<Discount />} />
+          <Route path="flashsale" element={<FlashSale />} />
+          <Route path="flashsale/create" element={<ActionFlashSale />} />
+          <Route path="flashsale/edit/:id" element={<ActionFlashSale />} />
+          <Route path="flashsale/detail/:id" element={<DetailFlashSale />} />
         </Route>
 
         <Route

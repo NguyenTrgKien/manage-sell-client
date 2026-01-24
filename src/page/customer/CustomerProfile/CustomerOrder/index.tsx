@@ -68,7 +68,7 @@ function CustomerOrder() {
   });
   const [searchOrders, setSearchOrders] = useState("");
   const [currentStatus, setCurrentStatus] = useState<OrderStatus | "all">(
-    "all"
+    "all",
   );
   const [openCancelledOrder, setOpenCancelledOrder] = useState<{
     open: boolean;
@@ -106,7 +106,7 @@ function CustomerOrder() {
   const liRefs = useRef<(HTMLLIElement | null)[]>([]);
   const statusKeys = useMemo(
     () => Object.keys(orderStatusMap) as ("all" | OrderStatus)[],
-    []
+    [],
   );
 
   const {
@@ -138,7 +138,7 @@ function CustomerOrder() {
     (index: number) => (el: HTMLLIElement | null) => {
       liRefs.current[index] = el;
     },
-    []
+    [],
   );
 
   const formatPrice = (price: number) => {
@@ -185,7 +185,7 @@ function CustomerOrder() {
       ) : (
         <>
           <div className="sticky top-0 pt-[2rem] bg-white z-0">
-            <div className="relative w-full overflow-x-auto">
+            <div className="relative w-full overflow-x-auto hide-scrollbar">
               <ul
                 className={`relative flex items-center border-b border-b-gray-300 z-0 
                   w-max min-w-full
@@ -201,7 +201,7 @@ function CustomerOrder() {
                     <li
                       key={key}
                       ref={setLiRef(index)}
-                      className="px-[4rem] pb-[1.5rem] cursor-pointer select-none
+                      className="px-[2rem] md:px-[4rem] pb-[1rem] md:pb-[1.5rem] cursor-pointer select-none
                         snap-start
                         flex-shrink-0"
                       onClick={() => {
@@ -232,7 +232,7 @@ function CustomerOrder() {
               </ul>
             </div>
           </div>
-          <div className="px-[2rem] pb-[2rem]">
+          <div className="px-[1rem] md:px-[2rem] pb-[2rem]">
             {isLoading ? (
               <Loading />
             ) : (
@@ -273,7 +273,7 @@ function CustomerOrder() {
                               Ngày đặt: {formatDate(order.createdAt)}
                             </p>
                             <p
-                              className={`px-[2rem] py-[.2rem] rounded-full ${getStatusConfig(order.status).textColor} ${getStatusConfig(order.status).bgColor}`}
+                              className={`text-[1.2rem] md:text-[1.6rem] px-[1rem] md:px-[2rem] py-[.2rem] rounded-full ${getStatusConfig(order.status).textColor} ${getStatusConfig(order.status).bgColor}`}
                             >
                               {getStatusConfig(order.status).text}
                             </p>
@@ -284,7 +284,7 @@ function CustomerOrder() {
                               const isReview =
                                 order.status === OrderStatus.COMPLETED &&
                                 order.orderItems.some(
-                                  (it) => it.evaluate.length === 0
+                                  (it) => it.evaluate.length === 0,
                                 );
                               return (
                                 <div
@@ -300,7 +300,7 @@ function CustomerOrder() {
                                       })
                                     }
                                   >
-                                    <div className="flex space-x-6 items-center ">
+                                    <div className="flex space-x-6 md:items-center ">
                                       <img
                                         src={product.mainImage}
                                         alt={`mainImage-${product.productName}`}
@@ -311,7 +311,6 @@ function CustomerOrder() {
                                           {product.productName}
                                         </p>
                                         <p className="flex items-center space-x-2 text-[1.2rem] text-gray-600">
-                                          <span>Phân loại:</span>
                                           <span className="block">
                                             Size {item.variant.variantSize.name}
                                             , Màu{" "}
@@ -323,7 +322,7 @@ function CustomerOrder() {
                                         </p>
                                       </div>
                                     </div>
-                                    <p className="text-red-600 text-[1.6rem]">
+                                    <p className="text-red-600 text-[1.4rem] md:text-[1.6rem]">
                                       {formatPrice(item.price * item.quantity)}
                                     </p>
                                   </div>
@@ -335,7 +334,7 @@ function CustomerOrder() {
                                       ].includes(order.status) && (
                                         <button
                                           type="button"
-                                          className="px-[2rem] py-[.6rem] bg-red-500 rounded-md text-white cursor-pointer"
+                                          className="md:text-[1.6rem] text-[1.4rem] px-[1rem] md:px-[2rem] py-[.4rem] md:py-[.6rem] bg-red-500 rounded-md text-white cursor-pointer"
                                           onClick={() => handleBuyBack(order)}
                                         >
                                           Mua lại
@@ -344,7 +343,7 @@ function CustomerOrder() {
                                     {isReview && (
                                       <button
                                         type="button"
-                                        className="px-[2rem] py-[.6rem] flex items-center border border-amber-500 rounded-md text-amber-500 hover:text-amber-600 hover:border-amber-600 cursor-pointer"
+                                        className="md:text-[1.6rem] text-[1.4rem] px-[1rem] md:px-[2rem] py-[.4rem] md:py-[.6rem] flex items-center border border-amber-500 rounded-md text-amber-500 hover:text-amber-600 hover:border-amber-600 cursor-pointer"
                                         onClick={() =>
                                           setOpenReview({
                                             open: true,
@@ -352,7 +351,7 @@ function CustomerOrder() {
                                           })
                                         }
                                       >
-                                        <div className="flex items-center space-x-2 ">
+                                        <div className="md:text-[1.6rem] text-[1.4rem] flex items-center space-x-2 ">
                                           <FontAwesomeIcon
                                             icon={faStar}
                                             className="text-[1.4rem]"
@@ -366,9 +365,9 @@ function CustomerOrder() {
                               );
                             })}
                           <div className="flex flex-col items-end justify-center">
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 md:text-[1.6rem] text-[1.4rem]">
                               Tổng tiền:{" "}
-                              <span className="text-red-600 text-[2rem]">
+                              <span className="text-red-600 md:text-[2rem] text-[1.6rem]">
                                 {formatPrice(order.totalAmount)}
                               </span>
                             </p>
@@ -376,7 +375,7 @@ function CustomerOrder() {
                               {order.status === OrderStatus.CANCELLED && (
                                 <button
                                   type="button"
-                                  className="px-[2rem] py-[.6rem] border border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-md text-gray-500 cursor-pointer"
+                                  className="md:text-[1.6rem] text-[1.4rem] px-[1rem] md:px-[2rem] py-[.4rem] md:py-[.6rem] border border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-md text-gray-500 cursor-pointer"
                                   onClick={() =>
                                     setOpenCancelledOrder({
                                       open: true,
@@ -391,7 +390,7 @@ function CustomerOrder() {
                               {order.status === OrderStatus.PENDING && (
                                 <button
                                   type="button"
-                                  className="px-[2rem] py-[.6rem] border border-gray-300 hover:bg-gray-50 rounded-md text-gray-500 cursor-pointer"
+                                  className="md:text-[1.6rem] text-[1.4rem] px-[1rem] md:px-[2rem] py-[.4rem] md:py-[.6rem] border border-gray-300 hover:bg-gray-50 rounded-md text-gray-500 cursor-pointer"
                                   onClick={() =>
                                     setOpenCancelledOrder({
                                       open: true,
@@ -407,7 +406,7 @@ function CustomerOrder() {
                                 <>
                                   <button
                                     type="button"
-                                    className="px-[2rem] py-[.6rem] bg-red-500 rounded-md text-white cursor-pointer"
+                                    className="md:text-[1.6rem] text-[1.4rem] px-[1rem] md:px-[2rem] py-[.4rem] md:py-[.6rem] bg-red-500 rounded-md text-white cursor-pointer"
                                     onClick={() =>
                                       setOpenDetailOrder({
                                         open: true,
@@ -419,7 +418,7 @@ function CustomerOrder() {
                                   </button>
                                   <button
                                     type="button"
-                                    className="px-[2rem] py-[.6rem] border border-amber-500 text-amber-600 rounded-md cursor-pointer"
+                                    className="md:text-[1.6rem] text-[1.4rem] px-[1rem] md:px-[2rem] py-[.4rem] md:py-[.6rem] border border-amber-500 text-amber-600 rounded-md cursor-pointer"
                                     onClick={() =>
                                       setOpenConfirmReceived({
                                         open: true,

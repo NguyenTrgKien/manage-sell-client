@@ -6,7 +6,7 @@ import Loading from "../../../../components/Loading";
 import { toast } from "react-toastify";
 import axiosConfig from "../../../../configs/axiosConfig";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export interface LoginResponse {
   status: boolean;
@@ -87,6 +87,13 @@ function Login() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center md:p-4">
+      <button
+        type="button"
+        className="absolute top-4 right-4 w-16 h-16 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-500 cursor-pointer"
+        onClick={() => navigate("/")}
+      >
+        <FontAwesomeIcon icon={faClose} />
+      </button>
       <div className="w-[90%] md:max-w-2xl bg-white shadow-2xl rounded-2xl p-5 md:p-[2.5rem] transform transition-all">
         <div className="text-center mb-8">
           <div className="w-15 md:w-20 h-15 md:h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">

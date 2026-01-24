@@ -82,7 +82,7 @@ function Categories() {
     const isExpanded = expandedIds.has(item.id);
     const activeChildren = children.filter((c: CategoriesType) => c.isActive);
     const inactiveChildren = children.filter(
-      (c: CategoriesType) => !c.isActive
+      (c: CategoriesType) => !c.isActive,
     );
     const activeChildrenCount = activeChildren.length;
     const inactiveChildrenCount = inactiveChildren.length;
@@ -198,7 +198,7 @@ function Categories() {
             <div className="absolute left-10 top-0 h-6 w-6 border-l-2 border-b-2 border-gray-300 rounded-bl-lg" />
             <div className="ml-10">
               {children.map((child: CategoriesType) =>
-                renderCategory(child, level + 1)
+                renderCategory(child, level + 1),
               )}
             </div>
           </div>
@@ -208,8 +208,8 @@ function Categories() {
   };
 
   return (
-    <div className="w-full h-[calc(100vh-10rem)] overflow-y-auto bg-white shadow-lg rounded-[1rem] flex flex-col p-[2rem]">
-      <div className="sticky top-0 bg-white flex justify-between items-center pb-6 border-b border-gray-300">
+    <div className="w-full h-[calc(100vh-10rem)] overflow-y-auto bg-white shadow-lg rounded-[1rem] flex flex-col pb-[2rem] hide-scrollbar">
+      <div className="sticky top-0 bg-white flex justify-between items-center pb-6 border-b border-gray-300 px-[2rem] pt-[2rem] z-[100]">
         <h3 className="text-3xl font-bold text-gray-700">Danh mục</h3>
         <button
           onClick={() => setOpenAction({ action: "add" })}
@@ -220,7 +220,7 @@ function Categories() {
         </button>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 px-[2rem]">
         <h3 className="text-2xl font-semibold text-gray-600 mb-6">Danh sách</h3>
 
         <div className="bg-gray-50 border border-gray-300 rounded-lg p-6 flex items-end gap-6 mb-8">

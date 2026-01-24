@@ -64,6 +64,16 @@ interface OrderItemsForm {
   price: number;
 }
 
+interface CheckFlashSaleProducts {
+  discount: number;
+  flashSaleEndDate?: string;
+  isFlashActive: boolean;
+  origin_price: string;
+  productId: number;
+  remainingSlot: number;
+  sale_price: string;
+}
+
 export default function Checkout() {
   const { user, refreshUser } = useUser();
   const navigate = useNavigate();
@@ -84,14 +94,18 @@ export default function Checkout() {
     action: "add",
   });
   const [selectedAddress, setSelectedAddress] = useState<AddressType | null>(
-    null
+    null,
   );
   const [showLogin, setShowLogin] = useState(false);
   const [shippingFee, setShippingFee] = useState(0);
   const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
   const [discountAmount, setdiscountAmount] = useState<number>(0);
+  const [realSubtotal, setRealSubtotal] = useState<number>(0);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [openLogin, setOpenLogin] = useState(false);
+  const [flashSaleProducts, setFlashSaleProducts] = useState<
+    CheckFlashSaleProducts[]
+  >([]);
   const [selectVoucher, setSelectVoucher] = useState<{
     open: boolean;
     voucher: VoucherT | null;
@@ -124,7 +138,6 @@ export default function Checkout() {
     },
   });
   const watchedProvince = watch("customerProvince");
-
   const paymentMethod = watch("paymentMethod");
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
 
@@ -142,7 +155,7 @@ export default function Checkout() {
           setSelectedAddress(defaultAddress);
           setValue(
             "customerName",
-            defaultAddress.recipentName || user.username || ""
+            defaultAddress.recipentName || user.username || "",
           );
           setValue("customerAddress", defaultAddress.addressDetail);
           setValue("customerWard", defaultAddress.ward);
@@ -201,7 +214,7 @@ export default function Checkout() {
     return () => {
       window.removeEventListener(
         "guest_address_updated",
-        handleGuestAddressChange
+        handleGuestAddressChange,
       );
     };
   }, [user, setValue]);
@@ -230,11 +243,72 @@ export default function Checkout() {
   }, [navigate, setValue]);
 
   useEffect(() => {
+    if (!user) return;
+    if (!checkoutData || checkoutData?.items?.length === 0) return;
+    const requestFlashSaleForProducts = async () => {
+      try {
+        const productIds = checkoutData.items.map((it) => {
+          return it.productId;
+        });
+
+        const res = await axiosConfig.post("/api/v1/flashsale/check-products", {
+          productIds,
+        });
+
+        if (res.status && res.data) {
+          setFlashSaleProducts(res.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    requestFlashSaleForProducts();
+  }, [checkoutData, user]);
+
+  useEffect(() => {
+    if (!checkoutData || !flashSaleProducts.length) {
+      setRealSubtotal(checkoutData?.subtotal || 0);
+      return;
+    }
+
+    let calculatedSubtotal = 0;
+    checkoutData.items.forEach((it) => {
+      const flashSale = flashSaleProducts.find(
+        (fs) => fs.productId === it.productId,
+      );
+
+      let itemSubtotal: number;
+      if (
+        !flashSale ||
+        !flashSale.isFlashActive ||
+        flashSale.remainingSlot <= 0
+      ) {
+        itemSubtotal = it.price * it.quantity;
+      } else {
+        const flashPrice = Number(flashSale.sale_price);
+        const normalPrice = it.price;
+
+        const flashQuantity = Math.min(
+          it.quantity,
+          Number(flashSale.remainingSlot),
+        );
+        const normalQuantity = it.quantity - flashQuantity;
+
+        itemSubtotal =
+          flashQuantity * flashPrice + normalPrice * normalQuantity;
+      }
+
+      calculatedSubtotal += itemSubtotal;
+    });
+    setRealSubtotal(calculatedSubtotal);
+  }, [checkoutData, flashSaleProducts]);
+
+  useEffect(() => {
     if (!checkoutData) return;
     let discountAmount = 0;
     if (user && selectVoucher.voucher) {
       const voucher = selectVoucher.voucher;
-      const subTotal = checkoutData?.subtotal;
+      const subTotal = realSubtotal;
       if (voucher.type === VoucherType.PERCENT) {
         discountAmount = (Number(subTotal) * voucher.value) / 100;
         if (discountAmount > voucher.maxDiscount) {
@@ -245,35 +319,36 @@ export default function Checkout() {
       }
     }
     setdiscountAmount(discountAmount);
-    const newTotal = checkoutData.subtotal + shippingFee - discountAmount;
+    const newTotal = realSubtotal + shippingFee - discountAmount;
     setTotalAmount(newTotal);
-  }, [selectVoucher.voucher, checkoutData, shippingFee, user]);
+  }, [selectVoucher.voucher, checkoutData, shippingFee, user, realSubtotal]);
 
   const calculateShipping = async (addressData: { province: string }) => {
     if (!checkoutData) return;
     setIsCalculatingShipping(true);
     try {
       const res = await axiosConfig.post("/api/v1/orders/calculate-shipping", {
-        subTotal: checkoutData.subtotal,
+        subTotal: realSubtotal,
         customerProvince: addressData.province,
       });
 
       if (res.status) {
         setShippingFee(res.data.shippingFee);
-        setTotalAmount(checkoutData.subtotal + res.data.shippingFee);
+        setTotalAmount(realSubtotal + res.data.shippingFee);
       } else {
-        const free = checkoutData.subtotal >= 500000 ? 0 : 35000;
+        const free = realSubtotal >= 500000 ? 0 : 35000;
         setShippingFee(free);
-        setTotalAmount(checkoutData.subtotal + free);
+        setTotalAmount(realSubtotal + free);
       }
     } catch (error) {
-      const free = checkoutData.subtotal >= 500000 ? 0 : 35000;
+      const free = realSubtotal >= 500000 ? 0 : 35000;
       setShippingFee(free);
-      setTotalAmount(checkoutData.subtotal + free);
+      setTotalAmount(realSubtotal + free);
     } finally {
       setIsCalculatingShipping(false);
     }
   };
+
   useEffect(() => {
     if (checkoutData && watchedProvince) {
       calculateShipping({
@@ -330,9 +405,10 @@ export default function Checkout() {
             }
           : {}),
       };
+
       const res = (await axiosConfig.post(
         "/api/v1/orders/create",
-        submitData
+        submitData,
       )) as any;
 
       if (res.status) {
@@ -347,7 +423,7 @@ export default function Checkout() {
           } else {
             localStorage.setItem(
               "guest_orders",
-              JSON.stringify([res.data.orderCode])
+              JSON.stringify([res.data.orderCode]),
             );
           }
         }
@@ -371,7 +447,7 @@ export default function Checkout() {
     } catch (error: any) {
       console.log(error);
       toast.error(
-        error.message || "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!"
+        error.message || "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!",
       );
     }
   };
@@ -399,10 +475,9 @@ export default function Checkout() {
 
   return (
     <div className="w-full min-h-screen bg-gray-50 py-4 px-4 sm:px-6 lg:px-8 xl:px-[12rem]">
-      {/* Header */}
       <div className="mb-8">
         <button
-          onClick={() => navigate("/cart/detail")}
+          onClick={() => navigate("/cart/detail", { replace: true })}
           className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 sm:mb-6"
         >
           <FontAwesomeIcon icon={faArrowLeft} />
@@ -423,15 +498,15 @@ export default function Checkout() {
               >
                 Đăng nhập
               </button>{" "}
-              để nhận ưu đãi thành viên!
+              để có thể sử dụng voucher và các mã giảm giá khác!
             </p>
           </div>
         )}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
-          <div className="lg:col-span-2 space-y-6 lg:space-y-8">
+        <div className="grid lg:grid-cols-5 gap-6 lg:gap-8">
+          <div className="lg:col-span-3 space-y-6 lg:space-y-8">
             <div className="bg-white rounded-xl shadow-lg pt-6 lg:pt-10 px-4 sm:px-6 lg:px-10 pb-6 lg:pb-18">
               <div className="flex items-center gap-3 mb-4 lg:mb-6">
                 <FontAwesomeIcon
@@ -488,7 +563,6 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                {/* Email */}
                 <div className="w-full space-y-1">
                   <label
                     htmlFor="customerEmail"
@@ -512,7 +586,6 @@ export default function Checkout() {
                   )}
                 </div>
 
-                {/* Shipping Address */}
                 <div className="w-full space-y-2">
                   <label className="block text-gray-600 font-medium">
                     Địa chỉ giao hàng
@@ -606,7 +679,6 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                {/* Note */}
                 <div className="w-full space-y-1">
                   <label htmlFor="customerNote" className="block text-gray-600">
                     Ghi chú
@@ -622,49 +694,107 @@ export default function Checkout() {
             </div>
           </div>
 
-          {/* Right Column - Order Summary */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-lg px-4 sm:px-6 py-6 lg:py-10 sticky top-4 lg:top-6">
               <h2 className="font-bold text-gray-800 mb-4 lg:mb-6 flex items-center gap-3">
                 <FontAwesomeIcon icon={faTruck} className="text-red-500" />
                 <span>Đơn hàng ({checkoutData.items.length} sản phẩm)</span>
               </h2>
 
-              {/* Order Items List */}
               <div className="space-y-4 max-h-64 sm:max-h-80 lg:max-h-96 overflow-y-auto pr-2 mb-4 lg:mb-6">
-                {checkoutData.items.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between gap-3 lg:gap-4 pb-4 border-b border-gray-100 last:border-0"
-                  >
-                    <div className="flex items-center gap-3 lg:gap-[1rem] min-w-0">
-                      <img
-                        src={item.mainImage}
-                        alt={item.productName}
-                        className="w-16 h-16 lg:w-20 lg:h-20 rounded-lg object-cover border flex-shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-gray-800 line-clamp-1 text-[1.4rem]">
-                          {item.productName}
-                        </p>
-                        {item.size && item.color && (
-                          <p className="text-[1.2rem] text-gray-500 truncate">
-                            {item.color} / {item.size}
+                {checkoutData.items.map((item, index) => {
+                  const flashSale = flashSaleProducts.find(
+                    (it) => it.productId === item.productId,
+                  );
+                  let priceDisplay: number;
+                  let subtotalThisItem: number;
+                  let showFlashInfo = false;
+                  let flashText = "";
+
+                  if (
+                    !flashSale ||
+                    !flashSale.isFlashActive ||
+                    flashSale.remainingSlot <= 0
+                  ) {
+                    priceDisplay = item.price;
+                    subtotalThisItem = item.price * item.quantity;
+                  } else {
+                    const flashPrice = Number(flashSale.sale_price);
+                    const normalPrice = item.price;
+
+                    const flashQuantity = Math.min(
+                      item.quantity,
+                      flashSale.remainingSlot,
+                    );
+                    const normalQuantity = item.quantity - flashQuantity;
+                    subtotalThisItem =
+                      flashQuantity * flashPrice + normalPrice * normalQuantity;
+                    priceDisplay = flashPrice;
+                    showFlashInfo = true;
+
+                    if (flashQuantity < item.quantity) {
+                      flashText = `(FlashSale: áp dụng ${flashQuantity}/${item.quantity} sp)`;
+                    } else {
+                      flashText = `(FlashSale: ${flashSale.discount}% - còn ${flashSale.remainingSlot} slot)`;
+                    }
+                  }
+
+                  return (
+                    <div
+                      key={index}
+                      className="flex justify-between gap-3 lg:gap-4 pb-4 border-b border-gray-100 last:border-0"
+                    >
+                      <div className="flex items-center gap-3 lg:gap-[1rem] min-w-0">
+                        <img
+                          src={item.mainImage}
+                          alt={item.productName}
+                          className="w-22 h-22 lg:w-26 lg:h-26 rounded-lg object-cover border border-gray-300 flex-shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-gray-800 line-clamp-1 text-[1.4rem]">
+                            {item.productName}
                           </p>
-                        )}
-                        <p className="text-sm text-gray-600">
-                          x{item.quantity}
-                        </p>
+                          {item.size && item.color && (
+                            <p className="text-[1.2rem] text-gray-500 truncate">
+                              {item.color} / {item.size}
+                            </p>
+                          )}
+                          <span className="text-[1.2rem]">
+                            Số lượng:
+                            {" × "}
+                            {item.quantity}
+                          </span>
+                          <div className="mt-1 text-[1.2rem] flex items-center">
+                            {showFlashInfo ? (
+                              <>
+                                <span className="text-red-400 line-through">
+                                  {formatPrice(item.price)}
+                                </span>
+                                <span className="ml-2 font-bold text-red-600">
+                                  {formatPrice(priceDisplay)}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="font-semibold text-red-600">
+                                {formatPrice(priceDisplay)}
+                              </span>
+                            )}
+                            {flashText && (
+                              <span className="ml-2 text-orange-600 text-[1rem] md:text-[1.2rem]">
+                                {flashText}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
+                      <p className="text-red-600 whitespace-nowrap text-[1.4rem] flex-shrink-0">
+                        {formatPrice(subtotalThisItem)}
+                      </p>
                     </div>
-                    <p className="text-red-600 whitespace-nowrap text-[1.4rem] flex-shrink-0">
-                      {formatPrice(item.price * item.quantity)}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              {/* Voucher Section */}
               <div className="py-4 border-t border-b border-gray-200">
                 {selectVoucher.voucher ? (
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -685,7 +815,7 @@ export default function Checkout() {
                           setSelectVoucher({
                             open: false,
                             voucher: null,
-                            conditionValue: checkoutData.subtotal,
+                            conditionValue: realSubtotal,
                           });
                           setdiscountAmount(0);
                         }}
@@ -704,7 +834,7 @@ export default function Checkout() {
                           setSelectVoucher({
                             open: true,
                             voucher: null,
-                            conditionValue: checkoutData.subtotal,
+                            conditionValue: realSubtotal,
                           });
                         } else {
                           setShowLogin(true);
@@ -717,11 +847,10 @@ export default function Checkout() {
                 )}
               </div>
 
-              {/* Order Summary */}
               <div className="mt-4 lg:mt-6 pt-4 lg:pt-6 space-y-4 lg:space-y-6">
                 <div className="flex justify-between text-[1.4rem]">
                   <span className="text-gray-800">Tạm tính:</span>
-                  <span>{formatPrice(checkoutData.subtotal)}</span>
+                  <span>{formatPrice(realSubtotal)}</span>
                 </div>
                 <div className="flex justify-between text-[1.4rem] text-gray-800">
                   <span>Phí vận chuyển:</span>
@@ -751,7 +880,6 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* Payment Method */}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center gap-2 mb-4">
                   <FontAwesomeIcon
@@ -808,7 +936,6 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* Submit Button */}
               <button
                 className="w-full mt-6 py-3 lg:py-5 uppercase bg-red-500 hover:bg-red-600 text-white text-lg lg:text-xl font-bold rounded-xl shadow-lg transition transform hover:scale-105 active:scale-95"
                 type="submit"
@@ -821,7 +948,6 @@ export default function Checkout() {
         </div>
       </form>
 
-      {/* Modals */}
       {isSelectAddressOpen.open && (
         <SelectAddress
           open={isSelectAddressOpen.open}

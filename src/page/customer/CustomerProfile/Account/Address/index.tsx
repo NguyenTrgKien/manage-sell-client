@@ -33,7 +33,7 @@ function Address() {
     try {
       setIsLoading(true);
       const res = await axiosConfig.delete(
-        `/api/v1/address/delete/${openDelete.delete}`
+        `/api/v1/address/delete/${openDelete.delete}`,
       );
       if (res.status) {
         setOpenDelete({ open: false, delete: null });
@@ -91,7 +91,7 @@ function Address() {
               return (
                 <div
                   key={add.id}
-                  className="flex items-center justify-between border border-dashed rounded-md p-[2rem] border-gray-300"
+                  className="flex md:items-center flex-col md:flex-row justify-between border border-dashed rounded-md p-[2rem] border-gray-300"
                 >
                   <div className="space-y-2" key={add.id}>
                     <div className="flex items-center gap-[1rem] text-gray-500">
@@ -112,7 +112,9 @@ function Address() {
                     )}
                   </div>
                   <div className="flex flex-col space-y-4">
-                    <div className={`flex items-center gap-[1rem] `}>
+                    <div
+                      className={`flex items-center gap-[1rem] md:mt-0 mt-5`}
+                    >
                       <button
                         className="flex-1 px-[1rem] py-[.4rem] text-[1.4rem] border text-blue-500 border-blue-400 hover:border-blue-600 hover:text-blue-600 rounded-sm"
                         onClick={() =>

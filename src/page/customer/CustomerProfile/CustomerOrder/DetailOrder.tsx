@@ -80,30 +80,42 @@ function DetailOrder({
   };
 
   return (
-    <div className="px-[2rem] pb-[2rem]">
-      <div className="py-[1rem] flex items-center justify-between">
-        <button
-          type="button"
-          className="px-6 py-2.5 outline-none bg-gray-100 hover:bg-gray-200 transition-colors duration-300 cursor-pointer rounded-md "
-          onClick={() => onClose()}
-        >
-          <FontAwesomeIcon icon={faAngleLeft} className="text-[1.4rem]" />
-          <span className="uppercase text-[1.4rem]">trở lại</span>
-        </button>
-        <div className="flex items-center space-x-6">
-          <span>Mã đơn hàng: {order.orderCode}</span>
-          <span className="block h-[2rem] border-r border-r-gray-500"></span>
+    <div className="min-h-screen px-4 sm:px-6 lg:px-8 pb-6 md:pb-8">
+      <div className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
           <button
-            className={`px-8 py-2 rounded-full ${getStatusConfig(order.status).textColor} ${getStatusConfig(order.status).bgColor}`}
+            type="button"
+            className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 transition-colors rounded-md flex items-center gap-2 text-[1.2rem] md:text-[1.6rem]"
+            onClick={onClose}
           >
-            {getStatusConfig(order.status).text}
+            <FontAwesomeIcon icon={faAngleLeft} />
+            <span className="uppercase">Trở lại</span>
           </button>
         </div>
+
+        <div className="flex items-center gap-4 flex-wrap justify-end sm:justify-normal">
+          <span className="text-[1.2rem] md:text-[1.6rem] font-medium">
+            Mã đơn hàng: {order.orderCode}
+          </span>
+          <div className="hidden sm:block h-6 border-r border-gray-400" />
+          <span
+            className={`px-5 py-1.5 rounded-full text-[1.2rem] md:text-[1.6rem] font-medium
+              ${getStatusConfig(order.status).textColor} 
+              ${getStatusConfig(order.status).bgColor}`}
+          >
+            {getStatusConfig(order.status).text}
+          </span>
+        </div>
       </div>
-      {order?.status === OrderStatus.CANCELLED ? (
-        <div className="w-full py-[2rem] border border-amber-200 bg-amber-50 px-[2rem]">
-          <p className="text-[1.8rem] text-red-500">Đã hủy đơn hàng</p>
-          <p>lúc {formatDate(order.updatedAt)}</p>
+
+      {order.status === OrderStatus.CANCELLED ? (
+        <div className="my-6 p-5 border border-amber-200 bg-amber-50 rounded-lg">
+          <p className="text-[1.2rem] md:text-[1.6rem] text-red-600 font-medium">
+            Đã hủy đơn hàng
+          </p>
+          <p className="text-gray-600 mt-1">
+            lúc {formatDate(order.updatedAt)}
+          </p>
         </div>
       ) : (
         <div className="flex items-center justify-center space-x-5 mt-[3rem]">
@@ -114,29 +126,29 @@ function DetailOrder({
               <div key={step.key} className="flex items-center">
                 <div
                   key={step.key}
-                  className="flex flex-col gap-[2rem] relative items-center"
+                  className="flex flex-col gap-[1rem] md:ap-[2rem] relative items-center"
                 >
                   <div
-                    className={`w-[6rem] h-[6rem] rounded-full flex items-center justify-center z-10
+                    className={`lg:w-[6rem] lg:h-[6rem] md:w-[4rem] md:h-[4rem] w-[3rem] h-[3rem] rounded-full flex items-center justify-center z-10
                 ${isActive ? `${step.color}` : "bg-gray-300"}`}
                   >
                     <FontAwesomeIcon
                       icon={step.icon}
-                      className="text-white text-[2rem]"
+                      className="text-white md:text-[1.8rem] text-[1.2rem] lg:text-[2rem]"
                     />
                   </div>
 
                   <div className="flex-1 text-center">
-                    <div className="text-[1.4rem] font-medium text-gray-800">
+                    <div className="text-[1.2rem] md:text-[1.4rem] font-medium text-gray-800">
                       {step.label}
                     </div>
-                    <div className="text-[1.2rem] text-gray-500 mt-[.2rem]">
+                    <div className="hidden md:block text-[.8rem] md:text-[1.2rem] text-gray-500 mt-[.2rem]">
                       {step.desc}
                     </div>
                   </div>
                 </div>
                 {index !== steps.length - 1 && (
-                  <span className="w-[10rem] border border-green-500"></span>
+                  <span className="w-[2rem] md:w-[10rem] border border-green-500"></span>
                 )}
               </div>
             );
@@ -144,174 +156,170 @@ function DetailOrder({
         </div>
       )}
 
-      <div className="w-full border-t-1 border-gray-400 mt-[3rem]"></div>
+      <hr className="my-6 border-gray-300" />
 
-      <div className="px-[2rem] mt-[3rem]">
-        <span className="text-[1.8rem]">Địa chỉ nhận hàng</span>
-        <div className="mt-[1rem] border border-gray-300 rounded-md p-[2rem]">
-          <p>{order.customerName}</p>
-          <p className="text-[1.3rem] text-gray-500">({order.customerPhone})</p>
-          <p className="text-[1.3rem] text-gray-500">
+      <div className="mb-8">
+        <h2 className="text-[1.4rem] md:text-[1.6rem] font-medium mb-3">
+          Địa chỉ nhận hàng
+        </h2>
+        <div className="border border-gray-300 rounded-lg p-4 md:p-6 bg-white">
+          <p className="font-medium">{order.customerName}</p>
+          <p className="text-gray-500 text-[1.2rem] md:text-[1.4rem]">
+            ({order.customerPhone})
+          </p>
+          <p className="text-gray-500 mt-1 text-[1.2rem] md:text-[1.4rem]">
             {order.customerAddress}, {order.customerWard},{" "}
-            {order.customerDistrict}, {order.customerPhone}
+            {order.customerDistrict}, {order.customerProvince}
           </p>
         </div>
       </div>
 
-      <div className="p-[2rem]">
-        <span className="text-[1.8rem] mb-[1rem] block">
+      <div className="mb-8">
+        <h2 className="text-[1.4rem] md:text-[1.6rem] font-medium mb-3">
           Thông tin vận chuyển
-        </span>
-        <div className="border border-gray-300 rounded-md py-[1rem] px-[2rem] bg-gray-50">
+        </h2>
+        <div className="border border-gray-300 rounded-lg p-4 md:p-6 bg-gray-50">
           {[OrderStatus.PENDING, OrderStatus.CONFIRMED].includes(
-            order.status
+            order.status,
           ) ? (
-            <p className="text-[1.5rem italic">
+            <p className="text-[1.2rem] md:text-[1.6rem] italic">
               Đơn hàng đang được xử lý và đóng gói. Chúng tôi sẽ cập nhật mã vận
               đơn ngay khi hàng được giao cho đơn vị vận chuyển.
             </p>
           ) : (
-            <>
-              <div className="space-y-3 text-[1.5rem]">
+            <div className="space-y-3 text-[1.4rem] md:text-[1.6rem]">
+              <p>
+                <span className="font-medium text-gray-700">
+                  Nhà vận chuyển:
+                </span>{" "}
+                {order.shippingProvider
+                  ? getShippingProvider[order.shippingProvider]?.text ||
+                    order.shippingProvider
+                  : "Chưa xác định"}
+              </p>
+              <p>
+                <span className="font-medium text-gray-700">Mã vận đơn:</span>{" "}
+                <span className="font-semibold">
+                  {order.trackingNumber || "Chưa có"}
+                </span>
+              </p>
+              {order.shippingNote && (
                 <p>
-                  <span className="font-medium text-gray-700">
-                    Nhà vận chuyển:
-                  </span>{" "}
-                  <span className="text-gray-900">
-                    {order.shippingProvider
-                      ? getShippingProvider[order.shippingProvider]?.text ||
-                        order.shippingProvider
-                      : "Chưa xác định"}
-                  </span>
+                  <span className="font-medium text-gray-700">Ghi chú:</span>{" "}
+                  <span className="italic">{order.shippingNote}</span>
                 </p>
-                <p>
-                  <span className="font-medium text-gray-700">Mã vận đơn:</span>{" "}
-                  <span className="text-gray-900 font-semibold">
-                    {order.trackingNumber || "Chưa có"}
-                  </span>
-                </p>
-                {order.shippingNote && (
-                  <p>
-                    <span className="font-medium text-gray-700">Ghi chú:</span>{" "}
-                    <span className="text-gray-900 italic">
-                      {order.shippingNote}
-                    </span>
-                  </p>
-                )}
-              </div>
-              {order.status === OrderStatus.SHIPPING ? (
-                order.trackingNumber &&
-                order.shippingProvider && (
-                  <div className="mt-4">
+              )}
+
+              <div className="mt-4">
+                {order.status === OrderStatus.SHIPPING &&
+                  order.trackingNumber &&
+                  order.shippingProvider && (
                     <button
                       type="button"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm md:text-base"
                     >
                       <FontAwesomeIcon icon={faTruck} />
                       Tra cứu vận đơn
                     </button>
-                  </div>
-                )
-              ) : order.status === OrderStatus.COMPLETED ? (
-                <p className="text-[1.5rem] text-green-600 font-medium mt-3">
-                  Đơn hàng đã được giao thành công!
-                </p>
-              ) : (
-                <p className="text-[1.5rem] text-gray-600 mt-3">
-                  Thông tin vận chuyển chưa được cập nhật.
-                </p>
-              )}
-            </>
+                  )}
+
+                {order.status === OrderStatus.COMPLETED && (
+                  <p className="text-green-600 font-medium text-[1.4rem] md:text-[1.6rem]">
+                    Đơn hàng đã được giao thành công!
+                  </p>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </div>
 
-      <div className="px-[2rem]">
-        <div
-          key={order.id}
-          className="shadow-md p-[2rem] border border-gray-200 rounded-md mt-[2rem]"
-        >
-          {order.orderItems.length > 0 &&
-            order.orderItems.map((item) => {
-              const product = item.variant.product;
-              return (
-                <Link
-                  to={`/product-detail/${product.slug}`}
-                  key={item.id}
-                  className="block pb-[1rem] mb-[2rem] border-b border-b-gray-300"
-                >
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between my-[1rem] cursor-pointer"
-                  >
-                    <div className="flex space-x-6 items-center ">
-                      <img
-                        src={product.mainImage}
-                        alt={`mainImage-${product.productName}`}
-                        className="w-[6rem] h-[6rem] object-cover border border-gray-400"
-                      />
-                      <div>
-                        <p className="max-w-2xl line-clamp-1 text-gray-900 select-none">
-                          {product.productName}
-                        </p>
-                        <p className="flex items-center space-x-2 text-[1.2rem] text-gray-600">
-                          <span>Phân loại:</span>
-                          <span className="block">
-                            Size {item.variant.variantSize.name}, Màu{" "}
-                            {item.variant.variantColor.name}
-                          </span>
-                        </p>
-                        <p className="text-[1.2rem] text-gray-600">
-                          Số lượng: x{item.quantity}
-                        </p>
-                      </div>
+      <div className="border border-gray-200 rounded-lg shadow-sm p-4 md:p-6 bg-white">
+        <div className="space-y-5 md:space-y-6">
+          {order.orderItems.map((item) => {
+            const product = item.variant.product;
+            return (
+              <Link
+                to={`/product-detail/${product.slug}`}
+                key={item.id}
+                className="block border-b border-gray-200 pb-5 last:border-b-0 last:pb-0"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <img
+                      src={product.mainImage}
+                      alt={product.productName}
+                      className="w-20 h-20 md:w-24 md:h-24 object-cover border border-gray-400 rounded"
+                    />
+                    <div>
+                      <p className="font-medium line-clamp-2 md:line-clamp-1">
+                        {product.productName}
+                      </p>
+                      <p className="text-[1rem] md:text-[1.2rem] text-gray-600 mt-1">
+                        Size {item.variant.variantSize.name} • Màu{" "}
+                        {item.variant.variantColor.name}
+                      </p>
+                      <p className="text-[1rem] md:text-[1.2rem] text-gray-600">
+                        Số lượng: x{item.quantity}
+                      </p>
                     </div>
-                    <p className="text-red-600 text-[1.6rem]">
-                      {formatPrice(item.price * item.quantity)}
-                    </p>
                   </div>
-                </Link>
-              );
-            })}
-          <div className="flex items-center justify-between ml-auto w-3xl ">
-            <div className="flex flex-col items-end space-y-6">
-              <p className="text-gray-600">Tạm tính: </p>
-              <p className="text-gray-600">Phí vận chuyển: </p>
-              <p className="text-gray-600">Voucher giảm giá: </p>
-              <p className="text-gray-600">Thành tiền: </p>
-              <p className="text-gray-600">Phương thức thanh toán: </p>
-              {order.paymentMethod !== PaymentMethod.COD && (
-                <p className="text-gray-600">Trạng thái thanh toán: </p>
-              )}
+
+                  <p className="text-red-600 font-medium text-[1.4rem] md:text-[1.6rem] whitespace-nowrap">
+                    {formatPrice(item.price * item.quantity)}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="mt-6 md:mt-8 pt-6 border-t border-gray-200">
+          <div className="flex flex-col gap-4 text-[1.4rem] md:text-[1.6rem]">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Tạm tính</span>
+              <span>{formatPrice(subTotal)}</span>
             </div>
-            <div className="flex flex-col items-end space-y-6">
-              <span className="text-gray-800">{formatPrice(subTotal)}</span>
-              <span className="text-gray-800">
-                {formatPrice(order.shippingFee)}
-              </span>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Phí vận chuyển</span>
+              <span>{formatPrice(order.shippingFee)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Voucher giảm giá</span>
               <span className="text-red-600">
                 - {formatPrice(order.discountAmount)}
               </span>
+            </div>
+            <div className="flex justify-between font-medium text-[1.4rem] md:text-[1.6rem] pt-3 border-t">
+              <span>Thành tiền</span>
               <span className="text-red-600">
                 {formatPrice(order.totalAmount)}
               </span>
-              <span className="text-gray-800">
-                {getPaymentMethod[order.paymentMethod].text}
-              </span>
-              <span className="text-gray-800">
-                {order?.payment?.status === PaymentStatus.SUCCESS
-                  ? "Đã thanh toán"
-                  : "Chưa thanh toán"}
-              </span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Phương thức thanh toán</span>
+              <span>{getPaymentMethod[order.paymentMethod].text}</span>
+            </div>
+
+            {order.paymentMethod !== PaymentMethod.COD && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Trạng thái thanh toán</span>
+                <span>
+                  {order?.payment?.status === PaymentStatus.SUCCESS
+                    ? "Đã thanh toán"
+                    : "Chưa thanh toán"}
+                </span>
+              </div>
+            )}
           </div>
+
           {order.paymentMethod === PaymentMethod.COD &&
             ![OrderStatus.CANCELLED, OrderStatus.COMPLETED].includes(
-              order.status
+              order.status,
             ) && (
-              <div className="w-full py-4 bg-amber-50 mt-[1rem] text-center border border-amber-200">
+              <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-center text-[1.4rem] md:text-[1.6rem]">
                 Vui lòng thanh toán{" "}
-                <span className="text-red-500">
+                <span className="text-red-600 font-medium">
                   {formatPrice(order.totalAmount)}
                 </span>{" "}
                 khi nhận hàng

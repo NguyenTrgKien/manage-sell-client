@@ -29,15 +29,24 @@ body {
 
 .custom-next-btn,
 .custom-prev-btn,
-.feature-next-btn,
-.feature-prev-btn {
+.bestsell-next,
+.bestsell-prev,
+.popular-next,
+.popular-prev {
   background: rgba(255, 255, 255, 0.8);
-  width: 50px !important;
-  height: 50px !important;
+  width: 5rem !important;
+  height: 5rem !important;
   border-radius: 50%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border: 2px solid #e2e8f0;
   transition: all 0.3s ease;
+}
+
+.custom-next-btn {
+  right: 1rem;
+}
+.custom-prev-btn {
+  left: 1rem;
 }
 
 .text-limit-1 {

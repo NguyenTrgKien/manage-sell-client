@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import AddSizeColor from "./AddSizeColor";
 import { useQueryClient } from "@tanstack/react-query";
-import MotionWrapper from "../../../../../components/ui/MotionWrapper";
 import { toast } from "react-toastify";
+import MotionWrapper from "../../../../components/ui/MotionWrapper";
 
 export interface VariantSize {
   id: number;
@@ -116,7 +116,7 @@ function ActionVariant({
     const isDuplicate = variants.some(
       (v: any) =>
         v.sizeId === Number(dataVariants.sizeId) &&
-        v.colorId === Number(dataVariants.colorId)
+        v.colorId === Number(dataVariants.colorId),
     );
     if (isDuplicate) {
       toast.warn("Thuộc tính với Size và Màu này đã tồn tại!");

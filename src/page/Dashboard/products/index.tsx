@@ -5,6 +5,7 @@ import {
   faCirclePlus,
   faClose,
   faEdit,
+  faEye,
   faFilter,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +18,7 @@ import { getAllCategory } from "../../../api/category.api";
 import axiosConfig from "../../../configs/axiosConfig";
 import { toast } from "react-toastify";
 import RenderParentOption from "../../../components/RenderParentOption";
+import { Link } from "react-router-dom";
 
 function Products() {
   const [openActionProduct, setOpenActionProduct] = useState<{
@@ -75,12 +77,12 @@ function Products() {
     setIsLoading(true);
     try {
       const res = await axiosConfig.delete(
-        `/api/v1/product/toggle-hidden-product/${product.id}`
+        `/api/v1/product/toggle-hidden-product/${product.id}`,
       );
       if (res.status) {
         toast.success(
           res.status ||
-            `${product.isActive ? "Ẩn" : "Hiện"} sản phẩm thành công`
+            `${product.isActive ? "Ẩn" : "Hiện"} sản phẩm thành công`,
         );
         await refetch();
         setIsLoading(false);
@@ -107,257 +109,225 @@ function Products() {
       <div className="sticky top-0 z-30 flex justify-between items-center pb-[1.5rem] border-b-[.1rem] border-b-gray-300">
         <h3 className="text-[2.5rem] font-semibold text-gray-600">Sản phẩm</h3>
         <div>
-          <button
+          <Link
+            to={`action`}
             className="text-white flex gap-1.5 items-center px-4 py-3 bg-[var(--main-button)] rounded-lg hover:bg-[var(--main-button-hover)] cursor-pointer "
-            onClick={() =>
-              setOpenActionProduct({ action: "add", id: undefined, open: true })
-            }
           >
             <FontAwesomeIcon icon={faCirclePlus} />
             Thêm sản phẩm
-          </button>
+          </Link>
         </div>
       </div>
       <div className=" flex-1 overflow-auto hide-scrollbar">
-        {openActionProduct.open ? (
-          <>
-            <div className="mt-[1rem]">
-              <button
-                type="button"
-                className="flex items-center space-x-1 text-gray-600 px-6 rounded-md py-1 bg-gray-200 hover:bg-gray-300 cursor-pointer"
-                onClick={() =>
-                  setOpenActionProduct({
-                    open: false,
-                    action: "add",
-                    id: undefined,
-                  })
+        <div className="mt-[3rem]">
+          <div className="w-full border-[.1rem] border-gray-300 mt-4 p-[2rem] flex items-end gap-[2rem]">
+            <div className="w-[35rem] flex flex-col gap-[.5rem]">
+              <label htmlFor="productName" className="text-gray-700">
+                Tên sản phẩm
+              </label>
+              <input
+                type="text"
+                name="productName"
+                id="productName"
+                placeholder="Nhập tìm kiếm..."
+                className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem]"
+                onChange={(e) =>
+                  setFilterInput((prev) => ({
+                    ...prev,
+                    [e.target.name]: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="w-[20rem] flex flex-col gap-[.5rem]">
+              <label htmlFor="price" className="text-gray-700">
+                Giá sản phẩm
+              </label>
+              <input
+                type="number"
+                name="price"
+                id="price"
+                placeholder="Nhập giá..."
+                className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem]"
+                onChange={(e) =>
+                  setFilterInput((prev) => ({
+                    ...prev,
+                    [e.target.name]: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="w-[30rem] flex flex-col gap-[.5rem]">
+              <label htmlFor="categoryId" className="text-gray-700">
+                Danh mục
+              </label>
+              <select
+                name="categoryId"
+                id="categoryId"
+                className="w-full h-[4rem] rounded-[.5rem] outline-none border text-gray-600 border-gray-300 pl-[1.5rem]"
+                onChange={(e) =>
+                  setFilterInput((prev) => ({
+                    ...prev,
+                    [e.target.name]: e.target.value,
+                  }))
                 }
               >
-                <FontAwesomeIcon icon={faArrowLeft} className="text-gray-500" />
-                <span>Quay lại danh sách</span>
-              </button>
+                {dataCategories
+                  ?.filter((cat: CategoriesType) => cat.isActive)
+                  .map((parent: CategoriesType) => (
+                    <RenderParentOption
+                      key={parent.id}
+                      category={parent}
+                      allCategories={dataCategories}
+                      level={0}
+                    />
+                  ))}
+              </select>
             </div>
-            <ActionProduct
-              openActionProduct={openActionProduct}
-              setOpenActionProduct={setOpenActionProduct}
-              dataCategories={dataCategories}
-              dataUpdate={
-                openActionProduct?.action === "edit"
-                  ? products?.find(
-                      (product: ProductT) => product.id === openActionProduct.id
-                    )
-                  : undefined
-              }
-              refetch={refetch}
-            />
-          </>
-        ) : (
-          <>
-            <div className="mt-[3rem]">
-              <div className="w-full border-[.1rem] border-gray-300 mt-4 p-[2rem] flex items-end gap-[2rem]">
-                <div className="w-[35rem] flex flex-col gap-[.5rem]">
-                  <label htmlFor="productName" className="text-gray-700">
-                    Tên sản phẩm
-                  </label>
-                  <input
-                    type="text"
-                    name="productName"
-                    id="productName"
-                    placeholder="Nhập tìm kiếm..."
-                    className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem]"
-                    onChange={(e) =>
-                      setFilterInput((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-                <div className="w-[20rem] flex flex-col gap-[.5rem]">
-                  <label htmlFor="price" className="text-gray-700">
-                    Giá sản phẩm
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    id="price"
-                    placeholder="Nhập giá..."
-                    className="w-full h-[4rem] rounded-[.5rem] outline-none border border-gray-300 pl-[1.5rem]"
-                    onChange={(e) =>
-                      setFilterInput((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-                <div className="w-[30rem] flex flex-col gap-[.5rem]">
-                  <label htmlFor="categoryId" className="text-gray-700">
-                    Danh mục
-                  </label>
-                  <select
-                    name="categoryId"
-                    id="categoryId"
-                    className="w-full h-[4rem] rounded-[.5rem] outline-none border text-gray-600 border-gray-300 pl-[1.5rem]"
-                    onChange={(e) =>
-                      setFilterInput((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    }
-                  >
-                    {dataCategories
-                      ?.filter((cat: CategoriesType) => cat.isActive)
-                      .map((parent: CategoriesType) => (
-                        <RenderParentOption
-                          key={parent.id}
-                          category={parent}
-                          allCategories={dataCategories}
-                          level={0}
-                        />
-                      ))}
-                  </select>
-                </div>
-                <button
-                  className="w-[15%] flex items-center justify-center gap-[1rem] px-[1.5rem] h-[4rem] bg-[var(--main-button)] text-white rounded-[.5rem] cursor-pointer hover:bg-[var(--main-button-hover)]"
-                  onClick={() => handleAppliedFilter()}
-                >
-                  <FontAwesomeIcon icon={faFilter} />
-                  Lọc
-                </button>
+            <button
+              className="w-[15%] flex items-center justify-center gap-[1rem] px-[1.5rem] h-[4rem] bg-[var(--main-button)] text-white rounded-[.5rem] cursor-pointer hover:bg-[var(--main-button-hover)]"
+              onClick={() => handleAppliedFilter()}
+            >
+              <FontAwesomeIcon icon={faFilter} />
+              Lọc
+            </button>
+          </div>
+        </div>
+        <div className="mt-[2rem] border border-gray-300/50 rounded-md overflow-hidden">
+          {isLoadingProduct ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                <p className="text-gray-500">Đang tải...</p>
               </div>
             </div>
-            <div className="mt-[2rem] border border-gray-300/50 rounded-md overflow-hidden">
-              {isLoadingProduct ? (
-                <div className="flex items-center justify-center h-64">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                    <p className="text-gray-500">Đang tải...</p>
-                  </div>
-                </div>
-              ) : isError ? (
-                <div className="flex items-center justify-center h-64">
-                  <p className="text-red-500">Có lỗi xảy ra khi tải dữ liệu!</p>
-                </div>
-              ) : (
-                <>
-                  <table className="min-w-full table-auto text-[1.4rem] rounded-lg shadow-sm overflow-hidden">
-                    <thead className="bg-gray-100 border-b border-b-gray-200">
-                      <tr>
-                        <th className="text-left px-6 py-4 text-gray-600 font-semibold tracking-wide">
-                          STT
-                        </th>
-                        <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
-                          Sản phẩm
-                        </th>
-                        <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
-                          Trạng thái
-                        </th>
-                        <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
-                          Danh mục
-                        </th>
-                        <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
-                          Giá
-                        </th>
-                        <th className="px-6 py-4 text-center text-gray-600 font-semibold tracking-wide">
-                          Hành động
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {products.length > 0 ? (
-                        products?.map((product: ProductT, index: number) => (
-                          <tr
-                            key={product.id}
-                            className="hover:bg-gray-50 transition-colors duration-200"
-                          >
-                            <td className=" px-6 py-4">{index}</td>
-                            <td className=" px-6 py-4">
-                              <div className="flex items-center gap-4">
-                                <img
-                                  src={product.mainImage}
-                                  alt="main image"
-                                  className="w-16 h-16 object-cover rounded-md"
-                                />
-                                <div>
-                                  <h4 className="max-w-[25rem] font-medium text-gray-900 text-limit-1">
-                                    {product.productName}
-                                  </h4>
-                                  <p className="text-gray-500 text-[1.2rem]">
-                                    ID: {product.id}
-                                  </p>
-                                </div>
+          ) : isError ? (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-red-500">Có lỗi xảy ra khi tải dữ liệu!</p>
+            </div>
+          ) : (
+            <>
+              <table className="min-w-full table-auto text-[1.4rem] rounded-lg shadow-sm overflow-hidden">
+                <thead className="bg-gray-100 border-b border-b-gray-200">
+                  <tr>
+                    <th className="text-left px-6 py-4 text-gray-600 font-semibold tracking-wide">
+                      STT
+                    </th>
+                    <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
+                      Sản phẩm
+                    </th>
+                    <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
+                      Trạng thái
+                    </th>
+                    <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
+                      Danh mục
+                    </th>
+                    <th className="px-6 py-4 text-left text-gray-600 font-semibold tracking-wide">
+                      Giá
+                    </th>
+                    <th className="px-6 py-4 text-center text-gray-600 font-semibold tracking-wide">
+                      Hành động
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {products.length > 0 ? (
+                    products?.map((product: ProductT, index: number) => {
+                      return (
+                        <tr
+                          key={product.id}
+                          className="hover:bg-gray-50 transition-colors duration-200"
+                        >
+                          <td className=" px-6 py-4">{index}</td>
+                          <td className=" px-6 py-4">
+                            <div className="flex items-center gap-4">
+                              <img
+                                src={product.mainImage}
+                                alt="main image"
+                                className="w-16 h-16 object-cover rounded-md"
+                              />
+                              <div>
+                                <h4 className="max-w-[25rem] font-medium text-gray-900 text-limit-1">
+                                  {product.productName}
+                                </h4>
+                                <p className="text-gray-500 text-[1.2rem]">
+                                  ID: {product.id}
+                                </p>
                               </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <p
-                                className={`py-1 ${product.isActive ? "text-green-600 bg-green-100 rounded-md" : "text-red-600 bg-red-100 rounded-md "} text-center`}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p
+                              className={`py-1 ${product.isActive ? "text-green-700 bg-green-100" : "text-red-700 bg-red-100 "} text-center rounded-full`}
+                            >
+                              {product.isActive
+                                ? "Đang hoạt động"
+                                : "Dừng hoạt động"}
+                            </p>
+                          </td>
+                          <td className="px-6 py-4 text-gray-700">
+                            {dataCategories?.find(
+                              (cat: any) => cat.id === product.category?.id,
+                            )?.categoryName ?? "Chưa có danh mục"}
+                          </td>
+                          <td className="px-6 py-4 text-gray-900 font-medium">
+                            {Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(product.price)}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex justify-center gap-2">
+                              <Link
+                                to={`detail/${product.id}`}
+                                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
                               >
-                                {product.isActive
-                                  ? "Đang hoạt động"
-                                  : "Dừng hoạt động"}
-                              </p>
-                            </td>
-                            <td className="px-6 py-4 text-gray-700">
-                              {dataCategories?.find(
-                                (cat: any) => cat.id === product.category?.id
-                              )?.categoryName ?? "Chưa có danh mục"}
-                            </td>
-                            <td className="px-6 py-4 text-gray-900 font-medium">
-                              {Intl.NumberFormat("vi-VN", {
-                                style: "currency",
-                                currency: "VND",
-                              }).format(product.price)}
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex justify-center gap-2">
-                                <button
-                                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                                  onClick={() =>
-                                    setOpenActionProduct({
-                                      action: "edit",
-                                      id: product.id,
-                                      open: true,
-                                    })
-                                  }
-                                >
-                                  <FontAwesomeIcon
-                                    icon={faEdit}
-                                    className="w-4 h-4"
-                                  />
-                                  <span>Sửa</span>
-                                </button>
-                                <button
-                                  className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                                  onClick={() => {
-                                    setOpenToggleHidden({
-                                      open: true,
-                                      data: product,
-                                    });
-                                  }}
-                                >
-                                  <span>
-                                    {product.isActive ? "Ẩn" : "Hiện"} sản phẩm
-                                  </span>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr aria-colspan={6}>
-                          <td>
-                            <div>Không có sản phẩm nào</div>
+                                <FontAwesomeIcon
+                                  icon={faEye}
+                                  className="w-4 h-4"
+                                />
+                                <span>Chi tiết</span>
+                              </Link>
+                              <Link
+                                to={`action/${product.id}`}
+                                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                              >
+                                <FontAwesomeIcon
+                                  icon={faEdit}
+                                  className="w-4 h-4"
+                                />
+                                <span>Sửa</span>
+                              </Link>
+                              <button
+                                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                                onClick={() => {
+                                  setOpenToggleHidden({
+                                    open: true,
+                                    data: product,
+                                  });
+                                }}
+                              >
+                                <span>
+                                  {product.isActive ? "Ẩn" : "Hiện"} sản phẩm
+                                </span>
+                              </button>
+                            </div>
                           </td>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </>
-              )}
-            </div>
-          </>
-        )}
+                      );
+                    })
+                  ) : (
+                    <tr aria-colspan={6}>
+                      <td>
+                        <div>Không có sản phẩm nào</div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </>
+          )}
+        </div>
         <div className="flex justify-center gap-2 mt-8">
           <button
             onClick={() =>

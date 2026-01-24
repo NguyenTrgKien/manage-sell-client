@@ -111,7 +111,7 @@ function CancelOrder({
 
       const res = (await axiosConfig.patch(
         `/api/v1/orders/cancel/${orderCode}`,
-        payload
+        payload,
       )) as any;
 
       if (res.status) {
@@ -134,9 +134,9 @@ function CancelOrder({
   return (
     <MotionWrapper
       open={open}
-      className="relative w-[60rem] min-h-[20rem] rounded-lg bg-white p-[2rem]"
+      className="relative w-[95%] md:w-[60rem] min-h-[20rem] rounded-lg bg-white p-[2rem]"
     >
-      <h2 className="text-[2rem] text-amber-600 mb-[2.5rem] font-bold text-center">
+      <h2 className="text-[1.8rem] md:text-[2rem] text-amber-600 mb-[2.5rem] font-bold text-center">
         Hủy đơn hàng
       </h2>
       <div

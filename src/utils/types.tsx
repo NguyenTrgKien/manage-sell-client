@@ -26,6 +26,7 @@ export interface CategoriesType {
   categoryName: string;
   isActive: boolean;
   parent: CategoriesType;
+  parentId: number;
   createdAt: string;
   updatedAt: string;
   image: string;

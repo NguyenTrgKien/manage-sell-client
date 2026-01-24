@@ -7,40 +7,23 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
-  useState,
-  useEffect,
-  type Dispatch,
-  type SetStateAction,
-  useMemo,
-} from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import axiosConfig from "../../../../configs/axiosConfig";
 import { toast } from "react-toastify";
-import type { CategoriesType, ProductT } from "../../../../utils/types";
-import ActionVariant, {
-  type VariantColor,
-  type VariantSize,
-} from "./variant/ActionVariant";
-import { useQuery, type QueryObserverBaseResult } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getVariantColor, getVariantSize } from "../../../../api/product.api";
 import Loading from "../../../../components/Loading";
-import RenderParentOption from "../../../../components/RenderParentOption";
 import TiptapEditor from "./TiptapEditorProp";
-
-interface ActionProductProp {
-  openActionProduct: {
-    action: string;
-    open: boolean;
-    id: number | undefined;
-  };
-  setOpenActionProduct: Dispatch<SetStateAction<any>>;
-  dataCategories: CategoriesType[];
-  dataUpdate: ProductT;
-  refetch: () => Promise<QueryObserverBaseResult<any>>;
-}
+import type { VariantColor, VariantSize } from "../variant/ActionVariant";
+import ActionVariant from "../variant/ActionVariant";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { getAllCategory } from "../../../../api/category.api";
+import type { CategoriesType } from "../../../../utils/types";
+import RenderParentOption from "../../../../components/RenderParentOption";
 
 interface ProductFormData {
+  id?: number;
   productName: string;
   price: number | null;
   description: string;
@@ -59,13 +42,11 @@ interface ProductFormData {
   }[];
 }
 
-function ActionProduct({
-  openActionProduct,
-  setOpenActionProduct,
-  dataCategories,
-  dataUpdate,
-  refetch,
-}: ActionProductProp) {
+function ActionProduct() {
+  const { id } = useParams();
+  const mode = id ? "edit" : "create";
+  const navigate = useNavigate();
+  const [isLoadingProduct, setIsLoadingProduct] = useState(false);
   const {
     control,
     register,
@@ -86,6 +67,57 @@ function ActionProduct({
       variants: [],
     },
   });
+  const { data: dataCategories = [] } = useQuery({
+    queryKey: ["getAllCategory"],
+    queryFn: getAllCategory,
+  });
+  useEffect(() => {
+    if (!id) return;
+    const fetchData = async () => {
+      try {
+        setIsLoadingProduct(true);
+        const res = (await axiosConfig.get(
+          `/api/v1/product/admin/detail/${id}`,
+        )) as any;
+
+        if (res.status && res.product) {
+          const dataUpdate = res.product;
+          reset({
+            id: dataUpdate.id,
+            productName: dataUpdate.productName || "",
+            price: dataUpdate.price || null,
+            description: dataUpdate.description || "",
+            inventory: dataUpdate.inventory || null,
+            categoryId: dataUpdate.category.id || undefined,
+            variants: dataUpdate.variants.map((it: any, idx: number) => ({
+              id: it.id,
+              sizeId: it.variantSize.id || null,
+              colorId: it.variantColor.id || null,
+              price: it.price || null,
+              inventory: it.inventory || null,
+              tempId: it.id ? `old-${it.id}` : Date.now() + String(idx),
+              isEdited: false,
+            })),
+          });
+          if (dataUpdate.mainImage) {
+            setMainImageUrl(dataUpdate.mainImage);
+          }
+          if (dataUpdate.listImageProduct?.length > 0) {
+            const images = dataUpdate.listImageProduct;
+            setOriginalListImage(images);
+            setKeptListImage(images.map((it: any) => it.id));
+            setListImageUrl(images.map((img: any) => img.imageUrl));
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoadingProduct(false);
+      }
+    };
+    fetchData();
+  }, [id, reset]);
+
   const { data: dataSize, isLoading: isLoadingSize } = useQuery<VariantSize[]>({
     queryKey: ["variantSize"],
     queryFn: getVariantSize,
@@ -109,7 +141,6 @@ function ActionProduct({
     data: null,
   });
   const [isAddDescription, setIsAddDescription] = useState(false);
-  const [isReady, setIsReady] = useState(false);
   const mainImageWatch = watch("mainImage");
   const listImagesWatch = watch("listImages");
   const variants = watch("variants");
@@ -134,7 +165,7 @@ function ActionProduct({
   useEffect(() => {
     if (listImagesWatch && listImagesWatch.length > 0) {
       const urls = Array.from(listImagesWatch).map((file) =>
-        URL.createObjectURL(file)
+        URL.createObjectURL(file),
       );
       setListImageUrl(urls);
       return () => urls.forEach((url) => URL.revokeObjectURL(url));
@@ -146,59 +177,6 @@ function ActionProduct({
       newListImage.forEach((img) => URL.revokeObjectURL(img.url));
     };
   }, [newListImage]);
-
-  useEffect(() => {
-    if (openActionProduct.open) {
-      if (openActionProduct?.action === "edit" && dataUpdate) {
-        reset({
-          productName: dataUpdate.productName || "",
-          price: dataUpdate.price || null,
-          description: dataUpdate.description || "",
-          inventory: dataUpdate.inventory || null,
-          categoryId: dataUpdate.category.id || undefined,
-          variants: dataUpdate.variants.map((it, idx) => ({
-            id: it.id,
-            sizeId: it.variantSize.id || null,
-            colorId: it.variantColor.id || null,
-            price: it.price || null,
-            inventory: it.inventory || null,
-            tempId: it.id ? `old-${it.id}` : Date.now() + String(idx),
-            isEdited: false,
-          })),
-        });
-        if (dataUpdate.mainImage) {
-          setMainImageUrl(dataUpdate.mainImage);
-        }
-        if (dataUpdate.listImageProduct?.length > 0) {
-          const images = dataUpdate.listImageProduct;
-          setOriginalListImage(images);
-          setKeptListImage(images.map((it) => it.id));
-          setListImageUrl(images.map((img) => img.imageUrl));
-        }
-      } else {
-        reset({
-          productName: "",
-          price: null,
-          description: "",
-          mainImage: null,
-          listImages: null,
-          inventory: null,
-          categoryId: undefined,
-          variants: [],
-        });
-        setMainImageUrl(null);
-        setListImageUrl([]);
-        setOriginalListImage([]);
-        setKeptListImage([]);
-        setDeletedListImage([]);
-        setNewListImage([]);
-        setDeletedVariantIds([]);
-      }
-      setIsReady(true);
-    } else {
-      setIsReady(false);
-    }
-  }, [openActionProduct, dataUpdate, reset]);
 
   const handleRemoveListImage = (index: number) => {
     const totalOld = keptListImage.length;
@@ -242,13 +220,13 @@ function ActionProduct({
         const v = data.variants[i];
         if (!v.sizeId || !v.colorId) {
           toast.error(
-            `Vui lòng chọn đầy đủ size và color cho thuộc tính thứ ${i + 1}`
+            `Vui lòng chọn đầy đủ size và color cho thuộc tính thứ ${i + 1}`,
           );
           return;
         }
       }
       if (data.variants && data.variants.length > 0) {
-        if (openActionProduct?.action === "add") {
+        if (mode === "create") {
           const configVariants = variants.map((v) => {
             const { tempId, ...rest } = v;
             return rest;
@@ -278,7 +256,7 @@ function ActionProduct({
           formData.append("newVariants", JSON.stringify(newVariants));
           formData.append(
             "deletedVariantIds",
-            JSON.stringify(deletedVariantIds)
+            JSON.stringify(deletedVariantIds),
           );
         }
       }
@@ -287,11 +265,11 @@ function ActionProduct({
         formData.append("mainImage", data.mainImage[0]);
       }
 
-      if (openActionProduct?.action === "edit") {
+      if (mode === "edit") {
         formData.append("keptListImageIds", JSON.stringify(keptListImage));
         formData.append(
           "deletedListImageIds",
-          JSON.stringify(deletedListImage)
+          JSON.stringify(deletedListImage),
         );
         newListImage.forEach((item) => {
           formData.append("newImages", item.file);
@@ -304,12 +282,12 @@ function ActionProduct({
         }
       }
       const endpoint =
-        openActionProduct?.action === "add"
+        mode === "create"
           ? "/api/v1/product/create"
-          : `/api/v1/product/update/${dataUpdate.id}`;
+          : `/api/v1/product/update/${data.id}`;
 
       let res = null;
-      if (openActionProduct?.action === "add") {
+      if (mode === "create") {
         res = (await axiosConfig.post(endpoint, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         })) as any;
@@ -322,13 +300,13 @@ function ActionProduct({
       if (res.status) {
         toast.success(
           res.message ||
-            `${openActionProduct?.action === "add" ? "Thêm" : "Cập nhật"} sản phẩm thành công!`
+            `${mode === "create" ? "Thêm" : "Cập nhật"} sản phẩm thành công!`,
         );
-        if (openActionProduct.action === "add") {
-          setOpenActionProduct({ open: false, action: "add", id: undefined });
+        if (mode === "create") {
           reset();
+          setMainImageUrl("");
+          navigate(`/dashboard/products`);
         }
-        await refetch();
       }
     } catch (error) {
       console.log(error);
@@ -344,13 +322,13 @@ function ActionProduct({
     }
     setValue(
       "variants",
-      variants.filter((_, i) => i !== index)
+      variants.filter((_, i) => i !== index),
     );
   };
 
   const handleChangeItemListImage = (
     index: number,
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -387,7 +365,7 @@ function ActionProduct({
   };
 
   const displayImages = useMemo(() => {
-    return openActionProduct?.action === "edit"
+    return mode === "edit"
       ? [
           ...originalListImage
             .filter((img) => keptListImage.includes(img.id))
@@ -395,26 +373,27 @@ function ActionProduct({
           ...newListImage.map((item) => ({ type: "new", url: item.url })),
         ]
       : listImageUrl.map((url) => ({ type: "new", url }));
-  }, [
-    openActionProduct,
-    originalListImage,
-    keptListImage,
-    newListImage,
-    listImageUrl,
-  ]);
+  }, [originalListImage, keptListImage, newListImage, listImageUrl, mode]);
 
-  if (!isReady && openActionProduct.open) {
+  if (mode === "edit" && isLoadingProduct) {
     return <Loading />;
   }
 
   return (
-    <div className="w-full rounded-[1rem] flex flex-col ">
+    <div className="w-full min-h-[calc(100vh-10rem)] bg-white shadow-lg p-[2rem] rounded-[1rem]">
+      <div className="flex">
+        <Link
+          to={`/dashboard/products`}
+          className="flex items-center space-x-1 text-gray-600 px-6 rounded-md py-1 bg-gray-200 hover:bg-gray-300 cursor-pointer"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} className="text-gray-500" />
+          <span>Quay lại danh sách</span>
+        </Link>
+      </div>
       <h2
-        className={`text-[2.5rem] ${openActionProduct?.action === "add" ? "text-green-700" : "text-amber-700"} text-center font-bold mb-[2rem]`}
+        className={`text-[2.5rem] ${mode === "create" ? "text-green-700" : "text-amber-700"} text-center font-bold mb-[2rem]`}
       >
-        {openActionProduct?.action === "add"
-          ? "Thêm sản phẩm"
-          : "Chỉnh sửa sản phẩm"}
+        {mode === "create" ? "Thêm sản phẩm" : "Chỉnh sửa sản phẩm"}
       </h2>
       <form onSubmit={handleSubmit(onSubmit)}>
         {!isAddDescription ? (
@@ -431,9 +410,7 @@ function ActionProduct({
                     accept="image/*"
                     {...register("mainImage", {
                       required:
-                        openActionProduct?.action === "add"
-                          ? "Vui lòng chọn ảnh chính"
-                          : false,
+                        mode === "create" ? "Vui lòng chọn ảnh chính" : false,
                     })}
                   />
                   <label
@@ -477,13 +454,13 @@ function ActionProduct({
                       const files = Array.from(e.target.files ?? []);
                       const maxImages = 4;
 
-                      if (openActionProduct?.action === "edit") {
+                      if (mode === "edit") {
                         const currentTotal =
                           keptListImage.length + newListImage.length;
                         const remaining = maxImages - currentTotal;
                         if (files.length > remaining) {
                           toast.error(
-                            `Chỉ có thể thêm tối đa ${remaining} ảnh nữa!`
+                            `Chỉ có thể thêm tối đa ${remaining} ảnh nữa!`,
                           );
                           e.target.value = "";
                           return;
@@ -502,7 +479,7 @@ function ActionProduct({
                       } else {
                         if (files.length > maxImages) {
                           toast.error(
-                            `Chỉ được chọn tối đa ${maxImages} ảnh phụ!`
+                            `Chỉ được chọn tối đa ${maxImages} ảnh phụ!`,
                           );
                           const dt = new DataTransfer();
                           files
@@ -642,7 +619,7 @@ function ActionProduct({
                       {dataCategories
                         .filter(
                           (cat: CategoriesType) =>
-                            cat.parentId === null && cat.isActive
+                            cat.parentId === null && cat.isActive,
                         )
                         .map((parent: CategoriesType) => (
                           <RenderParentOption
@@ -660,7 +637,7 @@ function ActionProduct({
                     )}
                   </div>
                 </div>
-
+                <input type="number" className="hidden" {...register("id")} />
                 <div className="mt-[2rem]">
                   <label
                     htmlFor="description"
@@ -703,10 +680,10 @@ function ActionProduct({
                 >
                   {variants?.map((variant, index: number) => {
                     const size = dataSize?.find(
-                      (it) => it.id === variant.sizeId
+                      (it) => it.id === variant.sizeId,
                     );
                     const color = dataColor?.find(
-                      (it) => it.id === variant.colorId
+                      (it) => it.id === variant.colorId,
                     );
 
                     return (
@@ -779,34 +756,26 @@ function ActionProduct({
                 </div>
               </div>
             </div>
-            <div className="mt-[2rem] flex items-center justify-end gap-[1rem]">
-              <button
+            <div className="mt-[3rem] flex items-center justify-end gap-[1rem]">
+              <Link
+                to={`/dashboard/products`}
                 className="flex items-center space-x-2 px-[2.5rem] py-[.8rem] text-gray-600 bg-gray-200 hover:bg-gray-300 rounded text-[1.4rem] cursor-pointer"
                 type="button"
-                onClick={() =>
-                  setOpenActionProduct({
-                    open: false,
-                    action: "add",
-                    id: undefined,
-                  })
-                }
-                disabled={isSubmitting}
               >
-                <FontAwesomeIcon icon={faArrowLeft} />
-                <span>Quay lại danh sách</span>
-              </button>
+                <span>Quay lại</span>
+              </Link>
               <button
                 className="px-[2.5rem] py-[.8rem] flex items-center justify-center text-white bg-red-500 rounded text-[1.4rem] hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 type="submit"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <span>
-                    {openActionProduct?.action === "add" ? "Thêm" : "Cập nhật"}
-                  </span>
-                )}
+                <span>
+                  {isSubmitting
+                    ? "Đang xử lý..."
+                    : mode === "create"
+                      ? "Thêm"
+                      : "Cập nhật"}
+                </span>
               </button>
             </div>
           </>

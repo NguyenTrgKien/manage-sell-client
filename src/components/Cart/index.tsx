@@ -52,7 +52,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
       }
 
       const variantIds = storedCart.map(
-        (i: { variantId: number; quantity: number }) => i.variantId
+        (i: { variantId: number; quantity: number }) => i.variantId,
       );
 
       const fetchVariants = async () => {
@@ -62,7 +62,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
           if (res.status) {
             const itemsWithQuantity = res.data.map((variant: VariantsType) => {
               const cartItem = storedCart.find(
-                (c: any) => c.variantId === variant.id
+                (c: any) => c.variantId === variant.id,
               );
               return {
                 ...variant,
@@ -100,7 +100,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
 
   const handleQuantity = async (
     variantId: number,
-    action: "incre" | "decre"
+    action: "incre" | "decre",
   ) => {
     const newCartItems = cartItems.map((it: any) => {
       if (it.id === variantId) {
@@ -124,7 +124,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
       try {
         const res = await axiosConfig.patch(
           "/api/v1/cart-items/update-quantity",
-          updateQuantity
+          updateQuantity,
         );
         if (res.status) {
           return;
@@ -152,7 +152,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
     if (user) {
       try {
         const res = await axiosConfig.delete(
-          `/api/v1/cart-items/delete/${variantId}`
+          `/api/v1/cart-items/delete/${variantId}`,
         );
         if (res.status) {
           queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -218,7 +218,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
                         style: "currency",
                         currency: "VND",
                       }).format(
-                        Number(item.product.price) || Number(item.price)
+                        Number(item.product.price) || Number(item.price),
                       )}
                     </div>
                   </div>
@@ -249,7 +249,10 @@ function Cart({ showCart, setShowCart }: CartProp) {
                 <div>
                   <button
                     type="button"
-                    onClick={() => handleRemoveItem(item.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveItem(item.id);
+                    }}
                   >
                     <FontAwesomeIcon
                       icon={faTrashCan}
