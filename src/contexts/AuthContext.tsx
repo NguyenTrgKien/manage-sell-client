@@ -41,7 +41,7 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
     try {
       const res = (await axiosConfig.post(
         "/api/v1/auth/register",
-        userData
+        userData,
       )) as any;
       if (res.status) {
         await refreshUser();
