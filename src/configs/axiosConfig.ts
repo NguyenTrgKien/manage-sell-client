@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const axiosConfig = axios.create({
-  // baseURL: "https://quan-ly-ban-quan-ao-server.onrender.com",
-  baseURL: "http://localhost:8080",
+  baseURL: "https://quan-ly-ban-quan-ao-server.onrender.com",
+  // baseURL: "http://localhost:8080",
   timeout: 60000,
   withCredentials: true,
   headers: {
@@ -54,7 +54,7 @@ axiosConfig.interceptors.response.use(
       status,
       data: error.response?.data,
     });
-  }
+  },
 );
 
 export default axiosConfig;
