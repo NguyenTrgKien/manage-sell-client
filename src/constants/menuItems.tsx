@@ -68,10 +68,4 @@ export const menuItems = [
     label: "Cá nhân",
     path: "profile",
   },
-
-  {
-    id: 13,
-    label: "Cài đặt",
-    path: "setting",
-  },
 ];

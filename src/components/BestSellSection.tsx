@@ -48,7 +48,7 @@ function BestSellSection() {
           Sản phẩm bán chạy
         </h4>
         <Link
-          to={`/products?q=best_seller`}
+          to={`/products?sort=best_seller`}
           className="flex items-center space-x-1 text-gray-500 text-[1.2rem] md:text-[1.6rem] hover:underline"
         >
           <span>Xem tất cả</span>

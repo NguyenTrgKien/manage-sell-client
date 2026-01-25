@@ -110,7 +110,7 @@ function ActionAddress({
         window.dispatchEvent(
           new CustomEvent("guest_address_updated", {
             detail: { action: "added", address },
-          })
+          }),
         );
         onClose();
         onSuccess?.();
@@ -120,7 +120,7 @@ function ActionAddress({
         if (isUpdata) {
           res = await axiosConfig.patch(
             `/api/v1/address/update/${openActionAddress.dataUpdate.id}`,
-            data
+            data,
           );
         } else {
           res = await axiosConfig.post("/api/v1/address/add", {
@@ -164,7 +164,7 @@ function ActionAddress({
   return (
     <MotionWrapper
       open={openActionAddress.open}
-      className="relative w-[60rem] min-h-[20rem] rounded-lg bg-white p-[2rem]"
+      className="relative w-[95%] md:w-[60rem] min-h-[20rem] rounded-lg bg-white p-[2rem]"
     >
       <h2 className="text-[2rem] text-gray-600 mb-[2.5rem] font-bold text-center">
         {openActionAddress.action === "add" && !openActionAddress.dataUpdate
@@ -231,7 +231,7 @@ function ActionAddress({
               </div>
             </div>
             <label className="text-gray-600">Địa chỉ</label>
-            <div className="flex items-start gap-[2rem] mt-[.5rem]">
+            <div className="space-y-8 md:space-y-0 md:flex items-start gap-[2rem] mt-[.5rem]">
               <div className="flex-1">
                 <>
                   <Controller
@@ -246,7 +246,7 @@ function ActionAddress({
                         isSearchable
                         value={
                           provinceOptions?.find(
-                            (opt) => opt.value === field.value
+                            (opt) => opt.value === field.value,
                           ) || null
                         }
                         onChange={(option) => {
@@ -291,7 +291,7 @@ function ActionAddress({
                         isSearchable
                         value={
                           districtOptions?.find(
-                            (opt) => opt.value === field.value
+                            (opt) => opt.value === field.value,
                           ) || null
                         }
                         onChange={(option) => {
@@ -335,7 +335,7 @@ function ActionAddress({
                         isSearchable
                         value={
                           wardOptions?.find(
-                            (opt) => opt.value === field.value
+                            (opt) => opt.value === field.value,
                           ) || null
                         }
                         onChange={(option) => {

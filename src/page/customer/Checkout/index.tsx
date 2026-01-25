@@ -405,6 +405,7 @@ export default function Checkout() {
             }
           : {}),
       };
+      console.log(submitData);
 
       const res = (await axiosConfig.post(
         "/api/v1/orders/create",

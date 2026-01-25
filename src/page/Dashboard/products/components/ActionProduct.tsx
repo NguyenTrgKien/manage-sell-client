@@ -103,10 +103,12 @@ function ActionProduct() {
             setMainImageUrl(dataUpdate.mainImage);
           }
           if (dataUpdate.listImageProduct?.length > 0) {
-            const images = dataUpdate.listImageProduct;
-            setOriginalListImage(images);
-            setKeptListImage(images.map((it: any) => it.id));
-            setListImageUrl(images.map((img: any) => img.imageUrl));
+            const images = dataUpdate.listImageProduct.map((img: any) => ({
+              id: img.id,
+              url: img.imageUrl,
+            }));
+            setListImages(images);
+            setOriginalImageIds(images.map((img: any) => img.id));
           }
         }
       } catch (error) {
@@ -144,12 +146,14 @@ function ActionProduct() {
   const mainImageWatch = watch("mainImage");
   const listImagesWatch = watch("listImages");
   const variants = watch("variants");
-  const [originalListImage, setOriginalListImage] = useState<any[]>([]); // Ảnh cũ từ server
-  const [keptListImage, setKeptListImage] = useState<number[]>([]); // mảng id của ảnh cũ giữ lại
-  const [deletedListImage, setDeletedListImage] = useState<number[]>([]); // mảng id của ảnh cũ xóa
-  const [newListImage, setNewListImage] = useState<
-    { file: File; url: string }[]
+  const [listImages, setListImages] = useState<
+    Array<{
+      id?: number;
+      file?: File;
+      url: string;
+    }>
   >([]);
+  const [originalImageIds, setOriginalImageIds] = useState<number[]>([]);
 
   const [deletedVariantIds, setDeletedVariantIds] = useState<number[]>([]);
 
@@ -163,41 +167,29 @@ function ActionProduct() {
   }, [mainImageWatch]);
 
   useEffect(() => {
-    if (listImagesWatch && listImagesWatch.length > 0) {
-      const urls = Array.from(listImagesWatch).map((file) =>
-        URL.createObjectURL(file),
-      );
-      setListImageUrl(urls);
-      return () => urls.forEach((url) => URL.revokeObjectURL(url));
-    }
-  }, [listImagesWatch]);
-
-  useEffect(() => {
     return () => {
-      newListImage.forEach((img) => URL.revokeObjectURL(img.url));
+      listImages.forEach((img) => {
+        if (img.file && img.url.startsWith("blob:")) {
+          URL.revokeObjectURL(img.url);
+        }
+      });
+
+      if (mainImageUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(mainImageUrl);
+      }
     };
-  }, [newListImage]);
+  }, []);
 
   const handleRemoveListImage = (index: number) => {
-    const totalOld = keptListImage.length;
-    const isOldImage = index < totalOld;
+    setListImages((prev) => {
+      const img = prev[index];
 
-    if (isOldImage) {
-      const imageId = originalListImage[index].id;
-      setKeptListImage((prev) => prev.filter((it) => it !== imageId));
-      setDeletedListImage((prev) => [...prev, imageId]);
-    } else {
-      const newIndex = index - totalOld;
-      setNewListImage((prev) => {
-        const newList = prev.filter((_, i) => i !== newIndex);
-        if (prev[newIndex]) {
-          URL.revokeObjectURL(prev[newIndex].url);
-        }
-        return newList;
-      });
-    }
+      if (img.file && img.url.startsWith("blob:")) {
+        URL.revokeObjectURL(img.url);
+      }
 
-    setListImageUrl((prev) => prev.filter((_, i) => i !== index));
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const onSubmit = async (data: ProductFormData) => {
@@ -209,7 +201,7 @@ function ActionProduct() {
       }
       formData.append("description", data.description);
       if (data.categoryId) {
-        formData.append("categoryId", String(data.categoryId) ?? "");
+        formData.append("categoryId", String(data.categoryId));
       }
       if (!data.variants || data.variants.length === 0) {
         toast.error("Vui lòng chọn ít nhất một thuộc tính");
@@ -225,6 +217,18 @@ function ActionProduct() {
           return;
         }
       }
+
+      const variantKeys = new Set();
+      for (let i = 0; i < data.variants.length; i++) {
+        const v = data.variants[i];
+        const key = `${v.sizeId}-${v.colorId}`;
+        if (variantKeys.has(key)) {
+          toast.error(`Thuộc tính size và màu bị trùng lặp ở vị trí ${i + 1}`);
+          return;
+        }
+        variantKeys.add(key);
+      }
+
       if (data.variants && data.variants.length > 0) {
         if (mode === "create") {
           const configVariants = variants.map((v) => {
@@ -266,20 +270,31 @@ function ActionProduct() {
       }
 
       if (mode === "edit") {
-        formData.append("keptListImageIds", JSON.stringify(keptListImage));
-        formData.append(
-          "deletedListImageIds",
-          JSON.stringify(deletedListImage),
+        const keptIds = listImages
+          .filter((img) => img.id && !img.file)
+          .map((img) => img.id);
+
+        const deletedIds = originalImageIds.filter(
+          (id) => !keptIds.includes(id),
         );
-        newListImage.forEach((item) => {
-          formData.append("newImages", item.file);
+
+        const newFiles = listImages
+          .filter((img) => img.file)
+          .map((img) => img.file!);
+
+        formData.append("keptListImageIds", JSON.stringify(keptIds));
+        formData.append("deletedListImageIds", JSON.stringify(deletedIds));
+        newFiles.forEach((file) => {
+          formData.append("newImages", file);
         });
       } else {
-        if (data.listImages) {
-          Array.from(data.listImages).forEach((file) => {
-            formData.append("listImages", file);
-          });
-        }
+        const files = listImages
+          .filter((img) => img.file)
+          .map((img) => img.file!);
+
+        files.forEach((file) => {
+          formData.append("listImages", file);
+        });
       }
       const endpoint =
         mode === "create"
@@ -333,47 +348,49 @@ function ActionProduct() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const url = URL.createObjectURL(file);
-    const totalOld = keptListImage.length;
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    const maxSize = 5 * 1024 * 1024;
 
-    if (index < totalOld) {
-      const oldId = keptListImage[index];
-      setKeptListImage((prev) => prev.filter((id) => id !== oldId));
-      setDeletedListImage((prev) => [...prev, oldId]);
-      setNewListImage((prev) => [...prev, { file, url }]);
-    } else {
-      const newIndex = index - totalOld;
-      setNewListImage((prev) => {
-        const newList = [...prev];
-        console.log(newList);
-
-        URL.revokeObjectURL(newList[newIndex]?.url);
-        newList[newIndex] = { file, url };
-        return newList;
-      });
+    if (!validTypes.includes(file.type)) {
+      toast.error("Chỉ chấp nhận file ảnh (JPG, PNG, GIF, WEBP)");
+      event.target.value = "";
+      return;
     }
 
-    setListImageUrl((prev) => {
-      const newUrls = [...prev];
-      newUrls[index] = url;
-      return newUrls;
+    if (file.size > maxSize) {
+      toast.error("Kích thước ảnh không được vượt quá 5MB");
+      event.target.value = "";
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+
+    setListImages((prev) => {
+      const newList = [...prev];
+      const oldImg = newList[index];
+
+      if (oldImg.file && oldImg.url.startsWith("blob:")) {
+        URL.revokeObjectURL(oldImg.url);
+      }
+
+      newList[index] = {
+        file,
+        url,
+      };
+
+      return newList;
     });
 
-    return () => {
-      newListImage.forEach((item) => URL.revokeObjectURL(item.url));
-    };
+    event.target.value = "";
   };
 
   const displayImages = useMemo(() => {
-    return mode === "edit"
-      ? [
-          ...originalListImage
-            .filter((img) => keptListImage.includes(img.id))
-            .map((img) => ({ type: "old", url: img.imageUrl, id: img.id })),
-          ...newListImage.map((item) => ({ type: "new", url: item.url })),
-        ]
-      : listImageUrl.map((url) => ({ type: "new", url }));
-  }, [originalListImage, keptListImage, newListImage, listImageUrl, mode]);
+    return listImages.map((img) => ({
+      type: img.id ? "old" : "new",
+      url: img.url,
+      id: img.id,
+    }));
+  }, [listImages]);
 
   if (mode === "edit" && isLoadingProduct) {
     return <Loading />;
@@ -454,46 +471,54 @@ function ActionProduct() {
                       const files = Array.from(e.target.files ?? []);
                       const maxImages = 4;
 
-                      if (mode === "edit") {
-                        const currentTotal =
-                          keptListImage.length + newListImage.length;
-                        const remaining = maxImages - currentTotal;
-                        if (files.length > remaining) {
-                          toast.error(
-                            `Chỉ có thể thêm tối đa ${remaining} ảnh nữa!`,
-                          );
-                          e.target.value = "";
-                          return;
-                        }
+                      const validTypes = [
+                        "image/jpeg",
+                        "image/png",
+                        "image/gif",
+                        "image/webp",
+                      ];
+                      const invalidFiles = files.filter(
+                        (f) => !validTypes.includes(f.type),
+                      );
 
-                        // Thêm vào newListImage
-                        const newFiles = files.map((file) => ({
-                          file: file as File,
-                          url: URL.createObjectURL(file),
-                        }));
-                        setNewListImage((prev) => [...prev, ...newFiles]);
-                        setListImageUrl((prev) => [
-                          ...prev,
-                          ...newFiles.map((f) => f.url),
-                        ]);
-                      } else {
-                        if (files.length > maxImages) {
-                          toast.error(
-                            `Chỉ được chọn tối đa ${maxImages} ảnh phụ!`,
-                          );
-                          const dt = new DataTransfer();
-                          files
-                            .slice(0, maxImages)
-                            .forEach((file) => dt.items.add(file as File));
-                          e.target.files = dt.files;
-                        }
-
-                        setValue("listImages", e.target.files, {
-                          shouldDirty: true,
-                          shouldTouch: true,
-                          shouldValidate: true,
-                        });
+                      if (invalidFiles.length > 0) {
+                        toast.error(
+                          "Chỉ chấp nhận file ảnh (JPG, PNG, GIF, WEBP)",
+                        );
+                        e.target.value = "";
+                        return;
                       }
+
+                      const maxSize = 5 * 1024 * 1024;
+                      const oversizedFiles = files.filter(
+                        (f) => f.size > maxSize,
+                      );
+
+                      if (oversizedFiles.length > 0) {
+                        toast.error("Mỗi ảnh không được vượt quá 5MB");
+                        e.target.value = "";
+                        return;
+                      }
+
+                      const currentTotal = listImages.length;
+                      const remaining = maxImages - currentTotal;
+
+                      if (files.length > remaining) {
+                        toast.error(
+                          `Chỉ có thể thêm tối đa ${remaining} ảnh nữa!`,
+                        );
+                        e.target.value = "";
+                        return;
+                      }
+
+                      const newFiles = files.map((file) => ({
+                        file: file as File,
+                        url: URL.createObjectURL(file),
+                      }));
+
+                      setListImages((prev) => [...prev, ...newFiles]);
+
+                      e.target.value = "";
                     }}
                   />
 
@@ -506,11 +531,13 @@ function ActionProduct() {
                   </label>
 
                   <div className="mt-[1rem] grid grid-cols-4 gap-[1rem]">
-                    {displayImages.map((img, index) => {
+                    {listImages.map((img, index) => {
+                      const key = img.id ? `old-${img.id}` : `new-${index}`;
+
                       return (
                         <label
                           htmlFor={`image-${index}`}
-                          key={index}
+                          key={key}
                           className="relative group"
                         >
                           <img
@@ -521,6 +548,7 @@ function ActionProduct() {
                           <input
                             type="file"
                             id={`image-${index}`}
+                            accept="image/jpeg,image/png,image/gif,image/webp"
                             className="hidden"
                             onChange={(e) =>
                               handleChangeItemListImage(index, e)

@@ -6,15 +6,10 @@ import {
 } from "../../../api/product.api";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faAngleDown,
-  faArrowDown,
-  faArrowUp,
-  faCheck,
-  faStar,
-} from "@fortawesome/free-solid-svg-icons";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 import type { CategoriesType, ProductT } from "../../../utils/types";
 import noProduct from "../../../assets/images/no-product.png";
+import ProductFilterBar from "../../../components/ProductFilterBar";
 
 function ProductList() {
   const { slug1, slug2, slug3 } = useParams<{
@@ -69,107 +64,12 @@ function ProductList() {
 
   return (
     <div className="w-full h-auto rounded-lg">
-      <div className="w-full py-3 md:py-4 text-[1.2rem] md:text-[1.6rem] bg-gray-200 flex flex-wrap md:flex-nowrap items-center gap-2 md:gap-0 md:space-x-6 px-[1rem] md:px-[2rem] rounded-lg">
-        <span>Sắp xếp theo</span>
-
-        <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
-          <button
-            type="button"
-            className={`px-3 md:px-6 h-[3rem] md:h-[3.4rem] text-[1.2rem] md:text-[1.4rem] cursor-pointer rounded-md transition-colors ${
-              queryDefault.sort === "popular"
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-white hover:bg-gray-50"
-            }`}
-            onClick={() => handleChangeSort("popular")}
-          >
-            Phổ biến
-          </button>
-          <button
-            type="button"
-            className={`px-3 md:px-4 h-[3rem] md:h-[3.4rem] text-[1.2rem] md:text-[1.4rem] cursor-pointer rounded-md transition-colors ${
-              queryDefault.sort === "latest"
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-white hover:bg-gray-50"
-            }`}
-            onClick={() => handleChangeSort("latest")}
-          >
-            Mới nhất
-          </button>
-          <button
-            type="button"
-            className={`px-3 md:px-4 h-[3rem] md:h-[3.4rem] text-[1.2rem] md:text-[1.4rem] cursor-pointer rounded-md transition-colors ${
-              queryDefault.sort === "best_seller"
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-white hover:bg-gray-50"
-            }`}
-            onClick={() => handleChangeSort("best_seller")}
-          >
-            Bán chạy
-          </button>
-        </div>
-
-        <div className="md:flex hidden relative w-full md:w-[20rem] h-[3rem] md:h-[3.4rem] rounded-md bg-white px-3 md:px-4 items-center justify-between group">
-          <span className="text-[1.2rem] md:text-[1.4rem]">
-            Giá:{" "}
-            {queryDefault.price === "asc" ? "Thấp đến Cao" : "Cao đến Thấp"}
-          </span>
-          <FontAwesomeIcon
-            icon={faAngleDown}
-            className="text-[1.2rem] md:text-[1.4rem]"
-          />
-
-          <div className="absolute top-[100%] left-0 w-full origin-top scale-y-0 opacity-0 bg-white group-hover:scale-y-100 transition-transform group-hover:opacity-[1] duration-300 shadow-lg rounded-md z-10">
-            <div
-              className={`flex items-center justify-between px-3 md:px-4 py-2 mt-2 cursor-pointer hover:bg-gray-200 rounded-t-md ${
-                queryDefault.price === "asc" ? "text-red-500" : ""
-              }`}
-              onClick={() => handleChangePrice("asc")}
-            >
-              <span className="text-[1.2rem] md:text-[1.4rem]">
-                Thấp đến Cao
-              </span>
-              {queryDefault.price === "asc" && (
-                <FontAwesomeIcon
-                  icon={faCheck}
-                  className="text-[1.2rem] md:text-[1.4rem]"
-                />
-              )}
-            </div>
-            <div
-              className={`flex items-center justify-between px-3 md:px-4 py-2 mb-2 cursor-pointer hover:bg-gray-200 rounded-b-md ${
-                queryDefault.price === "desc" ? "text-red-500" : ""
-              }`}
-              onClick={() => handleChangePrice("desc")}
-            >
-              <span className="text-[1.2rem] md:text-[1.4rem]">
-                Cao đến Thấp
-              </span>
-              {queryDefault.price === "desc" && (
-                <FontAwesomeIcon
-                  icon={faCheck}
-                  className="text-[1.2rem] md:text-[1.4rem]"
-                />
-              )}
-            </div>
-          </div>
-        </div>
-        <button
-          type="button"
-          className=" md:hidden flex items-center space-x-1 px-4 h-[3rem] bg-white rounded-md cursor-pointer"
-          onClick={() =>
-            setQueryDefault((prev) => ({
-              ...prev,
-              price: queryDefault.price === "asc" ? "desc" : "asc",
-            }))
-          }
-        >
-          <span>Giá</span>
-          <FontAwesomeIcon
-            icon={queryDefault.price === "asc" ? faArrowUp : faArrowDown}
-            className="text-[1rem] font-extralight"
-          />
-        </button>
-      </div>
+      <ProductFilterBar
+        handleChangePrice={handleChangePrice}
+        handleChangeSort={handleChangeSort}
+        queryDefault={queryDefault}
+        setQueryDefault={setQueryDefault}
+      />
 
       {isLoadingChilOfCate ? (
         <div className="w-full h-[15rem] flex flex-col gap-y-[1.5rem] items-center justify-center mt-[2rem]">
@@ -179,14 +79,7 @@ function ProductList() {
           </span>
         </div>
       ) : childOfCate && childOfCate.length > 0 ? (
-        <div className="my-[3rem]">
-          {/* <div className="flex items-center justify-between mb-[1.5rem]">
-            <h2 className="md:text-[2rem] mt-[1rem]">Danh mục con</h2>
-            <span className="text-[1.2rem] md:text-[1.4rem] text-gray-500">
-              {childOfCate.length} danh mục
-            </span>
-          </div> */}
-
+        <div className="md:my-[2rem] my-2.5">
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4">
             {childOfCate.map((cate: CategoriesType) => {
               return (
@@ -222,8 +115,8 @@ function ProductList() {
         </div>
       ) : products.length > 0 ? (
         <>
-          <h2 className="md:text-[2rem] mt-[1rem]">Danh sách sản phẩm</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 mt-[2rem]">
+          <h2 className="md:text-[2rem] mt-[2rem]">Danh sách sản phẩm</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 mt-[1rem] md:mt-[2rem]">
             {products?.map((product: ProductT) => {
               return (
                 <Link

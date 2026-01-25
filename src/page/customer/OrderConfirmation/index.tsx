@@ -90,8 +90,8 @@ export default function OrderConfirmation() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+    <div className=" bg-white pt-12 pb-18 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
         <div className=" rounded-lg p-8 mb-6 text-center">
           <FontAwesomeIcon
             icon={faCheckCircle}
@@ -103,7 +103,7 @@ export default function OrderConfirmation() {
           <p className="text-gray-600 mb-4">
             Cảm ơn bạn đã đặt hàng tại shop của chúng tôi.
           </p>
-          <p className="text-center text-[1.4rem] w-4xl text-gray-600">
+          <p className="text-center text-[1.4rem] text-gray-600">
             Thông tin đơn hàng sẽ được thông báo qua email mà bạn đã cung cấp!
           </p>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-[1rem]">

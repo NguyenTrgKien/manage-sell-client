@@ -261,19 +261,6 @@ function Header() {
                         <FontAwesomeIcon icon={faBox} className=" w-[1.6rem]" />
                         <span className="text-[1.4rem]">Đơn hàng của tôi</span>
                       </button>
-
-                      <button
-                        onClick={() => handleAccountClick("customer/favorite")}
-                        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-pink-50 transition-colors text-left hover:text-pink-600 text-gray-600 "
-                      >
-                        <FontAwesomeIcon
-                          icon={faHeart}
-                          className=" w-[1.6rem]"
-                        />
-                        <span className="text-[1.4rem] ">
-                          Sản phẩm yêu thích
-                        </span>
-                      </button>
                     </div>
 
                     <div className="border-t border-gray-200">
@@ -348,31 +335,6 @@ function Header() {
                   </div>
                 </>
               )}
-
-              <Link
-                to="/"
-                className="flex flex-col items-center gap-1 hover:text-pink-600 transition-colors relative group"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-                <span className="text-[1.2rem] group-hover:underline whitespace-nowrap">
-                  Yêu thích
-                </span>
-                <span className="absolute -top-2 left-[3rem] bg-red-500 text-white text-[10px] w-[1.5rem] h-[1.5rem] rounded-full flex items-center justify-center">
-                  5
-                </span>
-              </Link>
 
               <div
                 className="relative flex flex-col items-center gap-1 group transition-colors cursor-pointer"
@@ -474,16 +436,7 @@ function Header() {
                     <FontAwesomeIcon icon={faBox} className="w-5" />
                     Đơn hàng của tôi
                   </button>
-                  <button
-                    onClick={() => {
-                      handleAccountClick("customer/favorite");
-                      setShowMobileMenu(false);
-                    }}
-                    className="flex items-center gap-3 text-gray-600 hover:text-pink-600 text-[1.4rem]"
-                  >
-                    <FontAwesomeIcon icon={faHeart} className="w-5" />
-                    Sản phẩm yêu thích
-                  </button>
+
                   <button
                     onClick={() => {
                       handleAccountClick("customer/account/address");

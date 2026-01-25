@@ -17,7 +17,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUser } from "../../../hooks/useUser";
 
 export default function CartDetail() {
-  const [params] = useSearchParams();
+  const [params, setSearchParams] = useSearchParams();
   const buyNowVariant = params.get("buyNowVariant");
   const buyBackVariants = params.get("buyback");
   const { user } = useUser();
@@ -53,7 +53,7 @@ export default function CartDetail() {
       }
 
       const variantIds = storedCart.map(
-        (i: { variantId: number; quantity: number }) => i.variantId
+        (i: { variantId: number; quantity: number }) => i.variantId,
       );
 
       const fetchVariants = async () => {
@@ -63,7 +63,7 @@ export default function CartDetail() {
           if (res.status) {
             const itemsWithQuantity = res.data.map((variant: VariantsType) => {
               const cartItem = storedCart.find(
-                (c: any) => c.variantId === variant.id
+                (c: any) => c.variantId === variant.id,
               );
               return {
                 ...variant,
@@ -116,7 +116,7 @@ export default function CartDetail() {
         ...buyBackVariants
           .split(",")
           .map(Number)
-          .filter((id) => !isNaN(id) && id > 0)
+          .filter((id) => !isNaN(id) && id > 0),
       );
     }
 
@@ -175,7 +175,7 @@ export default function CartDetail() {
 
   const handleQuantity = async (
     variantId: number,
-    action: "incre" | "decre"
+    action: "incre" | "decre",
   ) => {
     const newCartItems = cartItems.map((it: any) => {
       if (it.id === variantId) {
@@ -199,7 +199,7 @@ export default function CartDetail() {
       try {
         const res = await axiosConfig.patch(
           "/api/v1/cart-items/update-quantity",
-          updateQuantity
+          updateQuantity,
         );
         if (res.status) {
           return;
@@ -232,7 +232,7 @@ export default function CartDetail() {
       }
     } else {
       const newLocalCart = localCart.filter(
-        (item) => item.variantId !== variantId
+        (item) => item.variantId !== variantId,
       );
       localStorage.setItem("localCart", JSON.stringify(newLocalCart));
       setLocalCart(newLocalCart);
@@ -247,10 +247,13 @@ export default function CartDetail() {
   };
 
   const toggleItem = (id: number) => {
+    if (buyNowVariant && id === Number(buyNowVariant)) {
+      params.delete("buyNowVariant");
+    }
     setCartItems(
       cartItems.map((item: any) =>
-        item.id === id ? { ...item, selected: !item.selected } : item
-      )
+        item.id === id ? { ...item, selected: !item.selected } : item,
+      ),
     );
   };
 
@@ -309,11 +312,11 @@ export default function CartDetail() {
     }
 
     const outOfInventory = selectedItems.find(
-      (item: any) => item.quantity > item.inventory
+      (item: any) => item.quantity > item.inventory,
     );
     if (outOfInventory) {
       toast.error(
-        `Sản phẩm "${outOfInventory.product.productName}" không đủ số lượng`
+        `Sản phẩm "${outOfInventory.product.productName}" không đủ số lượng`,
       );
       return;
     }
@@ -322,16 +325,16 @@ export default function CartDetail() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 py-4 sm:py-8 px-4 sm:px-6 lg:px-8 xl:px-[12rem]">
+    <div className="w-full h-auto bg-gray-50 py-4 sm:py-8 px-4 sm:px-6 lg:px-8 xl:px-[12rem]">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div className="flex items-center gap-3">
           <FontAwesomeIcon
             icon={faCartPlus}
-            className="text-2xl sm:text-3xl lg:text-4xl text-red-500"
+            className="text-[1.4rem] lg:text-[1.6rem] text-red-500"
           />
           <h1 className=" font-bold text-gray-800">Giỏ hàng của bạn</h1>
         </div>
-        <span className="text-sm sm:text-base lg:text-[1.4rem] text-gray-500 pl-0 sm:pl-4">
+        <span className="text-[1rem] sm:text-[1.2rem] lg:text-[1.4rem] text-gray-500 pl-0 sm:pl-4">
           ({cartItems.filter((it: any) => it.selected).length} sản phẩm được
           chọn)
         </span>
@@ -350,13 +353,11 @@ export default function CartDetail() {
                   <div
                     key={item.id}
                     className={`p-4 ${item.selected ? "bg-blue-50" : ""} hover:bg-gray-50 transition`}
+                    onClick={() => toggleItem(item.id)}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-start gap-3 flex-1">
-                        <button
-                          onClick={() => toggleItem(item.id)}
-                          className="mt-1"
-                        >
+                        <button className="mt-1" type="button">
                           <FontAwesomeIcon
                             icon={item.selected ? faCheckSquare : faSquare}
                             className={`text-[1.4rem] ${item.selected ? "text-blue-600" : "text-gray-300"}`}
@@ -389,7 +390,10 @@ export default function CartDetail() {
                       </div>
                       <button
                         className="text-red-500 hover:text-red-700 transition ml-2"
-                        onClick={() => removeItem(item.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeItem(item.id);
+                        }}
                       >
                         <FontAwesomeIcon
                           icon={faTrash}
@@ -402,7 +406,7 @@ export default function CartDetail() {
                       <div className="flex flex-col">
                         <p className="text-[1.2rem] sm:text-[1.6rem] font-semibold text-red-600">
                           {formatPrice(
-                            Number(item.price || item.product.price)
+                            Number(item.price || item.product.price),
                           )}
                         </p>
                         {item.price && (
@@ -414,7 +418,10 @@ export default function CartDetail() {
 
                       <div className="flex items-center gap-3">
                         <button
-                          onClick={() => handleQuantity(item.id, "decre")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuantity(item.id, "decre");
+                          }}
                           disabled={item.quantity <= 1}
                           className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                         >
@@ -427,7 +434,10 @@ export default function CartDetail() {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => handleQuantity(item.id, "incre")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuantity(item.id, "incre");
+                          }}
                           disabled={item.quantity >= item.inventory}
                           className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                         >
@@ -442,7 +452,7 @@ export default function CartDetail() {
                         <p className="text-[1.4rem] sm:text-base font-semibold text-red-600">
                           {formatPrice(
                             Number(item.price || item.product.price) *
-                              Number(item.quantity)
+                              Number(item.quantity),
                           )}
                         </p>
                       </div>
@@ -479,10 +489,11 @@ export default function CartDetail() {
                   <tr
                     key={item.id}
                     className="border-t border-gray-200 hover:bg-gray-50 transition"
+                    onClick={() => toggleItem(item.id)}
                   >
                     <td className="py-6 pl-6">
                       <div className="flex items-center gap-4">
-                        <button onClick={() => toggleItem(item.id)}>
+                        <button type="button">
                           <FontAwesomeIcon
                             icon={item.selected ? faCheckSquare : faSquare}
                             className={`text-[2rem] ${item.selected ? "text-blue-600" : "text-gray-300"}`}
@@ -515,7 +526,7 @@ export default function CartDetail() {
                       <div>
                         <p className="text-[1.4rem] text-red-600">
                           {formatPrice(
-                            Number(item.price || item.product.price)
+                            Number(item.price || item.product.price),
                           )}
                         </p>
                         {item.price && (
@@ -529,7 +540,10 @@ export default function CartDetail() {
                     <td className="text-center">
                       <div className="flex items-center justify-center gap-3">
                         <button
-                          onClick={() => handleQuantity(item.id, "decre")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuantity(item.id, "decre");
+                          }}
                           disabled={item.quantity <= 1}
                           className="w-10 h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -542,7 +556,10 @@ export default function CartDetail() {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => handleQuantity(item.id, "incre")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuantity(item.id, "incre");
+                          }}
                           disabled={item.quantity >= item.inventory}
                           className="w-10 h-10 rounded-lg border border-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -557,14 +574,17 @@ export default function CartDetail() {
                     <td className="text-center text-[1.4rem] text-red-600">
                       {formatPrice(
                         Number(item.price || item.product.price) *
-                          Number(item.quantity)
+                          Number(item.quantity),
                       )}
                     </td>
 
                     <td className="text-center">
                       <button
                         className="text-red-500 hover:text-red-700 transition p-3"
-                        onClick={() => removeItem(item.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeItem(item.id);
+                        }}
                       >
                         <FontAwesomeIcon
                           icon={faTrash}

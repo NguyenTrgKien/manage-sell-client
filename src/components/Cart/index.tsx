@@ -151,9 +151,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
     setCartItems(newCartItems);
     if (user) {
       try {
-        const res = await axiosConfig.delete(
-          `/api/v1/cart-items/delete/${variantId}`,
-        );
+        const res = await axiosConfig.delete(`/api/v1/cart-items/${variantId}`);
         if (res.status) {
           queryClient.invalidateQueries({ queryKey: ["cart"] });
           return;
@@ -251,6 +249,7 @@ function Cart({ showCart, setShowCart }: CartProp) {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
+                      e.preventDefault();
                       handleRemoveItem(item.id);
                     }}
                   >

@@ -120,7 +120,7 @@ export const getProducts = async ({
   query: {
     limit: number;
     page: number;
-    productName: string;
+    productName?: string;
     sort: "popular" | "latest" | "best_seller";
     price: "asc" | "desc";
   };
@@ -133,9 +133,34 @@ export const getProducts = async ({
       return true;
     }),
   );
-  console.log(filterParams);
 
-  const res = await axiosConfig.get(`/api/v1/product`, {
+  const res = await axiosConfig.get(`/api/v1/product/search`, {
+    params: filterParams,
+  });
+  return res;
+};
+
+export const getSortProducts = async ({
+  query,
+  userId,
+}: {
+  query: {
+    limit: number;
+    page: number;
+    sort: "popular" | "latest" | "best_seller";
+    price: "asc" | "desc";
+  };
+  userId?: number;
+}) => {
+  const filterParams = Object.fromEntries(
+    Object.entries(query).filter(([key, value]) => {
+      if (userId && key === "session_id") return false;
+      if (value === null) return false;
+      return true;
+    }),
+  );
+
+  const res = await axiosConfig.get(`/api/v1/product/sort`, {
     params: filterParams,
   });
   return res;

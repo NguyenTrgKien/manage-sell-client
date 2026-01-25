@@ -160,7 +160,7 @@ function SearchInput({ isMobile }: { isMobile: boolean }) {
       </div>
 
       {showDropdown && (
-        <div className="text-[1.4rem] absolute top-[calc(100%+.5rem)] left-0 bg-white w-full max-h-[400px] overflow-y-auto border border-gray-300 rounded-md shadow-xl z-50">
+        <div className="text-[1.4rem] absolute top-[calc(100%)] md:top-[calc(100%+.5rem)] left-0 bg-white w-full max-h-[400px] overflow-y-auto border border-gray-300 rounded-md shadow-xl z-50">
           {searchQuery.trim() ? (
             <>
               {isSuggesting ? (

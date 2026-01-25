@@ -48,7 +48,7 @@ function PopularProduct() {
           Sản phẩm nổi bật
         </h4>
         <Link
-          to={`/products?q=popular`}
+          to={`/products?sort=popular`}
           className="flex items-center space-x-1 text-gray-500 text-[1.2rem] md:text-[1.6rem] hover:underline"
         >
           <span>Xem tất cả</span>

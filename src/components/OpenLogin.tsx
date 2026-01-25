@@ -13,9 +13,9 @@ function OpenLogin({ open, onClose }: OpenLoginProp) {
   return (
     <MotionWrapper
       open={open}
-      className="relative w-[60rem] rounded-lg bg-white p-[3rem]"
+      className="relative w-[95%] md:w-[60rem] rounded-lg bg-white p-[2.5rem]"
     >
-      <h2 className="text-[1.8rem] text-gray-600 mb-[2.5rem] font-bold">
+      <h2 className=" text-gray-600 mb-[2.5rem]">
         Email này đã có tài khoản vui lòng đăng nhập để tiếp tục!
       </h2>
       <div
@@ -30,7 +30,7 @@ function OpenLogin({ open, onClose }: OpenLoginProp) {
           className="text-[1.8rem] text-gray-500 hover:text-gray-800 cursor-pointer"
         />
       </div>
-      <div className="mt-[3rem] flex items-center gap-[1rem] justify-end">
+      <div className="mt-[3rem] flex items-center gap-[1rem] justify-end ">
         <button
           type="button"
           className="px-[2rem] py-[.5rem] rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition duration-300"

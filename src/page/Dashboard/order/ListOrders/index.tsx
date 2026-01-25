@@ -298,7 +298,7 @@ function Order() {
                             <FontAwesomeIcon icon={faEye} />
                             <span>Xem</span>
                           </button>
-                          <div className="relative z-[200]" ref={optionRef}>
+                          <div className="relative z-[200]">
                             <button
                               className="w-[3.2rem] h-[3.2rem] rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 hover-linear"
                               onClick={(e) => {
@@ -313,7 +313,10 @@ function Order() {
                             </button>
 
                             {isSelectOption && (
-                              <div className="absolute right-[100%] top-0  min-w-[14rem] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] rounded-xl py-[.8rem] border border-gray-200">
+                              <div
+                                className="absolute right-[100%] top-0  min-w-[14rem] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] rounded-xl py-[.8rem] border border-gray-200"
+                                ref={optionRef}
+                              >
                                 <button
                                   type="button"
                                   className="w-full px-[1.2rem] py-[.8rem] flex items-center gap-[.8rem] text-left hover:bg-gray-100 hover-linear text-[1.4rem] text-gray-700"

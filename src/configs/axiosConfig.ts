@@ -1,8 +1,10 @@
 import axios from "axios";
 
 const axiosConfig = axios.create({
-  baseURL: "https://quan-ly-ban-quan-ao-server.onrender.com",
-  // baseURL: "http://localhost:8080",
+  baseURL:
+    process.env.NODE_ENV === "production"
+      ? "https://quan-ly-ban-quan-ao-server.onrender.com"
+      : "http://localhost:8080",
   timeout: 60000,
   withCredentials: true,
   headers: {

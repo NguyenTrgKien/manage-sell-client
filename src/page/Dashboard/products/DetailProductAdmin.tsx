@@ -21,7 +21,7 @@ import Notify from "../../../components/Notify";
 function DetailProductAdmin() {
   const { id } = useParams();
   const { user } = useUser();
-  const naviate = useNavigate();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("info");
   const [filterRating, setFilterRating] = useState<number | "all">("all");
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
@@ -43,10 +43,9 @@ function DetailProductAdmin() {
   const product: ProductT = response && response.product;
   const statistics = response && response.statistics;
   const flashSale = response && response.flashSale;
-  console.log(flashSale);
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["evaluates", filterRating],
+    queryKey: ["evaluates", filterRating, sort, id],
     queryFn: () =>
       getEvaluate({
         productId: Number(id),
@@ -56,6 +55,7 @@ function DetailProductAdmin() {
       }),
     enabled: !!id,
   }) as any;
+
   const reviews = (data && data.data) || [];
 
   const renderStars = (rating: number) => {
@@ -93,14 +93,16 @@ function DetailProductAdmin() {
 
   const handleToggleHelpfulReview = async (itemId: number) => {
     if (!user) {
-      naviate("/");
+      navigate("/");
       return;
     }
     try {
       const res = (await axiosConfig.post(
         `/api/v1/evaluate/toggle-helpful/${itemId}`,
       )) as any;
-      console.log(res);
+      if (res.status) {
+        await refetch();
+      }
     } catch (error) {
       console.log(error);
       return;
@@ -108,6 +110,18 @@ function DetailProductAdmin() {
   };
 
   const handleResponseReview = async () => {
+    if (!showResponse.message.trim()) {
+      setShowNotify({
+        open: true,
+        content: "Vui lòng nhập nội dung phản hồi!",
+        isSuccess: false,
+      });
+      setTimeout(() => {
+        setShowNotify({ open: false, content: "", isSuccess: true });
+      }, 2000);
+      return;
+    }
+
     try {
       const res = (await axiosConfig.post(
         `/api/v1/evaluate/response/${showResponse.reviewId}`,
@@ -115,8 +129,6 @@ function DetailProductAdmin() {
           message: showResponse.message,
         },
       )) as any;
-      console.log(res);
-
       if (res.status) {
         await refetch();
         setShowNotify({
@@ -135,6 +147,14 @@ function DetailProductAdmin() {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const isValidFlashSale = (flashSale: any) => {
+    return (
+      flashSale &&
+      flashSale.flashSaleProduct &&
+      typeof flashSale.flashSaleProduct.sale_price === "number"
+    );
   };
 
   return (
@@ -181,7 +201,7 @@ function DetailProductAdmin() {
                 <div>
                   <p className="text-[1.4rem] text-gray-600 mb-1">Doanh thu</p>
                   <p className="text-[2.4rem] font-bold text-green-700">
-                    {formatPrice(statistics?.revenue)}
+                    {formatPrice(statistics?.revenue ?? 0)}
                   </p>
                 </div>
               </div>
@@ -321,7 +341,7 @@ function DetailProductAdmin() {
                           <p className="text-[2rem] text-gray-400 line-through">
                             {formatPrice(product.price)}
                           </p>
-                          {flashSale ? (
+                          {isValidFlashSale(flashSale) ? (
                             <p className="text-[1.8rem] font-bold text-red-500">
                               {formatPrice(
                                 flashSale.flashSaleProduct.sale_price,
@@ -335,7 +355,7 @@ function DetailProductAdmin() {
                         </div>
                       </div>
 
-                      {flashSale && (
+                      {isValidFlashSale(flashSale) && (
                         <div className="p-6 bg-orange-50 border-l-4 border-orange-500 rounded-lg">
                           <h3 className="font-bold text-orange-700 mb-3 flex items-center gap-2">
                             Thông tin Flash Sale
@@ -395,7 +415,7 @@ function DetailProductAdmin() {
                             Giá bán thực tế
                           </p>
                           <p className="font-semibold">
-                            {flashSale
+                            {isValidFlashSale(flashSale)
                               ? formatPrice(
                                   flashSale.flashSaleProduct.sale_price,
                                 )
@@ -654,7 +674,17 @@ function DetailProductAdmin() {
                                               }
                                             />
                                             <div className="flex items-center justify-end gap-2.5 mt-1 text-[1.4rem]">
-                                              <button className="rounded-md px-5 py-2 bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors duration-300">
+                                              <button
+                                                type="button"
+                                                className="rounded-md px-5 py-2 bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors duration-300"
+                                                onClick={() =>
+                                                  setShowResponse({
+                                                    open: false,
+                                                    reviewId: null,
+                                                    message: "",
+                                                  })
+                                                }
+                                              >
                                                 <span>Đóng</span>
                                               </button>
                                               <button

@@ -5,25 +5,24 @@ import { useQuery } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartPlus, faEye } from "@fortawesome/free-solid-svg-icons";
 import AddCart from "../../../components/AddCart";
-import { getProducts } from "../../../api/product.api";
+import { getSortProducts } from "../../../api/product.api";
 import { useUser } from "../../../hooks/useUser";
 import noProduct from "../../../assets/images/no-product.png";
+import ProductFilterBar from "../../../components/ProductFilterBar";
 
 function ProductsPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get("q");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sort = searchParams.get("sort");
   const { user } = useUser();
   const [queryDefault, setQueryDefault] = useState<{
     limit: number;
     page: number;
-    productName: string;
     sort: "popular" | "latest" | "best_seller";
     price: "asc" | "desc";
   }>({
     limit: 10,
     page: 1,
-    productName: "",
     sort: "popular",
     price: "asc",
   });
@@ -40,19 +39,39 @@ function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    if (query) {
+    if (sort) {
       setQueryDefault((prev) => ({
         ...prev,
-        sort: query as "popular" | "latest" | "best_seller",
+        sort: sort as "popular" | "latest" | "best_seller",
       }));
     }
-  }, [query]);
+  }, [sort]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["products", queryDefault],
-    queryFn: () => getProducts({ query: queryDefault, userId: user?.id }),
+    queryFn: () => getSortProducts({ query: queryDefault, userId: user?.id }),
   });
+
   const ProductsPages = data?.data ?? [];
+
+  const handleChangeSort = (sort: "popular" | "latest" | "best_seller") => {
+    setQueryDefault((prev) => ({
+      ...prev,
+      sort: sort,
+    }));
+    setSearchParams({ sort });
+  };
+
+  const handleChangePrice = (price: "asc" | "desc") => {
+    setQueryDefault((prev) => ({
+      ...prev,
+      price: price,
+    }));
+    setSearchParams((prev) => {
+      prev.set("price", price);
+      return prev;
+    });
+  };
 
   const Skeleton = () => {
     return (
@@ -67,15 +86,27 @@ function ProductsPage() {
   return (
     <div className="mt-[20rem] md:mt-[17rem] px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem] ">
       <div className="bg-white p-5 rounded-xl">
-        <h3 className="text-[2rem] mb-6 font-bold">Sản phẩm nổi bật</h3>
+        <h3 className="text-[2rem] mb-6 font-bold">
+          {sort === "popular"
+            ? "Sản phẩm nổi bật"
+            : sort === "best_seller"
+              ? "Sản phẩm bán chạy"
+              : "Sản phẩm mới nhất"}
+        </h3>
+        <ProductFilterBar
+          handleChangePrice={handleChangePrice}
+          handleChangeSort={handleChangeSort}
+          queryDefault={queryDefault}
+          setQueryDefault={setQueryDefault}
+        />
         {isLoading ? (
-          Array.from({ length: 10 }).map((_, i) => (
-            <div key={i}>
-              <Skeleton />
-            </div>
-          ))
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-4">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <Skeleton key={i} />
+            ))}
+          </div>
         ) : ProductsPages.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-4">
             {ProductsPages.map((product: ProductT) => {
               return (
                 <div
@@ -120,19 +151,15 @@ function ProductsPage() {
                           Thêm
                         </span>
                       </button>
-                      <button
-                        type="button"
+                      <Link
+                        to={`/product-detail/${product.slug}`}
                         className="w-[4rem] h-[3.4rem] flex items-center justify-center bg-green-500 hover:bg-green-600 rounded-md cursor-pointer transition duration-300"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/product-detail/${product.slug}`);
-                        }}
                       >
                         <FontAwesomeIcon
                           icon={faEye}
                           className="text-[2rem] text-white"
                         />
-                      </button>
+                      </Link>
                     </div>
                   </Link>
 
@@ -149,7 +176,7 @@ function ProductsPage() {
                   </div>
                   <div className="flex items-center xl:hidden gap-x-4 justify-end mt-2.5">
                     <button
-                      className="hidden md:block text-blue-600 hover:text-blue-700 text-[1.2rem] mdtext-[1.4rem]"
+                      className="hidden md:block text-blue-600 hover:text-blue-700 text-[1.2rem] md:text-[1.4rem]"
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -159,7 +186,7 @@ function ProductsPage() {
                       Chi tiết
                     </button>
                     <button
-                      className="w-[8rem] md:w-[10rem] h-[3rem] md:h-[3.4rem] text-[1.2rem] mdtext-[1.4rem] bg-red-500 hover:bg-red-600 text-white rounded-md cursor-pointer transition duration-300 flex items-center justify-center gap-2"
+                      className="w-[8rem] md:w-[10rem] h-[3rem] md:h-[3.4rem] text-[1.2rem] md:text-[1.4rem] bg-red-500 hover:bg-red-600 text-white rounded-md cursor-pointer transition duration-300 flex items-center justify-center gap-2"
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowAddCart({ open: true, data: product });

@@ -77,7 +77,7 @@ function SelectAddress({
     <>
       <MotionWrapper
         open={open}
-        className="relative w-[60rem] min-h-[20rem] max-h-[65rem] overflow-hidden rounded-lg bg-white p-[2.5rem]"
+        className="relative w-[95%] md:w-[60rem] min-h-[20rem] max-h-[65rem] overflow-hidden rounded-lg bg-white p-[2.5rem]"
       >
         <h2 className="text-[2rem] text-center text-orange-600 font-bold">
           Thay đổi địa chỉ
@@ -116,7 +116,7 @@ function SelectAddress({
                   <label
                     htmlFor={`select-${add.id}`}
                     key={add.id}
-                    className="flex items-center justify-between border border-dashed rounded-md p-[2rem] border-gray-300"
+                    className="block md:flex items-center justify-between border border-dashed rounded-md p-[1rem] md:p-[2rem] border-gray-400"
                   >
                     <div className="flex items-center gap-[2rem]">
                       <span className="w-[2rem] h-[2rem] flex items-center justify-center">
@@ -124,7 +124,7 @@ function SelectAddress({
                           type="radio"
                           id={`select-${add.id}`}
                           name="select"
-                          className="scale-[1.5] "
+                          className="scale-[1.5]"
                           style={{ accentColor: "red" }}
                           checked={selectedAdd?.id === add.id}
                           onChange={() => {
@@ -156,46 +156,44 @@ function SelectAddress({
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col space-y-4">
-                      <div className={`flex items-center gap-[1rem] `}>
-                        <button
-                          type="button"
-                          className="flex-1 px-[1rem] py-[.4rem] text-[1.4rem] border text-blue-500 border-blue-400 hover:border-blue-600 hover:text-blue-600 rounded-sm"
-                          onClick={() =>
-                            setOpenActionAddress({
-                              open: true,
-                              dataUpdate: add,
-                              action: "edit",
-                            })
-                          }
-                        >
-                          Cập nhật
-                        </button>
-                      </div>
+                    <div className="flex md:flex-col items-center space-x-4 md:space-x-0 md:space-y-4 md:mt-0 mt-5">
                       <button
                         type="button"
-                        className="flex-1 px-[1rem] py-[.4rem] text-[1.4rem] border text-red-500 border-red-400 hover:border-red-600 hover:text-red-600 rounded-sm"
+                        className="w-full px-[1rem] py-[.4rem] text-[1.4rem] border text-blue-500 border-blue-400 hover:border-blue-600 hover:text-blue-600 rounded-sm"
+                        onClick={() =>
+                          setOpenActionAddress({
+                            open: true,
+                            dataUpdate: add,
+                            action: "edit",
+                          })
+                        }
+                      >
+                        Cập nhật
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-[1rem] py-[.4rem] text-[1.4rem] border text-red-500 border-red-400 hover:border-red-600 hover:text-red-600 rounded-sm"
                         onClick={() => {
                           const updated = addresses.filter(
-                            (a) => a.id !== add.id
+                            (a) => a.id !== add.id,
                           );
 
                           localStorage.setItem(
                             "guest_addresses",
-                            JSON.stringify(updated)
+                            JSON.stringify(updated),
                           );
 
                           if (updated.length > 0) {
                             const latest = updated[updated.length - 1];
                             localStorage.setItem(
                               "guest_latest_address",
-                              JSON.stringify(latest)
+                              JSON.stringify(latest),
                             );
 
                             window.dispatchEvent(
                               new CustomEvent("guest_address_updated", {
                                 detail: { action: "added", address: latest },
-                              })
+                              }),
                             );
                           } else {
                             localStorage.removeItem("guest_latest_address");
@@ -204,7 +202,7 @@ function SelectAddress({
                             window.dispatchEvent(
                               new CustomEvent("guest_address_updated", {
                                 detail: { action: "added" },
-                              })
+                              }),
                             );
                           }
 

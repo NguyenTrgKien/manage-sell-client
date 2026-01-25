@@ -6,9 +6,13 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { menuItems } from "../../../../constants/menuItems";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useAuth from "../../../../hooks/useAuth";
 
 function SidebarDashboard() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   const [selectedMenuItem, setSelectedMenuItem] = useState<{
     id: number | null;
     subId?: number;
@@ -16,6 +20,12 @@ function SidebarDashboard() {
     const saved = sessionStorage.getItem("sidebarSelected");
     return saved ? JSON.parse(saved) : { id: 1, subId: undefined };
   });
+
+  useEffect(() => {
+    return () => {
+      sessionStorage.removeItem("sidebarSelected");
+    };
+  }, []);
 
   const handleSelectItem = (item: any) => {
     if (item.children) {
@@ -31,11 +41,6 @@ function SidebarDashboard() {
       navigate(`/dashboard/${item.path}`);
     }
   };
-
-  const navigate = useNavigate();
-  if (menuItems.length == 0) {
-    return null;
-  }
 
   const handleNavigateChild = (parentId: number, child: any) => {
     const newState = { id: parentId, subId: child.id };
@@ -107,7 +112,10 @@ function SidebarDashboard() {
         </div>
 
         <div className="mt-[3rem] pt-[2rem] border-t border-gray-200">
-          <button className="w-full flex items-center gap-[1.2rem] p-[1.2rem] rounded-xl text-left transition-all duration-200 text-red-600 hover:bg-red-50 hover:text-red-700 group">
+          <button
+            className="w-full flex items-center gap-[1.2rem] p-[1.2rem] rounded-xl text-left transition-all duration-200 text-red-600 hover:bg-red-50 hover:text-red-700 group"
+            onClick={() => logout()}
+          >
             <div className="w-[3.2rem] h-[3.2rem] rounded-lg flex items-center justify-center transition-all duration-200 bg-red-100 text-red-500 group-hover:bg-red-200">
               <FontAwesomeIcon icon={faSignOutAlt} className="text-[1.4rem]" />
             </div>
