@@ -4,9 +4,11 @@ import {
   faBox,
   faEdit,
   faHeart,
+  faSignInAlt,
   faSignOutAlt,
   faTicket,
   faUser,
+  faUserPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
@@ -226,13 +228,14 @@ function Header() {
                   onMouseEnter={() => setShowAccountMenu(true)}
                   onMouseLeave={() => setShowAccountMenu(false)}
                 >
-                  <FontAwesomeIcon
-                    icon={faUser}
-                    className="text-gray-600 group-hover:text-pink-600"
-                  />
-                  <span className="text-[1.2rem] group-hover:underline cursor-pointer group-hover:text-pink-600 whitespace-nowrap">
-                    {user.username}
-                  </span>
+                  <div className="flex items-center gap-4 cursor-pointer">
+                    <p>{user.username.trim().split(" ").splice(-1, 2)}</p>
+                    <img
+                      src={user.avatar}
+                      alt="User avatar"
+                      className="w-[3.5rem] h-[3.5rem] rounded-full object-cover cursor-pointer"
+                    />
+                  </div>
 
                   <div
                     className={`absolute top-full mt-2 w-[22rem] bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden transition-all duration-200 ${
@@ -246,19 +249,17 @@ function Header() {
                         onClick={() =>
                           handleAccountClick("customer/account/profile")
                         }
-                        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-pink-50 transition-colors text-left hover:text-pink-600 text-gray-600 "
+                        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-pink-50 transition-colors text-left text-gray-600 hover:text-pink-600"
                       >
                         <FontAwesomeIcon icon={faUser} className="w-[1.6rem]" />
-                        <span className="text-[1.4rem] ">
-                          Tài khoản của tôi
-                        </span>
+                        <span className="text-[1.4rem]">Tài khoản của tôi</span>
                       </button>
 
                       <button
                         onClick={() => handleAccountClick("customer/order")}
-                        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-pink-50 transition-colors text-left hover:text-pink-600 text-gray-600 "
+                        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-pink-50 transition-colors text-left text-gray-600 hover:text-pink-600"
                       >
-                        <FontAwesomeIcon icon={faBox} className=" w-[1.6rem]" />
+                        <FontAwesomeIcon icon={faBox} className="w-[1.6rem]" />
                         <span className="text-[1.4rem]">Đơn hàng của tôi</span>
                       </button>
                     </div>
@@ -273,7 +274,7 @@ function Header() {
                       >
                         <FontAwesomeIcon
                           icon={faSignOutAlt}
-                          className=" w-[1.6rem]"
+                          className="w-[1.6rem]"
                         />
                         <span className="text-[1.4rem]">Đăng xuất</span>
                       </button>
@@ -283,65 +284,68 @@ function Header() {
               ) : (
                 <>
                   <div
-                    className="relative flex flex-col items-center justify-center gap-1 text-gray-600 hover:text-pink-600 transition-colors group"
+                    className="relative flex flex-col items-center justify-center gap-1 text-gray-600 hover:text-pink-600 transition-colors group cursor-pointer"
                     onMouseEnter={() => setShowAccountMenu(true)}
                     onMouseLeave={() => setShowAccountMenu(false)}
                   >
-                    <FontAwesomeIcon icon={faUser} />
-                    <span className="text-[1.2rem] group-hover:underline cursor-pointer whitespace-nowrap">
+                    <FontAwesomeIcon icon={faUser} className="w-[1.6rem]" />
+                    <span className="text-[1.2rem] group-hover:underline whitespace-nowrap">
                       Tài khoản
                     </span>
+
                     <div
-                      className={`absolute top-[100%] mt-2 w-[18rem] bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden transition-all duration-200 z-[1000] ${
+                      className={`absolute top-full mt-2 w-[18rem] bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden transition-all duration-200 z-[1000] ${
                         showAccountMenu
                           ? "opacity-100 visible translate-y-0"
                           : "opacity-0 invisible -translate-y-2"
                       }`}
                     >
-                      <div className="border-t border-gray-200">
-                        <button
-                          onClick={() => handleAccountClick("login")}
-                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-red-50 transition-colors text-left text-gray-600 hover:text-red-600"
-                        >
-                          <FontAwesomeIcon
-                            icon={faSignOutAlt}
-                            className=" w-[1.6rem]"
-                          />
-                          <span className="text-[1.4rem]">Đăng nhập</span>
-                        </button>
-                      </div>
-                      <div className="border-t border-gray-200">
-                        <button
-                          onClick={() => handleAccountClick("register")}
-                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-red-50 transition-colors text-left text-gray-600 hover:text-red-600"
-                        >
-                          <FontAwesomeIcon
-                            icon={faSignOutAlt}
-                            className=" w-[1.6rem]"
-                          />
-                          <span className="text-[1.4rem]">Đăng ký</span>
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => handleAccountClick("login")}
+                        className="w-full px-4 py-4 flex items-center gap-3 hover:bg-pink-50 transition-colors text-left text-gray-600 hover:text-pink-600 border-b border-gray-200"
+                      >
+                        <FontAwesomeIcon
+                          icon={faSignInAlt}
+                          className="w-[1.6rem]"
+                        />
+                        <span className="text-[1.4rem]">Đăng nhập</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleAccountClick("register")}
+                        className="w-full px-4 py-4 flex items-center gap-3 hover:bg-pink-50 transition-colors text-left text-gray-600 hover:text-pink-600"
+                      >
+                        <FontAwesomeIcon
+                          icon={faUserPlus}
+                          className="w-[1.6rem]"
+                        />
+                        <span className="text-[1.4rem]">Đăng ký</span>
+                      </button>
                     </div>
                   </div>
+
                   <div
-                    className="relative flex flex-col items-center justify-center gap-1 text-gray-600 hover:text-pink-600 transition-colors group"
+                    className="relative flex flex-col items-center justify-center gap-1 text-gray-600 hover:text-pink-600 transition-colors group cursor-pointer"
                     onClick={() => navigate("/look-up-order")}
                   >
-                    <FontAwesomeIcon icon={faBookJournalWhills} />
-                    <span className="text-[1.2rem] group-hover:underline cursor-pointer whitespace-nowrap">
+                    <FontAwesomeIcon
+                      icon={faBookJournalWhills}
+                      className="w-[1.6rem]"
+                    />
+                    <span className="text-[1.2rem] group-hover:underline whitespace-nowrap">
                       Đơn hàng
                     </span>
                   </div>
                 </>
               )}
 
+              {/* Giỏ hàng */}
               <div
                 className="relative flex flex-col items-center gap-1 group transition-colors cursor-pointer"
                 onClick={() => setShowCart(true)}
               >
                 <svg
-                  className="w-6 h-6 group-hover:text-pink-600"
+                  className="w-6 h-6 text-gray-600 group-hover:text-pink-600 transition-colors"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -353,12 +357,12 @@ function Header() {
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
-                <span className="text-[1.2rem] group-hover:text-pink-600 group-hover:underline whitespace-nowrap">
+                <span className="text-[1.2rem] text-gray-600 group-hover:text-pink-600 group-hover:underline whitespace-nowrap transition-colors">
                   Giỏ hàng
                 </span>
-                {user && (
+                {user && cartCount > 0 && (
                   <span className="absolute -top-2 left-[3rem] bg-red-500 text-white text-[10px] w-[1.5rem] h-[1.5rem] rounded-full flex items-center justify-center">
-                    {cartCount}
+                    {cartCount > 99 ? "99+" : cartCount}
                   </span>
                 )}
               </div>

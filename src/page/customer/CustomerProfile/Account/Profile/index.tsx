@@ -26,7 +26,7 @@ function ProfileCustomer() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [changePhone, setChangePhone] = useState(false);
   const [originalPhone, setOriginalPhone] = useState<number | undefined>(
-    undefined
+    undefined,
   );
   const [showMessage, setShowMessage] = useState(false);
   const [messageUpdate, setMessageUpdate] = useState<string | null>(null);
@@ -64,8 +64,8 @@ function ProfileCustomer() {
           phone: user.phone,
         },
         customer: {
-          birthday: user.customer.birthday,
-          gender: user.customer.gender,
+          birthday: user?.customer?.birthday,
+          gender: user?.customer?.gender,
         },
       });
       setOriginalPhone(user.phone);
@@ -100,10 +100,12 @@ function ProfileCustomer() {
       if (data.customer.gender && String(data.customer.gender) !== "") {
         formData.append("customer[gender]", data.customer.gender);
       }
-      formData.append(
-        "customer[birthday]",
-        new Date(data.customer.birthday).toISOString().split("T")[0]
-      );
+      if (data.customer.birthday) {
+        formData.append(
+          "customer[birthday]",
+          new Date(data.customer.birthday).toISOString().split("T")[0],
+        );
+      }
 
       if (data.user.avatar && data.user.avatar.length > 0) {
         formData.append("avatar", data.user.avatar[0]);
@@ -118,8 +120,9 @@ function ProfileCustomer() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       )) as any;
+
       if (res.status) {
         setMessageUpdate(res.message || "Cập nhật thành công!");
         setShowMessage(true);

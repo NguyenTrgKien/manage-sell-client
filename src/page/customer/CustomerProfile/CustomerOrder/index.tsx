@@ -304,7 +304,7 @@ function CustomerOrder() {
                                       <img
                                         src={product.mainImage}
                                         alt={`mainImage-${product.productName}`}
-                                        className="w-[6rem] h-[6rem] object-cover border border-gray-400"
+                                        className="w-[6rem] h-[6rem] object-cover border border-gray-200"
                                       />
                                       <div>
                                         <p className="max-w-2xl line-clamp-1 text-gray-900 select-none">

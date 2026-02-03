@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export const useSessionId = () => {
-  const [sessionId, setSessionId] = useState<string | null>(() => {
+  const [sessionId] = useState<string | null>(() => {
     let sid = localStorage.getItem("search_session_id");
     if (!sid) {
       sid = crypto.randomUUID();

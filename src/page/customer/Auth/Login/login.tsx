@@ -7,6 +7,11 @@ import { toast } from "react-toastify";
 import axiosConfig from "../../../../configs/axiosConfig";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useQueryClient } from "@tanstack/react-query";
+import FacebookLogin from "@greatsumini/react-facebook-login";
+import GoogleLogo from "../../../../assets/images/google-logo.png";
+import FacebookLogo from "../../../../assets/images/facebook-logo.png";
 
 export interface LoginResponse {
   status: boolean;
@@ -30,6 +35,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [isMergeCart, setIsMergeCart] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleChangeData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -85,6 +91,47 @@ function Login() {
     }
   };
 
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (credentialResponse: any) => {
+      try {
+        const { credential } = credentialResponse;
+        const res = await axiosConfig.post("/api/v1/auth/login-google", {
+          idToken: credential,
+        });
+        if (res.status) {
+          await queryClient.invalidateQueries({ queryKey: ["user"] });
+          await handleLoginSuccess();
+        }
+      } catch (error: any) {
+        console.log(error);
+        toast.error(error.message || "Có lỗi xảy ra. Vui lòng thực hiện lại!");
+      }
+    },
+    onError: () => {
+      toast.error("Đăng nhập Google thất bại. Vui lòng thử lại!");
+    },
+  });
+
+  const onSuccessLoginFacebook = async (response: any) => {
+    try {
+      const { accessToken } = response;
+      const res = await axiosConfig.post("/api/v1/auth/login-facebook", {
+        accessToken: accessToken,
+      });
+      if (res.status) {
+        await queryClient.invalidateQueries({ queryKey: ["user"] });
+        await handleLoginSuccess();
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.message || "Đã có lỗi xảy ra. Vui lòng thực hiện lại!");
+    }
+  };
+
+  const onErrorLoginFacebook = async () => {
+    console.log("Đăng nhập với facebook thất bại. Vui lòng thực hiện lại!");
+  };
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center md:p-4">
       <button
@@ -94,7 +141,7 @@ function Login() {
       >
         <FontAwesomeIcon icon={faClose} />
       </button>
-      <div className="w-[90%] md:max-w-2xl bg-white shadow-2xl rounded-2xl p-5 md:p-[2.5rem] transform transition-all">
+      <div className="w-[90%] md:max-w-3xl bg-white shadow-2xl rounded-2xl p-5 md:p-[2.5rem] transform transition-all">
         <div className="text-center mb-8">
           <div className="w-15 md:w-20 h-15 md:h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
             <svg
@@ -238,6 +285,40 @@ function Login() {
           >
             Quên mật khẩu?
           </Link>
+          <div className="flex items-center gap-2.5 my-5 md:flex-row flex-col">
+            <div
+              className="flex items-center gap-2.5 border border-gray-300 p-2.5 rounded-md text-[1.4rem] w-full justify-center cursor-pointer"
+              onClick={() => loginWithGoogle()}
+            >
+              <img
+                src={GoogleLogo}
+                alt="google logo"
+                className="w-8 h-8 object-cover"
+              />
+              Đăng nhập với Google
+            </div>
+            <FacebookLogin
+              appId={import.meta.env.VITE_FACEBOOK_APP_ID}
+              scope="public_profile,email"
+              fields="id,name,email,picture"
+              onSuccess={onSuccessLoginFacebook}
+              onFail={onErrorLoginFacebook}
+              render={({ onClick }) => (
+                <button
+                  type="button"
+                  className="flex items-center gap-2.5 border border-gray-300 p-2.5 rounded-md text-[1.4rem] w-full justify-center cursor-pointer"
+                  onClick={onClick}
+                >
+                  <img
+                    src={FacebookLogo}
+                    alt="google logo"
+                    className="w-8 h-8 object-cover "
+                  />
+                  Đăng nhập với Facebook
+                </button>
+              )}
+            />
+          </div>
           <div className="pt-4 border-t border-gray-200">
             <p className="text-[1.4rem] text-gray-600">
               Chưa có tài khoản?{" "}
