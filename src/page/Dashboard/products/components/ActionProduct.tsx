@@ -132,7 +132,6 @@ function ActionProduct() {
   });
 
   const [mainImageUrl, setMainImageUrl] = useState<string | null>(null);
-  const [listImageUrl, setListImageUrl] = useState<string[]>([]);
   const [openActionVariant, setOpenActionVariant] = useState<{
     open: boolean;
     node: "add" | "edit";
@@ -144,7 +143,6 @@ function ActionProduct() {
   });
   const [isAddDescription, setIsAddDescription] = useState(false);
   const mainImageWatch = watch("mainImage");
-  const listImagesWatch = watch("listImages");
   const variants = watch("variants");
   const [listImages, setListImages] = useState<
     Array<{
@@ -676,7 +674,7 @@ function ActionProduct() {
 
                   <button
                     type="button"
-                    className={`flex items-center space-x-1 px-[2rem] py-[.6rem] rounded-md  bg-green-500 hover:bg-green-600 text-white  transition duration-300 cursor-pointer mt-[.5rem]`}
+                    className={`flex items-center space-x-1 px-[2rem] py-[.6rem] rounded-md  border border-green-400 hover:border-green-600 text-green-500 hover:text-green-600  transition duration-300 cursor-pointer mt-[.5rem]`}
                     onClick={() => setIsAddDescription(true)}
                   >
                     <span>Mô tả</span>

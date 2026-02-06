@@ -1,29 +1,13 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import type { ProductT } from "../../../utils/types";
 import { useQuery } from "@tanstack/react-query";
-import AddCart from "../../../components/AddCart";
-import { getSortProducts } from "../../../api/product.api";
-import { useUser } from "../../../hooks/useUser";
-import noProduct from "../../../assets/images/no-product.png";
-import ProductFilterBar from "../../../components/ProductFilterBar";
+import { getProduct } from "../api/product.api";
+import { useEffect, useState } from "react";
+import type { ProductT } from "../utils/types";
+import { useNavigate } from "react-router-dom";
+import AddCart from "./AddCart";
 
-function ProductsPage() {
+function SuggestSection() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const sort = searchParams.get("sort");
-  const { user } = useUser();
-  const [queryDefault, setQueryDefault] = useState<{
-    limit: number;
-    page: number;
-    sort: "popular" | "latest" | "best_seller";
-    price: "asc" | "desc";
-  }>({
-    limit: 10,
-    page: 1,
-    sort: "popular",
-    price: "asc",
-  });
+  const [products, setProducts] = useState<ProductT[]>([]);
   const [showAddCart, setShowAddCart] = useState<{
     open: boolean;
     data: ProductT | null;
@@ -31,81 +15,49 @@ function ProductsPage() {
     open: false,
     data: null,
   });
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  useEffect(() => {
-    if (sort) {
-      setQueryDefault((prev) => ({
-        ...prev,
-        sort: sort as "popular" | "latest" | "best_seller",
-      }));
-    }
-  }, [sort]);
-
+  const [queryDefault, setQueryDefault] = useState<{
+    price?: "asc" | "desc";
+    limit: number;
+    page: number;
+    sort?: "popular" | "latest" | "best_seller";
+  }>({
+    price: "desc",
+    limit: 10,
+    page: 1,
+    sort: "latest",
+  });
   const { data, isLoading } = useQuery({
     queryKey: ["products", queryDefault],
-    queryFn: () => getSortProducts({ query: queryDefault, userId: user?.id }),
-  });
+    queryFn: getProduct,
+  }) as any;
+  const showBtn = data && queryDefault.page < data.totalPages;
 
-  const ProductsPages = data?.data ?? [];
-
-  const handleChangeSort = (sort: "popular" | "latest" | "best_seller") => {
-    setQueryDefault((prev) => ({
-      ...prev,
-      sort: sort,
-    }));
-    setSearchParams({ sort });
-  };
-
-  const handleChangePrice = (price: "asc" | "desc") => {
-    setQueryDefault((prev) => ({
-      ...prev,
-      price: price,
-    }));
-    setSearchParams((prev) => {
-      prev.set("price", price);
-      return prev;
-    });
-  };
-
-  const Skeleton = () => {
-    return (
-      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-product animate-pulse">
-        <div className="h-[18rem] md:h-[20rem] bg-gray-200 rounded-xl mb-4" />
-        <div className="h-5 bg-gray-200 rounded w-4/5 mb-2" />
-        <div className="h-5 bg-gray-200 rounded w-1/3" />
-      </div>
+  useEffect(() => {
+    if (!data) return;
+    const newProducts = data.data || [];
+    setProducts((prev) =>
+      queryDefault.page === 1 ? newProducts : [...prev, ...newProducts],
     );
+  }, [data, queryDefault.page]);
+
+  const handleAddPage = () => {
+    setQueryDefault((prev) => ({
+      ...prev,
+      page: prev.page + 1,
+    }));
   };
 
-  return (
-    <div className="mt-[20rem] md:mt-[17rem] px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem] ">
-      <div className="bg-white p-5 rounded-xl">
-        <h3 className="text-[2rem] mb-6 font-bold">
-          {sort === "popular"
-            ? "Sản phẩm nổi bật"
-            : sort === "best_seller"
-              ? "Sản phẩm bán chạy"
-              : "Sản phẩm mới nhất"}
-        </h3>
-        <ProductFilterBar
-          handleChangePrice={handleChangePrice}
-          handleChangeSort={handleChangeSort}
-          queryDefault={queryDefault}
-          setQueryDefault={setQueryDefault}
-        />
-        {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-4">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <Skeleton key={i} />
-            ))}
-          </div>
-        ) : ProductsPages.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-4">
-            {ProductsPages.map((product: ProductT) => {
+  return isLoading ? (
+    <div>Đang tải dữ liệu</div>
+  ) : (
+    <section className="mt-[2rem] rounded-[.5rem] bg-white p-[1.5rem] md:p-[2rem]">
+      <h4 className="text-[1.4rem] md:text-[1.8rem] font-bold text-pink-500 mb-6">
+        Gọi ý hôm nay
+      </h4>
+      <div className="text-center">
+        {products.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {products.map((product: ProductT) => {
               return (
                 <div
                   key={product.id}
@@ -174,22 +126,21 @@ function ProductsPage() {
               );
             })}
           </div>
-        ) : (
-          <div className="w-full h-[30rem] md:h-[40rem] flex flex-col items-center justify-center select-none">
-            <img
-              src={noProduct}
-              alt="no-product"
-              className="w-[15rem] md:w-[20rem]"
-            />
-            <span className="text-[1.4rem] md:text-[1.6rem] mt-4">
-              Không có sản phẩm nào!
-            </span>
-          </div>
+        )}
+        {showBtn && (
+          <button
+            type="button"
+            className="py-3 px-8 border border-gray-300 hover:border-gray-600 hover:text-gray-800 transition-colors duration-300 rounded-md mt-8 cursor-pointer"
+            onClick={() => handleAddPage()}
+            disabled={isLoading}
+          >
+            Xem thêm
+          </button>
         )}
       </div>
       <AddCart showAddCart={showAddCart} setShowAddCart={setShowAddCart} />
-    </div>
+    </section>
   );
 }
 
-export default ProductsPage;
+export default SuggestSection;

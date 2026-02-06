@@ -33,19 +33,20 @@ body {
 .bestsell-prev,
 .popular-next,
 .popular-prev {
-  background: rgba(255, 255, 255, 0.8);
   width: 5rem !important;
   height: 5rem !important;
   border-radius: 50%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border: 2px solid #e2e8f0;
   transition: all 0.3s ease;
 }
 
-.custom-next-btn {
+.custom-next-btn,
+.popular-next,
+.bestsell-next {
   right: 1rem;
 }
-.custom-prev-btn {
+.custom-prev-btn,
+.bestsell-prev,
+.popular-prev {
   left: 1rem;
 }
 

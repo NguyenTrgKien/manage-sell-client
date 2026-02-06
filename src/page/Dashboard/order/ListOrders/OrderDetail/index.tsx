@@ -97,8 +97,6 @@ function OrderDetail({
   });
 
   useEffect(() => {
-    console.log(orderDetail);
-
     if (orderDetail.shippingProvider && orderDetail.trackingNumber) {
       setDataUpdateShipping({
         shippingProvider: orderDetail.shippingProvider || "",
@@ -108,10 +106,9 @@ function OrderDetail({
       setEditShipping(false);
     }
   }, [orderDetail]);
-  console.log(editShipping);
 
   const handleChangeShipping = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setDataUpdateShipping((prev) => ({
@@ -132,14 +129,13 @@ function OrderDetail({
       }
       const res = (await axiosConfig.patch(
         `/api/v1/orders/update-shipping/${orderDetail.id}`,
-        dataUpdateShipping
+        dataUpdateShipping,
       )) as any;
       if (res.status) {
         toast.success(res.message);
         setEditShipping(false);
       }
     } catch (error: any) {
-      console.log(error);
       toast.error(error.message);
     }
   };
@@ -250,7 +246,7 @@ function OrderDetail({
                             {value.text}
                           </option>
                         );
-                      }
+                      },
                     )}
                   </select>
                 </div>

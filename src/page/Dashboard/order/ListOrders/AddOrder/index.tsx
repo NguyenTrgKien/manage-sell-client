@@ -123,10 +123,10 @@ function AddOrder({ open, onClose, refetch }: AddOrderProp) {
   const calculateTotal = () => {
     return selectorderItems.reduce((total, item) => {
       const product = products?.find(
-        (p: ProductT) => p.id === item.productId
+        (p: ProductT) => p.id === item.productId,
       ) as ProductT;
       const variant = product?.variants.find(
-        (v: VariantsType) => v.id === item.variantId
+        (v: VariantsType) => v.id === item.variantId,
       );
       const price = variant?.price ?? product?.price ?? 0;
       return total + price * item.quantity;
@@ -138,7 +138,7 @@ function AddOrder({ open, onClose, refetch }: AddOrderProp) {
     try {
       const res = (await axiosConfig.post(
         "/api/v1/orders/create",
-        data
+        data,
       )) as any;
       if (res.status) {
         toast.success(res.message || "Tạo đơn hàng thành công");
@@ -227,10 +227,10 @@ function AddOrder({ open, onClose, refetch }: AddOrderProp) {
               <div className="min-w-[48rem] space-y-2">
                 {selectorderItems.map((item, index) => {
                   const product = products.find(
-                    (it: ProductT) => it.id === item.productId
+                    (it: ProductT) => it.id === item.productId,
                   ) as ProductT;
                   const variant = product.variants.find(
-                    (v: VariantsType) => v.id === item.variantId
+                    (v: VariantsType) => v.id === item.variantId,
                   );
                   const price = variant?.price ?? product.price;
 
@@ -474,7 +474,7 @@ function AddOrder({ open, onClose, refetch }: AddOrderProp) {
                           isSearchable
                           value={
                             provinceOptions?.find(
-                              (opt) => opt.value === field.value
+                              (opt) => opt.value === field.value,
                             ) || null
                           }
                           onChange={(option) => {
@@ -516,7 +516,7 @@ function AddOrder({ open, onClose, refetch }: AddOrderProp) {
                           isSearchable
                           value={
                             districtOptions?.find(
-                              (opt) => opt.value === field.value
+                              (opt) => opt.value === field.value,
                             ) || null
                           }
                           onChange={(option) => {
@@ -557,7 +557,7 @@ function AddOrder({ open, onClose, refetch }: AddOrderProp) {
                           isSearchable
                           value={
                             wardOptions?.find(
-                              (opt) => opt.value === field.value
+                              (opt) => opt.value === field.value,
                             ) || null
                           }
                           onChange={(option) => {

@@ -10,11 +10,7 @@ import { getPopular } from "../../api/product.api";
 import type { ProductT } from "../../utils/types";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faAngleRight,
-  faCartPlus,
-  faEye,
-} from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import AddCart from "../AddCart";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -44,7 +40,7 @@ function PopularProduct() {
   return (
     <section className="mt-[2rem] rounded-[.5rem] bg-white p-[1.5rem] md:p-[2rem]">
       <div className="flex items-center justify-between mb-6">
-        <h4 className="text-[1.4rem] md:text-[1.8rem] font-bold text-blue-500">
+        <h4 className="text-[1.4rem] md:text-[1.8rem] font-bold text-pink-500">
           Sản phẩm nổi bật
         </h4>
         <Link
@@ -56,14 +52,16 @@ function PopularProduct() {
         </Link>
       </div>
 
-      <div className="relative">
-        <button className="feature-prev-btn absolute top-1/2 left-2 md:left-4 z-10 -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:shadow-xl transition hidden sm:flex items-center justify-center w-10 h-10">
-          <span className="text-2xl">&larr;</span>
+      <div className="relative w-full">
+        <button className="lg:block hidden popular-prev absolute top-1/2 -left-4 xl:-left-6 z-10 -translate-y-1/2 bg-gray-50 hover:bg-gray-100 hover:scale-[1.1] p-2 xs:p-3 sm:p-4 rounded-full shadow-xl transition-all group">
+          <FontAwesomeIcon icon={faAngleLeft} className="hover:text-[1.8rem]" />
         </button>
 
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
           spaceBetween={10}
+          slidesPerView={1}
+          slidesPerGroup={1}
           loop={true}
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
@@ -87,14 +85,17 @@ function PopularProduct() {
             640: {
               slidesPerView: 4,
               slidesPerGroup: 4,
+              navigation: true,
             },
             1024: {
               slidesPerView: 4,
               slidesPerGroup: 4,
+              navigation: true,
             },
             1280: {
               slidesPerView: 5,
               slidesPerGroup: 5,
+              navigation: true,
             },
           }}
           className="popular-swiper !py-6 !px-4"
@@ -112,97 +113,76 @@ function PopularProduct() {
             : populars.map((product: ProductT) => (
                 <SwiperSlide
                   key={product.id}
-                  className="group bg-white rounded-xl p-4 shadow hover:shadow-lg cursor-pointer relative overflow-hidden"
+                  className="group bg-white cursor-pointer relative overflow-hidden border border-gray-200"
+                  onClick={() => navigate(`/product-detail/${product.slug}`)}
                 >
-                  <Link
-                    to={`/product-detail/${product.slug}`}
-                    className="block relative w-full h-[14rem] md:h-[18rem] lg:h-[22rem] overflow-hidden rounded-xl"
-                  >
-                    <div className="absolute top-3 right-3 z-10 rounded-full bg-red-500 px-3 py-1 text-white text-sm font-semibold">
-                      Hot
+                  <div className="relative h-[16rem] md:h-[20rem] lg:h-[24rem] overflow-hidden">
+                    <img
+                      src={
+                        product.mainImage || "https://via.placeholder.com/300"
+                      }
+                      alt={product.productName || "Sản phẩm flash sale"}
+                      className="w-full h-full object-cover group-hover:scale-[1.1] transition-transform duration-300"
+                    />
+                  </div>
+
+                  <div className="p-5">
+                    <div className="text-left">
+                      <h5 className="text-limit-1 text-[1.2rem] md:text-[1.6rem] text-gray-700 font-medium">
+                        {product.productName}
+                      </h5>
+                      <p className="mt-2 text-red-600 text-[1.4rem] md:text-[1.6rem]">
+                        {Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(product.price)}
+                      </p>
                     </div>
-
-                    <div className="relative h-[14rem] md:-[18rem] lg:h-[22rem] md:h-full overflow-hidden rounded-lg mb-3">
-                      <img
-                        src={
-                          product.mainImage || "https://via.placeholder.com/300"
-                        }
-                        alt={product.productName || "Sản phẩm flash sale"}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform rounded-xl"
-                      />
-                    </div>
-
-                    <div className="hidden xl:block absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                    <div className="hidden xl:flex absolute w-full h-[4rem] bottom-[.5rem] right-[50%] translate-x-[50%] gap-[1rem] items-center justify-center rounded-xl translate-y-[4.5rem] group-hover:translate-y-0 transition duration-300">
+                    <div className="flex flex-col md:flex-row items-center justify-end gap-2.5 mt-4">
                       <button
-                        className="w-[10rem] h-[3.4rem] bg-white hover:bg-gray-200 rounded-md cursor-pointer transition duration-300 flex items-center justify-center gap-2"
+                        type="button"
+                        className="w-full flex items-center justify-center gap-1 py-2 px-4 border text-pink-500 border-pink-500 hover:bg-pink-500 hover:text-white rounded-md text-[1.2rem] md:text-[1.4rem] transition-colors duration-300"
                         onClick={(e) => {
                           e.stopPropagation();
                           setShowAddCart({ open: true, data: product });
                         }}
                       >
-                        <FontAwesomeIcon
-                          icon={faCartPlus}
-                          className="text-[1.6rem] text-gray-600"
-                        />
-                        <span className="text-[1.4rem] text-gray-600">
-                          Thêm
-                        </span>
+                        Thêm{" "}
+                        <svg
+                          className="w-8 h-8"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                          />
+                        </svg>
                       </button>
                       <button
-                        className="w-[4rem] h-[3.4rem] flex items-center justify-center bg-green-500 hover:bg-green-600 rounded-md cursor-pointer transition duration-300"
+                        type="button"
+                        className="w-full flex items-center justify-center gap-1 py-2 px-4 border text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white rounded-md text-[1.2rem] md:text-[1.4rem] transition-colors duration-300"
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/product-detail/${product.slug}`);
                         }}
                       >
-                        <FontAwesomeIcon
-                          icon={faEye}
-                          className="text-[2rem] text-white"
-                        />
+                        Chi tiết
                       </button>
                     </div>
-                  </Link>
-
-                  <div className="mt-4 px-2 text-left">
-                    <h5 className="text-limit-1 text-[1.2rem] md:text-[1.6rem] text-gray-700 font-medium">
-                      {product.productName}
-                    </h5>
-                    <p className="mt-2 text-red-600 text-[1.4rem] md:text-[1.6rem]">
-                      {Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(product.price)}
-                    </p>
-                  </div>
-                  <div className="flex items-center xl:hidden gap-x-4 justify-end mt-2.5">
-                    <button
-                      className="hidden md:block text-blue-600 hover:text-blue-700 text-[1.2rem] mdtext-[1.4rem]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/product-detail/${product.slug}`);
-                      }}
-                    >
-                      Chi tiết
-                    </button>
-                    <button
-                      className="w-[8rem] md:w-[10rem] h-[3rem] md:h-[3.4rem] text-[1.2rem] mdtext-[1.4rem] bg-red-500 hover:bg-red-600 text-white rounded-md cursor-pointer transition duration-300 flex items-center justify-center gap-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowAddCart({ open: true, data: product });
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faCartPlus} />
-                      <span>Thêm</span>
-                    </button>
                   </div>
                 </SwiperSlide>
               ))}
         </Swiper>
 
-        <button className="feature-next-btn absolute top-1/2 right-2 md:right-4 z-10 -translate-y-1/2 bg-white p-2 rounded-full shadow-lg hover:shadow-xl transition hidden sm:flex items-center justify-center w-10 h-10">
-          <span className="text-2xl">&rarr;</span>
+        <button className="lg:block hidden popular-next absolute top-1/2 -right-4 xl:-right-6 z-10 -translate-y-1/2 bg-gray-50 hover:bg-gray-100 hover:scale-[1.1] p-2 xs:p-3 sm:p-4 rounded-full shadow-xl transition-all group">
+          <FontAwesomeIcon
+            icon={faAngleRight}
+            className="hover:text-[1.8rem]"
+          />
         </button>
       </div>
 

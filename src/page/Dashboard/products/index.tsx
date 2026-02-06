@@ -1,7 +1,6 @@
 import {
   faAngleLeft,
   faAngleRight,
-  faArrowLeft,
   faCirclePlus,
   faClose,
   faEdit,
@@ -10,7 +9,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import ActionProduct from "./components/ActionProduct";
 import { useQuery } from "@tanstack/react-query";
 import type { CategoriesType, ProductT } from "../../../utils/types";
 import { getProduct } from "../../../api/product.api";
@@ -21,15 +19,6 @@ import RenderParentOption from "../../../components/RenderParentOption";
 import { Link } from "react-router-dom";
 
 function Products() {
-  const [openActionProduct, setOpenActionProduct] = useState<{
-    open: boolean;
-    action: "add" | "edit";
-    id: number | undefined;
-  }>({
-    open: false,
-    action: "add",
-    id: undefined,
-  });
   const [openToggleHidden, setOpenToggleHidden] = useState<{
     open: boolean;
     data: ProductT | null;
@@ -172,6 +161,7 @@ function Products() {
                   }))
                 }
               >
+                <option value="">Tất cả</option>
                 {dataCategories
                   ?.filter((cat: CategoriesType) => cat.isActive)
                   .map((parent: CategoriesType) => (

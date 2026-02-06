@@ -4,7 +4,11 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faAngleLeft,
+  faAngleRight,
+  faArrowRight,
+} from "@fortawesome/free-solid-svg-icons";
 import { useQuery } from "@tanstack/react-query";
 import { getListBanner } from "../../api/ui.api";
 import type { BannerType } from "../../utils/ui.type";
@@ -33,20 +37,8 @@ function Banner() {
   return (
     <div className="rounded-xl bg-white shadow-lg overflow-hidden px-2 xs:px-4 sm:px-8 md:px-4 lg:px-0">
       <div className="relative w-full">
-        <button className="custom-prev-btn hidden lg:block absolute top-1/2 -left-4 xl:-left-6 z-10 -translate-y-1/2 bg-white/90 hover:bg-pink-500 p-2 xs:p-3 sm:p-4 rounded-full shadow-xl transition-all group">
-          <svg
-            className="w-5 h-5 xs:w-6 xs:h-6 sm:w-7 sm:h-7 text-gray-700 group-hover:text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+        <button className="custom-prev-btn absolute top-1/2 -left-4 xl:-left-6 z-10 -translate-y-1/2 bg-gray-50 hover:bg-gray-200 hover:scale-[1.1] p-2 xs:p-3 sm:p-4 rounded-full shadow-xl transition-all group">
+          <FontAwesomeIcon icon={faAngleLeft} className="hover:text-[1.8rem]" />
         </button>
 
         <Swiper
@@ -79,6 +71,7 @@ function Banner() {
           navigation={{
             nextEl: ".custom-next-btn",
             prevEl: ".custom-prev-btn",
+            enabled: true,
           }}
           pagination={{
             clickable: true,
@@ -144,24 +137,14 @@ function Banner() {
           )}
         </Swiper>
 
-        <button className="custom-next-btn hidden lg:block absolute top-1/2 -right-4 xl:-right-6 z-10 -translate-y-1/2 bg-white/90 hover:bg-pink-500 p-2 xs:p-3 sm:p-4 rounded-full shadow-xl transition-all group">
-          <svg
-            className="w-5 h-5 xs:w-6 xs:h-6 sm:w-7 sm:h-7 text-gray-700 group-hover:text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+        <button className="custom-next-btn absolute top-1/2 -right-4 xl:-right-6 z-10 -translate-y-1/2 bg-gray-50 hover:bg-gray-200 hover:scale-[1.1] p-2 xs:p-3 sm:p-4 rounded-full shadow-xl transition-all group">
+          <FontAwesomeIcon
+            icon={faAngleRight}
+            className="hover:text-[1.8rem]"
+          />
         </button>
       </div>
 
-      {/* Pagination dots */}
       <div className="swiper-pagination mt-2 xs:mt-3 sm:mt-4 flex justify-center"></div>
     </div>
   );

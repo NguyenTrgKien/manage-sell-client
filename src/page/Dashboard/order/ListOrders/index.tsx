@@ -90,7 +90,7 @@ function Order() {
   });
   const [filter, setFilter] = useState({
     ...inputParam,
-    limit: 10,
+    limit: 20,
     page: 1,
   });
   const { data, isLoading, refetch } = useQuery({
@@ -132,7 +132,7 @@ function Order() {
   return (
     <div className="w-full min-h-[calc(100vh-12rem)] overflow-y-auto bg-white shadow-lg p-[2rem] rounded-[1rem]">
       <div className="sticky top-0 flex justify-between items-center border-b-[.1rem] border-b-gray-300 pb-[2rem]">
-        <h3 className="text-[2rem] font-semibold text-gray-600">Đơn hàng</h3>
+        <h3 className="text-[2rem] font-semibold ">Đơn hàng</h3>
         <div className="flex items-center gap-[1.5rem]">
           <button className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-[var(--main-button)] rounded-lg hover:bg-[var(--main-button-hover)] cursor-pointer hover-linear ">
             <FontAwesomeIcon icon={faFileExport} />
@@ -153,7 +153,7 @@ function Order() {
             <div className="w-[28rem] h-[4rem] relative text-[1.4rem]">
               <FontAwesomeIcon
                 icon={faSearch}
-                className="absolute left-[2rem] top-[50%] translate-[-50%] text-[1.4rem] text-gray-600"
+                className="absolute left-[2rem] top-[50%] translate-[-50%] text-[1.4rem] "
               />
               <input
                 type="text"
@@ -174,7 +174,7 @@ function Order() {
               name="status"
               id="status"
               value={inputParam.status}
-              className="w-[20rem] h-[4rem] text-[1.4rem] text-gray-600 px-[1.5rem] border border-gray-300 rounded-xl outline-none"
+              className="w-[20rem] h-[4rem] text-[1.4rem]  px-[1.5rem] border border-gray-300 rounded-xl outline-none"
               onChange={(e) =>
                 setInputParam((prev) => ({
                   ...prev,
@@ -182,9 +182,7 @@ function Order() {
                 }))
               }
             >
-              <option value="" hidden>
-                Trạng thái đơn
-              </option>
+              <option value="">Tất cả</option>
               {Object.entries(OrderStatus).map(([key, value]) => {
                 return (
                   <option key={key} value={value}>
@@ -204,25 +202,25 @@ function Order() {
           <table className="w-full table-auto text-[1.4rem] rounded-lg shadow-lg mt-[2rem]">
             <thead className="bg-gray-100 border-b border-b-gray-300">
               <tr>
-                <th className="text-left px-6 py-4 text-gray-600 font-semibold tracking-wide">
+                <th className="text-left px-6 py-4  font-semibold tracking-wide">
                   STT
                 </th>
-                <th className="text-left px-6 py-4 text-gray-600 font-semibold tracking-wide">
+                <th className="text-left px-6 py-4  font-semibold tracking-wide">
                   Mã đơn
                 </th>
-                <th className="text-left px-6 py-4 text-gray-600 font-semibold tracking-wide">
+                <th className="text-left px-6 py-4  font-semibold tracking-wide">
                   Khách hàng
                 </th>
-                <th className="text-left px-6 py-4 text-gray-600 font-semibold tracking-wide">
+                <th className="text-left px-6 py-4  font-semibold tracking-wide">
                   Số điện thoại
                 </th>
-                <th className="text-center px-6 py-4 text-gray-600 font-semibold tracking-wide">
+                <th className="text-start px-6 py-4  font-semibold tracking-wide">
                   Tổng tiền
                 </th>
-                <th className="text-center px-6 py-4 text-gray-600 font-semibold tracking-wide">
+                <th className="text-center px-6 py-4  font-semibold tracking-wide">
                   Trạng thái
                 </th>
-                <th className="text-center px-6 py-4 text-gray-600 font-semibold tracking-wide">
+                <th className="text-center px-6 py-4  font-semibold tracking-wide">
                   Hành động
                 </th>
               </tr>
@@ -255,26 +253,24 @@ function Order() {
                   const isSelectOption = order.id === selectOption?.id;
                   return (
                     <tr key={order.id}>
-                      <td className="text-left px-6 py-4 text-gray-600 tracking-wide">
+                      <td className="text-left px-6 py-4  tracking-wide">
                         {index + 1}
                       </td>
-                      <td className="text-left px-6 py-4 text-gray-600 tracking-wide">
+                      <td className="text-left px-6 py-4  tracking-wide">
                         #{order.orderCode}
                       </td>
-                      <td className="text-left px-6 py-4 text-gray-600 tracking-wide">
+                      <td className="text-left px-6 py-4  tracking-wide">
                         <div>
-                          <div className="text-gray-800">
-                            {order.customerName}
-                          </div>
-                          <div className="text-gray-600 text-[1rem]">
+                          <div>{order.customerName}</div>
+                          <div className=" text-[1.2rem]">
                             {order.customerEmail}
                           </div>
                         </div>
                       </td>
-                      <td className="text-center px-6 py-4 text-gray-600 tracking-wide">
+                      <td className="text-start px-6 py-4  tracking-wide">
                         {order.customerPhone}
                       </td>
-                      <td className="text-center px-6 py-4 text-gray-600 tracking-wide">
+                      <td className="text-start px-6 py-4  tracking-wide">
                         {Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -282,14 +278,14 @@ function Order() {
                       </td>
                       <td className="text-center px-6 py-4">
                         <span
-                          className={`inline-flex items-center px-5 py-2 rounded-full text-[1.2rem] font-medium ${
+                          className={`inline-flex items-center px-5 py-2 rounded-full font-medium ${
                             getStatusConfig(order.status).bgColor
                           } ${getStatusConfig(order.status).textColor}`}
                         >
                           {getStatusConfig(order.status).text}
                         </span>
                       </td>
-                      <td className="text-center px-6 py-4 text-gray-600 tracking-wide">
+                      <td className="text-center px-6 py-4  tracking-wide">
                         <div className="flex justify-center items-center gap-[1rem]">
                           <button
                             className="w-[7.4rem] h-[3.2rem] text-[1.2rem] rounded-xl bg-green-500 hover:bg-green-600 text-white flex items-center justify-center gap-[.5rem] hover-linear"
