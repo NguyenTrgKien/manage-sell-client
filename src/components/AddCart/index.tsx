@@ -38,6 +38,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState<string | null>(null);
   const { addToCart, isLoading, notify, setNotify } = useAddCart();
+
   const getMaxInventory = () => {
     const found =
       showAddCart.data &&
@@ -103,7 +104,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
     }
     return faShirt;
   };
-
+  
   const handleAddCart = async () => {
     setMessage(null);
     if (!selectVariantColor || !selectVariantSize) {
@@ -161,23 +162,25 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
             </div>
 
             <div className="mt-4 grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin">
-              {showAddCart.data?.listImageProduct.map((img) => (
-                <div
-                  key={img.id}
-                  className="cursor-pointer flex-shrink-0 w-20 sm:w-24 aspect-square"
-                  onClick={() => setShowImage(img.imageUrl)}
-                >
-                  <img
-                    src={img.imageUrl}
-                    alt={`thumb-${showAddCart.data?.productName}`}
-                    className={`w-full h-full rounded-lg object-cover border-2 transition-all ${
-                      showImage === img.imageUrl
-                        ? "border-blue-500 shadow-md"
-                        : "border-transparent hover:border-gray-300"
-                    }`}
-                  />
-                </div>
-              ))}
+              {showAddCart.data?.listImageProduct &&
+                showAddCart.data.listImageProduct.length > 0 &&
+                showAddCart.data.listImageProduct.map((img) => (
+                  <div
+                    key={img.id}
+                    className="cursor-pointer flex-shrink-0 w-20 sm:w-24 aspect-square"
+                    onClick={() => setShowImage(img.imageUrl)}
+                  >
+                    <img
+                      src={img.imageUrl}
+                      alt={`thumb-${showAddCart.data?.productName}`}
+                      className={`w-full h-full rounded-lg object-cover border-2 transition-all ${
+                        showImage === img.imageUrl
+                          ? "border-blue-500 shadow-md"
+                          : "border-transparent hover:border-gray-300"
+                      }`}
+                    />
+                  </div>
+                ))}
             </div>
           </div>
 

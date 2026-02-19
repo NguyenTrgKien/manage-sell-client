@@ -8,7 +8,6 @@ function CategoriesSection() {
     queryKey: ["getAllCategory"],
     queryFn: getAllCategory,
   });
-  console.log(dataCategories);
 
   const SkeletonCategories = () => {
     return <div>Đang tải dữ liệu</div>;

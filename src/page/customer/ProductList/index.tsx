@@ -26,6 +26,7 @@ function ProductList() {
     open: false,
     data: null,
   });
+
   const slugs = [slug1, slug2, slug3].filter(Boolean) as string[];
   const [queryDefault, setQueryDefault] = useState<{
     page: number;
@@ -188,16 +189,6 @@ function ProductList() {
                             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                           />
                         </svg>
-                      </button>
-                      <button
-                        type="button"
-                        className="w-full flex items-center justify-center gap-1 py-2 px-4 border text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white rounded-md text-[1.2rem] md:text-[1.4rem] transition-colors duration-300"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/product-detail/${product.slug}`);
-                        }}
-                      >
-                        Chi tiết
                       </button>
                     </div>
                   </div>

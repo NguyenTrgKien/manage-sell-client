@@ -3,13 +3,13 @@ import axiosConfig from "../configs/axiosConfig";
 export const getFlashsales = async (query: {
   limit: number;
   page: number;
-  name: string;
-  status: string;
+  name?: string;
+  status?: string;
 }) => {
   const request = Object.fromEntries(
     Object.entries(query).filter(([_, value]) => {
       return value !== null && value !== "";
-    })
+    }),
   );
   const res = await axiosConfig.get("/api/v1/flashsale/data", {
     params: request,

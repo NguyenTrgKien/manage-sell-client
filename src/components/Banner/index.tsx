@@ -15,10 +15,28 @@ import type { BannerType } from "../../utils/ui.type";
 import { Link } from "react-router-dom";
 
 function Banner() {
-  const { data: listBanner = [], isLoading: isLoadingListBanner } = useQuery({
+  const { data, isLoading: isLoadingListBanner } = useQuery({
     queryKey: ["listBanner"],
     queryFn: () => getListBanner(),
   });
+  const listBanner = data && data.data;
+
+  const getRedirectPath = (banner: BannerType) => {
+    switch (banner.redirectType) {
+      case "product":
+        return `/product-detail/${banner.targetSlug}`;
+      case "category":
+        return `/category/${banner.targetSlug}`;
+      case "promotion":
+        return `/promotion/${banner.targetSlug}`;
+      case "collection":
+        return `/collections/${banner.targetSlug}`;
+      case "flash_sale":
+        return `/flash-sale`;
+      default:
+        return "/";
+    }
+  };
 
   const SkeletonSlide = () => (
     <div className="relative rounded-xl overflow-hidden bg-gray-100 animate-pulse">
@@ -101,7 +119,7 @@ function Banner() {
             listBanner.map((banner: BannerType) => (
               <SwiperSlide key={banner.id}>
                 <Link
-                  to={banner.link || "/"}
+                  to={getRedirectPath(banner)}
                   className="block relative overflow-hidden group cursor-pointer"
                 >
                   <img
@@ -123,13 +141,6 @@ function Banner() {
                     <p className="text-lg xs:text-base sm:text-lg md:text-xl text-white/90 mb-4 xs:mb-6 max-w-full sm:max-w-xl md:max-w-2xl line-clamp-2 xs:line-clamp-none">
                       {banner.subTitle}
                     </p>
-                    <button className="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 xs:py-3 sm:py-4 px-6 xs:px-8 sm:px-10 rounded-full text-[1.4rem] md:text-[1.6rem] inline-flex items-center gap-2 xs:gap-3 transition-all transform hover:scale-105 shadow-lg">
-                      Mua ngay
-                      <FontAwesomeIcon
-                        icon={faArrowRight}
-                        className="text-xs xs:text-sm sm:text-base"
-                      />
-                    </button>
                   </div>
                 </Link>
               </SwiperSlide>

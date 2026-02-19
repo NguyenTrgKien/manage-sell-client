@@ -55,6 +55,9 @@ import DetailProductAdmin from "./page/Dashboard/products/DetailProductAdmin";
 import ActionProduct from "./page/Dashboard/products/components/ActionProduct";
 import SearchProducts from "./page/customer/Search";
 import ProductsPage from "./page/customer/ProductsPage";
+import Collections from "./page/Dashboard/collections";
+import CollectionsPage from "./page/customer/CollectionsPage";
+import Collection from "./page/customer/CollectionsPage/Collection";
 
 function App() {
   return (
@@ -107,6 +110,8 @@ function App() {
             <Route path="favorite" element={<FavoriteProduct />} />
           </Route>
 
+          <Route path="collections" element={<CollectionsPage />}></Route>
+          <Route path="collections/:slug" element={<Collection />} />
           <Route path="cart/detail" element={<CartDetail />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="payment-momo-redirect" element={<RedirectUrlMomo />} />
@@ -159,6 +164,7 @@ function App() {
             <Route path="statistic" element={<StatisticGuest />} />
           </Route>
           <Route path="banner-slide" element={<BannerSlide />} />
+          <Route path="collection" element={<Collections />} />
           <Route path="discount" element={<Discount />} />
           <Route path="flashsale" element={<FlashSale />} />
           <Route path="flashsale/create" element={<ActionFlashSale />} />

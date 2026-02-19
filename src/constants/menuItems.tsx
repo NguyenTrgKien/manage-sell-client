@@ -65,6 +65,11 @@ export const menuItems = [
   },
   {
     id: 12,
+    label: "Collection",
+    path: "collection",
+  },
+  {
+    id: 13,
     label: "Cá nhân",
     path: "profile",
   },
