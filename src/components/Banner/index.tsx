@@ -135,7 +135,7 @@ function Banner() {
                   </div>
 
                   <div className="absolute bottom-0 left-0 right-0 p-4 xs:p-6 sm:p-8 md:p-10 lg:p-12 text-white">
-                    <h3 className="xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-2 xs:mb-3 leading-tight">
+                    <h3 className="xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-2 xs:mb-3 leading-tight line-clamp-1 font-mono">
                       {banner.title}
                     </h3>
                     <p className="text-lg xs:text-base sm:text-lg md:text-xl text-white/90 mb-4 xs:mb-6 max-w-full sm:max-w-xl md:max-w-2xl line-clamp-2 xs:line-clamp-none">

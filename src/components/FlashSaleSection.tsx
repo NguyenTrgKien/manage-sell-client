@@ -76,6 +76,9 @@ const FlashSaleSection = () => {
               className="relative rounded-2xl overflow-hidden shadow-xl py-12 md:py-20 lg:py-25 px-4 md:px-8 lg:px-14 z-0"
               style={{
                 background: `url(${event.bannerImage})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
               }}
             >
               <div className="absolute inset-0 bg-black/10 z-0"></div>
@@ -150,7 +153,7 @@ const FlashSaleSection = () => {
                                 "https://via.placeholder.com/300"
                               }
                               alt={product.productName || "Sản phẩm flash sale"}
-                              className="w-full h-full object-center group-hover:scale-110 transition-transform duration-300"
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                             />
                           </div>
 
