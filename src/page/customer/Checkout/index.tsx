@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMapMarkerAlt,
@@ -24,6 +24,12 @@ import type { VoucherT } from "../../../utils/voucher.type";
 import SelectVoucher from "../../../components/SelectVoucher";
 import { AnimatePresence } from "framer-motion";
 import RequireLogin from "../../../components/RequireLogin";
+
+const PAYMENT_LABELS: Record<PaymentMethod, string> = {
+  [PaymentMethod.COD]: "Thanh toán khi nhận hàng",
+  [PaymentMethod.VNPAY]: "Thanh toán qua VNPay",
+  [PaymentMethod.MOMO]: "Thanh toán qua MoMo",
+};
 
 interface CheckoutItem {
   variantId: number;
@@ -266,6 +272,26 @@ export default function Checkout() {
   }, [checkoutData, user]);
 
   useEffect(() => {
+    if (!checkoutData) return;
+    const updatedItems = checkoutData.items.map((item) => {
+      const flashSale = flashSaleProducts.find(
+        (fs) => fs.productId === item.productId,
+      );
+      const price =
+        flashSale?.isFlashActive && flashSale.remainingSlot > 0
+          ? Number(flashSale.sale_price)
+          : item.price;
+      return {
+        productId: item.productId,
+        variantId: item.variantId,
+        price,
+        quantity: item.quantity,
+      };
+    });
+    setValue("orderItems", updatedItems);
+  }, [flashSaleProducts, checkoutData, setValue]);
+
+  useEffect(() => {
     if (!checkoutData || !flashSaleProducts.length) {
       setRealSubtotal(checkoutData?.subtotal || 0);
       return;
@@ -323,39 +349,43 @@ export default function Checkout() {
     setTotalAmount(newTotal);
   }, [selectVoucher.voucher, checkoutData, shippingFee, user, realSubtotal]);
 
-  const calculateShipping = async (addressData: { province: string }) => {
-    if (!checkoutData) return;
-    setIsCalculatingShipping(true);
-    try {
-      const res = await axiosConfig.post("/api/v1/orders/calculate-shipping", {
-        subTotal: realSubtotal,
-        customerProvince: addressData.province,
-      });
+  const calculateShipping = useCallback(
+    async (addressData: { province: string }, subtotal: number) => {
+      if (!checkoutData) return;
+      setIsCalculatingShipping(true);
+      try {
+        const res = await axiosConfig.post(
+          "/api/v1/orders/calculate-shipping",
+          {
+            subTotal: subtotal,
+            customerProvince: addressData.province,
+          },
+        );
 
-      if (res.status) {
-        setShippingFee(res.data.shippingFee);
-        setTotalAmount(realSubtotal + res.data.shippingFee);
-      } else {
-        const free = realSubtotal >= 500000 ? 0 : 35000;
+        if (res.status) {
+          setShippingFee(res.data.shippingFee);
+          setTotalAmount(subtotal + res.data.shippingFee);
+        } else {
+          const free = subtotal >= 500000 ? 0 : 35000;
+          setShippingFee(free);
+          setTotalAmount(subtotal + free);
+        }
+      } catch (error) {
+        const free = subtotal >= 500000 ? 0 : 35000;
         setShippingFee(free);
-        setTotalAmount(realSubtotal + free);
+        setTotalAmount(subtotal + free);
+      } finally {
+        setIsCalculatingShipping(false);
       }
-    } catch (error) {
-      const free = realSubtotal >= 500000 ? 0 : 35000;
-      setShippingFee(free);
-      setTotalAmount(realSubtotal + free);
-    } finally {
-      setIsCalculatingShipping(false);
-    }
-  };
+    },
+    [checkoutData],
+  );
 
   useEffect(() => {
     if (checkoutData && watchedProvince) {
-      calculateShipping({
-        province: watchedProvince,
-      });
+      calculateShipping({ province: watchedProvince }, realSubtotal);
     }
-  }, [watchedProvince, checkoutData]);
+  }, [watchedProvince, checkoutData, realSubtotal]);
 
   // Xử lý nếu phiên đăng nhập hết hạn
   useEffect(() => {
@@ -827,24 +857,22 @@ export default function Checkout() {
                     </div>
                   </div>
                 ) : (
-                  <div className="py-4 border-t border-b border-gray-200">
-                    <p
-                      className="text-blue-600 cursor-pointer hover:text-blue-700 select-none text-center sm:text-left"
-                      onClick={() => {
-                        if (user) {
-                          setSelectVoucher({
-                            open: true,
-                            voucher: null,
-                            conditionValue: realSubtotal,
-                          });
-                        } else {
-                          setShowLogin(true);
-                        }
-                      }}
-                    >
-                      Chọn hoặc nhập mã voucher
-                    </p>
-                  </div>
+                  <p
+                    className="text-blue-600 cursor-pointer hover:text-blue-700 select-none text-center sm:text-left"
+                    onClick={() => {
+                      if (user) {
+                        setSelectVoucher({
+                          open: true,
+                          voucher: null,
+                          conditionValue: realSubtotal,
+                        });
+                      } else {
+                        setShowLogin(true);
+                      }
+                    }}
+                  >
+                    Chọn hoặc nhập mã voucher
+                  </p>
                 )}
               </div>
 
@@ -895,7 +923,7 @@ export default function Checkout() {
                     return (
                       <label
                         key={item}
-                        className={`flex items-center gap-3 p-2 border-1 rounded-lg cursor-pointer transition-all ${
+                        className={`flex items-center gap-3 p-2 border rounded-lg cursor-pointer transition-all ${
                           paymentMethod === item
                             ? "border-pink-400 bg-pink-50"
                             : "border-gray-200 hover:border-gray-400"
@@ -920,7 +948,7 @@ export default function Checkout() {
                                 {item}
                               </p>
                               <p className="text-[1.2rem] text-gray-600 truncate">
-                                Thanh toán khi nhận hàng
+                                {PAYMENT_LABELS[item] ?? item}
                               </p>
                             </div>
                           </div>
