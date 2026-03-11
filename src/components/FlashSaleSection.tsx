@@ -150,7 +150,7 @@ const FlashSaleSection = () => {
                                 "https://via.placeholder.com/300"
                               }
                               alt={product.productName || "Sản phẩm flash sale"}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-300"
                             />
                           </div>
 

@@ -1,4 +1,4 @@
-import { createContext, type ReactNode } from "react";
+import { createContext, useEffect, type ReactNode } from "react";
 import axiosConfig from "../configs/axiosConfig";
 import type { RegisterForm } from "../page/customer/Auth/Register";
 import { useUser } from "../hooks/useUser";
@@ -14,6 +14,15 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 function AuthContextProvider({ children }: { children: ReactNode }) {
   const { refreshUser, clearUser } = useUser();
+
+  useEffect(() => {
+    const handleAutoLogout = () => {
+      clearUser();
+    };
+
+    window.addEventListener("auth:logout", handleAutoLogout);
+    return () => window.removeEventListener("auth:logout", handleAutoLogout);
+  }, [clearUser]);
 
   const login = async (role: UserRole, email: string, password: string) => {
     let endpoint = "/api/v1/auth/login";
@@ -58,6 +67,7 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
     try {
       await axiosConfig.get("/api/v1/auth/logout");
       sessionStorage.removeItem("checkoutData");
+      sessionStorage.removeItem("isRedirecting");
       clearUser();
       await refreshUser();
     } catch (error) {

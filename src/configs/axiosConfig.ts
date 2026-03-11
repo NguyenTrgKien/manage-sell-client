@@ -24,13 +24,30 @@ axiosConfig.interceptors.response.use(
       });
     }
 
-    // if (status === 401) {
-    //   return Promise.reject({
-    //     message: "Phiên đăng nhập hết hạn!",
-    //     code: "UNAUTHORIZED",
-    //     status,
-    //   });
-    // }
+    if (status === 401) {
+      const isRedirecting = sessionStorage.getItem("isRedirecting");
+
+      console.log("🟡 401 caught, isRedirecting:", isRedirecting);
+
+      if (!isRedirecting) {
+        sessionStorage.setItem("isRedirecting", "true");
+
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+
+        const isAdminRoute = window.location.pathname.startsWith("/dashboard");
+        window.location.href = isAdminRoute ? "/dashboard/login" : "/";
+
+        setTimeout(() => {
+          sessionStorage.removeItem("isRedirecting");
+        }, 3000);
+      }
+
+      return Promise.reject({
+        message: "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!",
+        code: "UNAUTHORIZED",
+        status,
+      });
+    }
 
     if (status === 403) {
       return Promise.reject({

@@ -4,6 +4,7 @@ import axiosConfig from "../configs/axiosConfig";
 import type { UserType } from "../utils/userType";
 
 const fetchUser = async (): Promise<UserType | null> => {
+  console.log("🔵 fetchUser called");
   try {
     const res = (await axiosConfig.get("/api/v1/auth/me")) as any;
     if (!res?.user) {
@@ -11,7 +12,7 @@ const fetchUser = async (): Promise<UserType | null> => {
     }
     return res.user;
   } catch (err: any) {
-    if (err?.response?.status === 401) return null;
+    if (err?.status === 401 || err?.code === "UNAUTHORIZED") return null;
     throw err;
   }
 };
@@ -26,7 +27,8 @@ export const useUser = () => {
     queryKey: ["user"],
     queryFn: fetchUser,
     staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error: any) => error.status !== 401,
+    retry: (failureCount, error: any) =>
+      error?.status !== 401 && error?.code !== "UNAUTHORIZED",
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
@@ -36,6 +38,7 @@ export const useUser = () => {
   };
 
   const refreshUser = async () => {
+    console.log("🟢 refreshUser called");
     await queryClient.invalidateQueries({ queryKey: ["user"] });
     return await refetch();
   };
