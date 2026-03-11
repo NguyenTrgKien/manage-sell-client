@@ -164,14 +164,9 @@ function Products() {
                 <option value="">Tất cả</option>
                 {dataCategories
                   ?.filter((cat: CategoriesType) => cat.isActive)
-                  .map((parent: CategoriesType) => (
-                    <RenderParentOption
-                      key={parent.id}
-                      category={parent}
-                      allCategories={dataCategories}
-                      level={0}
-                    />
-                  ))}
+                  .map((parent: CategoriesType) =>
+                    RenderParentOption(parent, dataCategories, 0),
+                  )}
               </select>
             </div>
             <button

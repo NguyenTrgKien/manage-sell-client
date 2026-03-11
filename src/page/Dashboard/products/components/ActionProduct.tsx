@@ -637,6 +637,9 @@ function ActionProduct() {
                       className="w-full h-[4rem] rounded-md outline-none text-gray-600 border border-gray-300 pl-[1.5rem] focus:border-cyan-300 focus:border-1"
                       {...register("categoryId", {
                         required: "Vui lòng chọn danh mục cho sản phẩm",
+                        validate: (value) =>
+                          (value !== undefined && Number(value) > 0) ||
+                          "Vui lòng chọn danh mục cho sản phẩm",
                       })}
                     >
                       <option value="" disabled>
@@ -647,14 +650,9 @@ function ActionProduct() {
                           (cat: CategoriesType) =>
                             cat.parentId === null && cat.isActive,
                         )
-                        .map((parent: CategoriesType) => (
-                          <RenderParentOption
-                            key={parent.id}
-                            category={parent}
-                            allCategories={dataCategories}
-                            level={0}
-                          />
-                        ))}
+                        .map((parent: CategoriesType) =>
+                          RenderParentOption(parent, dataCategories, 0),
+                        )}
                     </select>
                     {errors.categoryId && (
                       <p className="text-red-500 text-[1.2rem] mt-1">
