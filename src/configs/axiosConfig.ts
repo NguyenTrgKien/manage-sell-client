@@ -27,8 +27,6 @@ axiosConfig.interceptors.response.use(
     if (status === 401) {
       const isRedirecting = sessionStorage.getItem("isRedirecting");
 
-      console.log("🟡 401 caught, isRedirecting:", isRedirecting);
-
       if (!isRedirecting) {
         sessionStorage.setItem("isRedirecting", "true");
 

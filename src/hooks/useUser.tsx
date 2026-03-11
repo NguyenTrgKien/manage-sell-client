@@ -38,7 +38,6 @@ export const useUser = () => {
   };
 
   const refreshUser = async () => {
-    console.log("🟢 refreshUser called");
     await queryClient.invalidateQueries({ queryKey: ["user"] });
     return await refetch();
   };

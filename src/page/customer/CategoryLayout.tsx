@@ -11,8 +11,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getCategoryBySlugs } from "../../api/category.api";
 import { useState } from "react";
 import Footer from "../../components/Footer";
+import { useVoucherContext } from "../../contexts/VoucherContext";
 
 function CategoryLayout() {
+  const { hasVoucher } = useVoucherContext();
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const slugs = pathSegments.slice(1);
@@ -34,7 +36,11 @@ function CategoryLayout() {
     <div className="overflow-hidden">
       <Header />
 
-      <div className="flex items-center space-x-2 text-[1.4rem] mt-[20rem] md:mt-[16.5rem] px-[1.5rem] md:px-[15rem] overflow-x-auto pb-2">
+      <div
+        className={`flex items-center space-x-2 text-[1.4rem] ${
+          hasVoucher ? "mt-[20rem] md:mt-[17rem]" : "mt-[18rem] md:mt-[15rem]"
+        }  px-[1.5rem] md:px-[15rem] overflow-x-auto pb-2`}
+      >
         <Link
           to="/"
           className="flex items-center space-x-2 text-blue-800 flex-shrink-0"

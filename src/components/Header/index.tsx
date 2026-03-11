@@ -101,6 +101,20 @@ function Header() {
     };
   }, []);
 
+  useEffect(() => {
+    const hasVoucher = !isLoadingVoucher && vouchers && vouchers.length > 0;
+
+    if (hasVoucher) {
+      document.body.classList.add("has-voucher");
+    } else {
+      document.body.classList.remove("has-voucher");
+    }
+
+    return () => {
+      document.body.classList.remove("has-voucher");
+    };
+  }, [isLoadingVoucher, vouchers]);
+
   const handleAccountClick = (redirect: string) => {
     if (!user) {
       return navigate(`/${redirect}`);
@@ -135,15 +149,19 @@ function Header() {
     <header
       className={`${!location.pathname.includes("/customer") ? "fixed top-0 left-0" : "fixed top-0 left-0 md:relative"} w-full bg-white z-[999] ${!location.pathname.includes("/customer") ? (showFlashSale ? " shadow-none" : "shadow-xl") : ""}`}
     >
-      {isLoadingVoucher ? (
-        <></>
-      ) : (
-        vouchers?.map((voucher: VoucherT, index: number) => {
-          if (index >= 1) return;
+      {!isLoadingVoucher &&
+        vouchers &&
+        vouchers.length > 0 &&
+        vouchers.map((voucher: VoucherT, index: number) => {
+          if (index >= 1) return null;
           return (
             <div
               key={voucher.id}
-              className={`px-4 md:px-8 lg:px-12 xl:px-[12rem] bg-gradient-to-r from-pink-600 to-red-500 w-full ${showFlashSale ? "h-[3.5rem] opacity-[1]" : "opacity-0 h-[0] overflow-hidden"} flex items-center justify-between transition-all duration-300 cursor-pointer`}
+              className={`px-4 md:px-8 lg:px-12 xl:px-[12rem] bg-gradient-to-r from-pink-600 to-red-500 w-full ${
+                showFlashSale
+                  ? "h-[3.5rem] opacity-[1]"
+                  : "opacity-0 h-[0] overflow-hidden"
+              } flex items-center justify-between transition-all duration-300 cursor-pointer`}
               onClick={() => {
                 if (user) {
                   setShowVouchers({ open: true, data: vouchers });
@@ -162,8 +180,7 @@ function Header() {
               </p>
             </div>
           );
-        })
-      )}
+        })}
       <div className="relative md:px-8 lg:px-12 xl:px-[12rem] py-2 md:py-[1rem]">
         <div className="px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
