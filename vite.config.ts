@@ -29,7 +29,7 @@ export default defineConfig(({ command, mode }) => {
   };
 
   if (command === "build") {
-    config.base = "/manage-sell-client/";
+    config.base = "/";
   }
 
   return config;
