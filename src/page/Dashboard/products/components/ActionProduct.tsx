@@ -636,7 +636,7 @@ function ActionProduct() {
                       id="categoryId"
                       className="w-full h-[4rem] rounded-md outline-none text-gray-600 border border-gray-300 pl-[1.5rem] focus:border-cyan-300 focus:border-1"
                       {...register("categoryId", {
-                        required: "Vui lòng chọn danh mục sản phẩm",
+                        required: "Vui lòng chọn danh mục cho sản phẩm",
                       })}
                     >
                       <option value="" disabled>
