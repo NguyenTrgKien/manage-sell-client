@@ -361,10 +361,10 @@ export default function Checkout() {
             customerProvince: addressData.province,
           },
         );
+        console.log(res);
 
         if (res.status) {
           setShippingFee(res.data.shippingFee);
-          setTotalAmount(subtotal + res.data.shippingFee);
         } else {
           const free = subtotal >= 500000 ? 0 : 35000;
           setShippingFee(free);
@@ -385,7 +385,7 @@ export default function Checkout() {
     if (checkoutData && watchedProvince) {
       calculateShipping({ province: watchedProvince }, realSubtotal);
     }
-  }, [watchedProvince, checkoutData, realSubtotal]);
+  }, [watchedProvince, checkoutData, realSubtotal, calculateShipping]);
 
   // Xử lý nếu phiên đăng nhập hết hạn
   useEffect(() => {
