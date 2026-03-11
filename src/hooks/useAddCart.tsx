@@ -15,7 +15,7 @@ export const useAddCart = () => {
     items: {
       variantId: number | undefined;
       quantity: number;
-    }[]
+    }[],
   ) => {
     setIsLoading(true);
     try {
@@ -24,7 +24,7 @@ export const useAddCart = () => {
 
         for (const item of items) {
           const exist = localCart.find(
-            (it: any) => it.variantId === item.variantId
+            (it: any) => it.variantId === item.variantId,
           );
           if (exist) {
             exist.quantity += item.quantity;
