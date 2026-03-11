@@ -102,13 +102,9 @@ export default function CartDetail() {
   }, [user, data]);
 
   useEffect(() => {
-    if (!buyNowVariant && !buyBackVariants) {
-      return;
-    }
+    if (!buyNowVariant && !buyBackVariants) return;
+    if (cartItems.length === 0) return;
 
-    if (cartItems.length === 0) {
-      return;
-    }
     const variantIdsToSelect: number[] = [];
 
     if (buyBackVariants) {
@@ -122,46 +118,38 @@ export default function CartDetail() {
 
     if (buyNowVariant) {
       const id = Number(buyNowVariant);
-      if (!isNaN(id) && id > 0) {
-        variantIdsToSelect.push(id);
-      }
+      if (!isNaN(id) && id > 0) variantIdsToSelect.push(id);
     }
-    if (variantIdsToSelect.length === 0) {
-      return;
-    }
+
+    if (variantIdsToSelect.length === 0) return;
+
     const uniqueIds = [...new Set(variantIdsToSelect)];
     const hasAnyMatch = cartItems.some((item) => uniqueIds.includes(item.id));
-    if (!hasAnyMatch) {
-      return;
-    }
-    let hasSelectedAny = false;
-    setCartItems((prev) => {
-      let changed = false;
-      const newItems = prev.map((item: any) => {
-        if (uniqueIds.includes(item.id) && !item.selected) {
-          hasSelectedAny = true;
-          changed = true;
-          return { ...item, selected: true };
-        }
-        return item;
-      });
+    if (!hasAnyMatch) return;
 
-      return changed ? newItems : prev;
-    });
+    // Kiểm tra đã select chưa để tránh loop
+    const alreadySelected = cartItems
+      .filter((item) => uniqueIds.includes(item.id))
+      .every((item: any) => item.selected);
 
-    if (hasSelectedAny) {
-      setTimeout(() => {
-        const firstSelected = document.querySelector("tr.bg-blue-50");
-        if (firstSelected) {
-          firstSelected.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }
-      }, 300);
-    }
+    if (alreadySelected) return; // ← tránh re-run vô tận
+
+    setCartItems((prev) =>
+      prev.map((item: any) => ({
+        ...item,
+        selected: uniqueIds.includes(item.id) ? true : item.selected,
+      })),
+    );
+
+    setTimeout(() => {
+      const firstSelected = document.querySelector("tr.bg-blue-50");
+      if (firstSelected) {
+        firstSelected.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 300);
+
     setSearchParams({}, { replace: true });
-  }, [cartItems]);
+  }, [cartItems, buyNowVariant, buyBackVariants]);
 
   useEffect(() => {
     const allSelected =
