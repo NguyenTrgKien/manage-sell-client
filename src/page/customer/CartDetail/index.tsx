@@ -160,17 +160,13 @@ export default function CartDetail() {
         }
       }, 300);
     }
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.delete("buyback");
-    newUrl.searchParams.delete("buyNowVariant");
-    window.history.replaceState({}, "", newUrl);
+    setSearchParams({}, { replace: true });
   }, [cartItems]);
 
   useEffect(() => {
     const allSelected =
       cartItems.length > 0 && cartItems.every((item: any) => item.selected);
-    const noneSelected = cartItems.every((item: any) => !item.selected);
-    setSelectAll(allSelected && !noneSelected);
+    setSelectAll(allSelected);
   }, [cartItems]);
 
   const handleQuantity = async (
@@ -404,16 +400,12 @@ export default function CartDetail() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <p className="text-[1.2rem] sm:text-[1.6rem] font-semibold text-red-600">
-                          {formatPrice(
-                            Number(item.price || item.product.price),
+                        {item.originalPrice &&
+                          item.originalPrice > item.price && (
+                            <p className="text-sm text-gray-400 line-through">
+                              {formatPrice(item.originalPrice)}
+                            </p>
                           )}
-                        </p>
-                        {item.price && (
-                          <p className="text-[1.4rem] text-gray-400 line-through">
-                            {formatPrice(item.price)}
-                          </p>
-                        )}
                       </div>
 
                       <div className="flex items-center gap-3">
@@ -529,11 +521,12 @@ export default function CartDetail() {
                             Number(item.price || item.product.price),
                           )}
                         </p>
-                        {item.price && (
-                          <p className="text-sm text-gray-400 line-through">
-                            {formatPrice(item.price)}
-                          </p>
-                        )}
+                        {item.originalPrice &&
+                          item.originalPrice > item.price && (
+                            <p className="text-sm text-gray-400 line-through">
+                              {formatPrice(item.originalPrice)}
+                            </p>
+                          )}
                       </div>
                     </td>
 
@@ -634,7 +627,7 @@ export default function CartDetail() {
             </div>
 
             <button
-              disabled={cartItems.length === 0}
+              disabled={selectedCount === 0}
               className={`w-full mt-6 sm:mt-8 py-3 sm:py-4 rounded-xl font-bold text-[1.4rem] sm:text-[1.6rem] transition ${
                 selectedCount === 0
                   ? "bg-gray-200 text-gray-600 cursor-not-allowed"

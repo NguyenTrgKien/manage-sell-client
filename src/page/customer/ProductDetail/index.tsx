@@ -37,7 +37,7 @@ function ProductDetail() {
   }) as any;
   const { data: flashSaleForProduct, isLoading: isLoadingFsForProduct } =
     useQuery({
-      queryKey: ["flashSaleForProduct"],
+      queryKey: ["flashSaleForProduct", productSlug],
       queryFn: () => getFlashSaleForProduct(productSlug as string),
     });
   const flashSale = flashSaleForProduct && flashSaleForProduct.data;
@@ -94,12 +94,9 @@ function ProductDetail() {
       setTimeLeft(newTimes);
     };
     updateTime();
-    if (timeLeft.hours >= 24) return;
-    const timer = setInterval(() => {
-      updateTime();
-    }, 1000);
+    const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
-  }, [flashSale, timeLeft.hours]);
+  }, [flashSale]);
 
   const calculateFlashPrice = (
     originPrice: number,
@@ -152,8 +149,14 @@ function ProductDetail() {
         v.variantSize.id === selectVariantSize.id,
     )?.id;
 
+    if (!variantId) {
+      setMessage("Không tìm thấy sản phẩm với thuộc tính này!");
+      return;
+    }
+
     if (quantity <= 0) {
       setMessage("Số lượng sản phẩm ít nhất là 1!");
+      return;
     }
     const dataRequest = {
       variantId: variantId,
@@ -468,7 +471,11 @@ function ProductDetail() {
                   value={quantity}
                   className={`flex items-center justify-center text-[1.4rem] w-[6rem] h-[3rem] rounded-lg bg-white border  text-gray-800 select-none outline-none pl-[1rem] border-gray-200`}
                   disabled={!isQuantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (isNaN(val)) return;
+                    setQuantity(Math.min(Math.max(1, val), maxQuantity || 1));
+                  }}
                 />
                 <span
                   className={`w-[3rem] h-[3rem] flex items-center justify-center rounded-lg border border-gray-300 bg-gray-100 cursor-pointer ${isQuantity ? "" : "pointer-events-none select-none opacity-[.5] cursor-not-allowed"}`}
