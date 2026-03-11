@@ -265,6 +265,7 @@ function Login() {
           </Link>
           <div className="flex items-center gap-2.5 my-5 justify-center">
             <GoogleLogin
+              auto_select={false}
               onSuccess={async (credentialResponse) => {
                 try {
                   const res = await axiosConfig.post(
