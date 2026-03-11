@@ -12,7 +12,7 @@ function HomePage() {
       <Header />
       <div
         className={`${
-          hasVoucher ? "mt-[20rem] md:mt-[17rem]" : "mt-[18rem] md:mt-[15rem]"
+          hasVoucher ? "mt-[20rem] md:mt-[17rem]" : "mt-[17rem] md:mt-[14rem]"
         } px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem]`}
       >
         <Outlet />

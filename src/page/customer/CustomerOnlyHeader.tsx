@@ -15,7 +15,7 @@ function CustomerOnlyHeader() {
           !location.pathname.includes("/customer")
             ? hasVoucher
               ? "mt-[20rem] md:mt-[17rem]"
-              : "mt-[18rem] md:mt-[15rem]"
+              : "mt-[17rem] md:mt-[14rem]"
             : "mt-[2.5rem]"
         }`}
       >

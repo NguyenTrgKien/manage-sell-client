@@ -38,7 +38,7 @@ function CategoryLayout() {
 
       <div
         className={`flex items-center space-x-2 text-[1.4rem] ${
-          hasVoucher ? "mt-[20rem] md:mt-[17rem]" : "mt-[18rem] md:mt-[15rem]"
+          hasVoucher ? "mt-[20rem] md:mt-[17rem]" : "mt-[17rem] md:mt-[14rem]"
         }  px-[1.5rem] md:px-[15rem] overflow-x-auto pb-2`}
       >
         <Link
