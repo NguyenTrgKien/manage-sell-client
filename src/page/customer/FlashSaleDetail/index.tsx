@@ -120,7 +120,7 @@ function FlashSaleDetail() {
       {isLoading ? (
         <Skeleton />
       ) : (
-        <div className="relative w-full h-auto bg-yellow-500">
+        <div className="relative w-full h-auto">
           <div className="absolute top-0 left-0 w-full h-[50rem] z-0">
             <img
               src={flashSale.bannerImage}
@@ -128,8 +128,8 @@ function FlashSaleDetail() {
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="relative w-[85%] h-[50rem] z-100 mx-auto pt-[30rem]">
-            <div className="w-full h-auto bg-white shadow-xl rounded-xl p-8 pb-16">
+          <div className="relative w-[85%] h-auto z-100 mx-auto pt-[30rem] pb-16">
+            <div className="w-full h-auto bg-white shadow-xl rounded-xl p-8 ">
               <div className="text-center mb-6">
                 <h3 className="text-[2.5rem] font-bold text-red-600">
                   {flashSale.name} - Giảm {flashSale.discount}%
@@ -151,7 +151,7 @@ function FlashSaleDetail() {
                         >
                           <div className=" text-white">
                             {String(
-                              timeLeft[unit as keyof typeof timeLeft]
+                              timeLeft[unit as keyof typeof timeLeft],
                             ).padStart(2, "0")}
                           </div>
                         </div>
@@ -169,7 +169,7 @@ function FlashSaleDetail() {
                       const product = fsp.product;
                       const progress = calculateProgress(
                         fsp.sold,
-                        fsp.quantity
+                        fsp.quantity,
                       );
                       return (
                         <Link
