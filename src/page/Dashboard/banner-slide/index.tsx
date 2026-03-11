@@ -5,7 +5,6 @@ import {
   faEdit,
   faSearch,
   faLayerGroup,
-  faLink,
   faCalendarAlt,
   faMousePointer,
   faFilter,
@@ -45,6 +44,7 @@ interface BannerForm {
 }
 
 const REDIRECT_TYPE_LABELS: Record<BannerRedirectType, string> = {
+  [BannerRedirectType.NONE]: "Không liên kết",
   [BannerRedirectType.COLLECTION]: "Collection",
   [BannerRedirectType.PRODUCT]: "Sản phẩm",
   [BannerRedirectType.CATEGORY]: "Danh mục",
@@ -52,6 +52,7 @@ const REDIRECT_TYPE_LABELS: Record<BannerRedirectType, string> = {
 };
 
 const REDIRECT_TYPE_COLORS: Record<BannerRedirectType, string> = {
+  [BannerRedirectType.NONE]: "bg-gray-100 text-gray-600",
   [BannerRedirectType.COLLECTION]: "bg-purple-100 text-purple-700",
   [BannerRedirectType.PRODUCT]: "bg-blue-100 text-blue-700",
   [BannerRedirectType.CATEGORY]: "bg-orange-100 text-orange-700",
@@ -139,7 +140,7 @@ function BannerSlide() {
     defaultValues: {
       title: "",
       subTitle: "",
-      redirectType: BannerRedirectType.COLLECTION,
+      redirectType: BannerRedirectType.NONE,
       position: BannerPosition.HOME_SLIDER,
       targetSlug: undefined,
       redirectUrl: "",
@@ -233,7 +234,7 @@ function BannerSlide() {
     reset({
       title: "",
       subTitle: "",
-      redirectType: BannerRedirectType.COLLECTION,
+      redirectType: BannerRedirectType.NONE,
       position: BannerPosition.HOME_SLIDER,
       targetSlug: undefined,
       redirectUrl: "",
@@ -381,6 +382,16 @@ function BannerSlide() {
   };
 
   const renderRedirectField = () => {
+    if (watchedRedirectType === BannerRedirectType.NONE) {
+      return (
+        <div className="w-full">
+          <label className="text-gray-600 block mb-2">Liên kết</label>
+          <div className="w-full h-[4rem] border border-gray-200 rounded-md px-[1.5rem] flex items-center bg-gray-50 text-gray-400 text-[1.3rem]">
+            Banner sẽ không dẫn đến trang nào
+          </div>
+        </div>
+      );
+    }
     if (watchedRedirectType === BannerRedirectType.COLLECTION) {
       return (
         <div className="w-full">

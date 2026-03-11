@@ -22,6 +22,7 @@ export interface BannerType {
 }
 
 export const BannerRedirectType = {
+  NONE: "none",
   PRODUCT: "product",
   CATEGORY: "category",
   COLLECTION: "collection",
