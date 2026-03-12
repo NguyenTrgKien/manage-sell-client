@@ -83,6 +83,7 @@ function SearchInput({ isMobile }: { isMobile: boolean }) {
           params: {
             productName: debounce,
           },
+          signal: controller.signal,
         })) as any;
 
         if (res.status) {
@@ -110,10 +111,21 @@ function SearchInput({ isMobile }: { isMobile: boolean }) {
     }
   };
 
+  const handleDeleteRecent = async (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    try {
+      await axiosConfig.delete(`/api/v1/search/${id}`);
+      await refetch();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleSelectItem = (item: string) => {
     if (!item) return;
     setSearchQuery(item);
     setShowSuggest((prev) => ({ ...prev, open: false }));
+    saveSearchQuery(item);
     navigate(`/search?q=${encodeURIComponent(item)}`);
   };
 
@@ -123,8 +135,8 @@ function SearchInput({ isMobile }: { isMobile: boolean }) {
     : "relative flex-1 max-w-2xl mx-4 lg:mx-8";
 
   const inputClass = isMobile
-    ? "text-[1.4rem] w-full h-[3.5rem] pl-12 pr-4 border-2 border-gray-300 rounded-full outline-none focus:border-pink-500 transition-colors"
-    : "text-[1.4rem] w-full h-[3.5rem] md:h-[4rem] pl-10 md:pl-[3.4rem] pr-4 border-2 border-gray-300 rounded-full outline-none focus:border-pink-500 transition-colors";
+    ? "text-[1.4rem] w-full h-[3.5rem] pl-12 pr-4 border border-gray-300 rounded-full outline-none focus:border-pink-500 transition-colors"
+    : "text-[1.4rem] w-full h-[3.5rem] md:h-[4rem] pl-10 md:pl-[3.4rem] pr-4 border border-gray-300 rounded-full outline-none focus:border-pink-500 transition-colors";
 
   return (
     <div className={containerClass} ref={searchRef}>
@@ -205,7 +217,7 @@ function SearchInput({ isMobile }: { isMobile: boolean }) {
                       <div
                         key={idx}
                         className="p-5 hover:bg-pink-50 cursor-pointer flex items-center gap-3 transition-colors"
-                        onClick={() => handleSelectItem(item.query)}
+                        onClick={() => handleSelectItem(queryStr)}
                       >
                         <div className="flex items-center space-x-4">
                           <FontAwesomeIcon
@@ -214,7 +226,10 @@ function SearchInput({ isMobile }: { isMobile: boolean }) {
                           />
                           <span className="flex-1">{queryStr}</span>
                         </div>
-                        <button className="ml-auto cursor-pointer">
+                        <button
+                          className="ml-auto cursor-pointer"
+                          onMouseDown={(e) => handleDeleteRecent(e, item.id)}
+                        >
                           <FontAwesomeIcon
                             icon={faClose}
                             className="hover:text-gray-800 text-gray-500"
