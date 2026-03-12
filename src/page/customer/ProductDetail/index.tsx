@@ -163,8 +163,9 @@ function ProductDetail() {
       quantity: quantity,
     };
 
-    await addToCart([dataRequest]);
-    if (action === "buy") {
+    const success = await addToCart([dataRequest]);
+
+    if (success && action === "buy") {
       navigate(`/cart/detail?buyNowVariant=${variantId}`);
     }
   };

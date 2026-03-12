@@ -67,7 +67,12 @@ function Login() {
       localStorage.removeItem("localCart");
     } finally {
       if (from === "/checkout") {
-        navigate("/cart/detail", { replace: true });
+        navigate("/cart/detail", {
+          replace: true,
+          state: {
+            checkoutData: location.state?.checkoutData,
+          },
+        });
       } else {
         navigate(from, { replace: true });
       }

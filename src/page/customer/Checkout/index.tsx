@@ -9,7 +9,7 @@ import {
   faCheckCircle,
   faAdd,
 } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { PaymentMethod, VoucherType } from "@nguyentrungkien/shared";
@@ -83,6 +83,7 @@ interface CheckFlashSaleProducts {
 export default function Checkout() {
   const { user, refreshUser } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSelectAddressOpen, setIsSelectAddressOpen] = useState<{
     open: boolean;
     selectedId: number | null;
@@ -225,9 +226,8 @@ export default function Checkout() {
     };
   }, [user, setValue]);
 
-  // Load thông tin đơn từ sessionStorage
   useEffect(() => {
-    const data = sessionStorage.getItem("checkoutData");
+    const data = location.state?.checkoutData;
 
     if (!data) {
       toast.error("Không tìm thấy thông tin đơn hàng!");
@@ -235,18 +235,15 @@ export default function Checkout() {
       return;
     }
 
-    const parsed = JSON.parse(data);
-    const dataOrderItems = parsed.items.map((item: CheckoutItem) => {
-      return {
-        productId: item.productId,
-        variantId: item.variantId,
-        price: Number(item.price),
-        quantity: item.quantity,
-      };
-    });
+    const dataOrderItems = data.items.map((item: CheckoutItem) => ({
+      productId: item.productId,
+      variantId: item.variantId,
+      price: Number(item.price),
+      quantity: item.quantity,
+    }));
     setValue("orderItems", dataOrderItems);
-    setCheckoutData(parsed);
-  }, [navigate, setValue]);
+    setCheckoutData(data);
+  }, [location.state, navigate, setValue]);
 
   useEffect(() => {
     if (!user) return;
@@ -390,15 +387,13 @@ export default function Checkout() {
   useEffect(() => {
     if (user === undefined) return;
 
-    const from = sessionStorage.getItem("checkoutFrom");
+    const from = location.state?.checkoutData?.from;
 
     if (from === "authenticated" && !user) {
       toast.error("Phiên đăng nhập đã hết hạn! Vui lòng chọn lại sản phẩm.");
-      sessionStorage.removeItem("checkoutData");
-      sessionStorage.removeItem("checkoutFrom");
       navigate("/cart/detail", { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, location.state]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -434,7 +429,6 @@ export default function Checkout() {
             }
           : {}),
       };
-      console.log(submitData);
 
       const res = (await axiosConfig.post(
         "/api/v1/orders/create",
@@ -442,8 +436,6 @@ export default function Checkout() {
       )) as any;
 
       if (res.status) {
-        sessionStorage.removeItem("checkoutData");
-        sessionStorage.removeItem("checkoutFrom");
         if (!user) {
           const orderRaw = localStorage.getItem("guest_orders");
           if (orderRaw) {
@@ -522,7 +514,12 @@ export default function Checkout() {
               Bạn đang mua hàng với tư cách <strong>khách vãng lai</strong>.
               <button
                 onClick={() =>
-                  navigate("/login", { state: { from: "/checkout" } })
+                  navigate("/login", {
+                    state: {
+                      from: "/checkout",
+                      checkoutData: location.state?.checkoutData,
+                    },
+                  })
                 }
                 className="ml-2 text-blue-600 underline font-medium cursor-pointer"
               >

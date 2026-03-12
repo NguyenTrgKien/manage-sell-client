@@ -48,6 +48,8 @@ export const useAddCart = () => {
         setNotify({ show: true, content: "Đã thêm vào giỏ hàng!" });
         return true;
       }
+      setNotify({ show: true, content: "Có lỗi xảy ra!" });
+      return false;
     } catch (err) {
       setNotify({ show: true, content: "Có lỗi xảy ra!" });
       return false;

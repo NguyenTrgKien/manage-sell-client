@@ -43,9 +43,7 @@ export default function CartDetail() {
 
   useEffect(() => {
     if (!user) {
-      const storedCart = !user
-        ? JSON.parse(localStorage.getItem("localCart") || "[]")
-        : [];
+      const storedCart = JSON.parse(localStorage.getItem("localCart") || "[]");
       setLocalCart(storedCart);
       if (storedCart.length === 0) {
         setCartItems([]);
@@ -127,12 +125,11 @@ export default function CartDetail() {
     const hasAnyMatch = cartItems.some((item) => uniqueIds.includes(item.id));
     if (!hasAnyMatch) return;
 
-    // Kiểm tra đã select chưa để tránh loop
     const alreadySelected = cartItems
       .filter((item) => uniqueIds.includes(item.id))
       .every((item: any) => item.selected);
 
-    if (alreadySelected) return; // ← tránh re-run vô tận
+    if (alreadySelected) return;
 
     setCartItems((prev) =>
       prev.map((item: any) => ({
@@ -192,17 +189,16 @@ export default function CartDetail() {
         toast.error(error.message);
       }
     } else {
-      const newLocalCart = localCart.map((it) => {
+      const stored = JSON.parse(localStorage.getItem("localCart") || "[]");
+      const newLocalCart = stored.map((it: any) => {
         if (it.variantId === variantId) {
-          return {
-            ...it,
-            quantity: newQuantity,
-          };
+          return { ...it, quantity: newQuantity };
         }
         return it;
       });
       setLocalCart(newLocalCart);
       localStorage.setItem("localCart", JSON.stringify(newLocalCart));
+      window.dispatchEvent(new Event("localStorageUpdate"));
     }
   };
 
@@ -262,31 +258,24 @@ export default function CartDetail() {
 
   const processToCheckout = () => {
     const checkoutData = {
-      items: selectedItems.map((item: any) => {
-        return {
-          variantId: item.id,
-          productId: item.product.id,
-          productName: item.product.productName,
-          mainImage: item.product.mainImage,
-          price: item.price || item.product.price,
-          quantity: item.quantity,
-          size: item.variantSize?.name || "",
-          color: item.variantColor?.name || "",
-          inventory: item.inventory,
-        };
-      }),
+      items: selectedItems.map((item: any) => ({
+        variantId: item.id,
+        productId: item.product.id,
+        productName: item.product.productName,
+        mainImage: item.product.mainImage,
+        price: item.price || item.product.price,
+        quantity: item.quantity,
+        size: item.variantSize?.name || "",
+        color: item.variantColor?.name || "",
+        inventory: item.inventory,
+      })),
       subtotal: subTotal(),
       total: subTotal(),
       timestamp: new Date().toISOString(),
+      from: user ? "authenticated" : "guest",
     };
 
-    sessionStorage.setItem("checkoutData", JSON.stringify(checkoutData));
-    if (user) {
-      sessionStorage.setItem("checkoutFrom", "authenticated");
-    } else {
-      sessionStorage.setItem("checkoutFrom", "guest");
-    }
-    navigate("/checkout");
+    navigate("/checkout", { state: { checkoutData } });
   };
 
   const handleCheckOut = () => {
@@ -333,6 +322,18 @@ export default function CartDetail() {
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
+                <div className="flex items-center gap-3 p-4 bg-gray-50 border-b border-gray-200">
+                  <button onClick={toggleSelectAll} type="button">
+                    <FontAwesomeIcon
+                      icon={selectAll ? faCheckSquare : faSquare}
+                      className={`text-[1.8rem] ${selectAll ? "text-blue-600" : "text-gray-300"}`}
+                    />
+                  </button>
+                  <span className="text-[1.4rem] text-gray-600">
+                    Chọn tất cả ({cartItems.length})
+                  </span>
+                </div>
+
                 {cartItems.map((item: any) => (
                   <div
                     key={item.id}
