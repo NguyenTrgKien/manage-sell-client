@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMapMarkerAlt,
@@ -122,6 +122,8 @@ export default function Checkout() {
     voucher: null,
     conditionValue: null,
   });
+  const shippingAbortRef = useRef<AbortController | null>(null);
+  const [isLoadingFlashSale, setIsLoadingFlashSale] = useState(false);
   const queryClient = useQueryClient();
   const {
     register,
@@ -249,6 +251,7 @@ export default function Checkout() {
     if (!user) return;
     if (!checkoutData || checkoutData?.items?.length === 0) return;
     const requestFlashSaleForProducts = async () => {
+      setIsLoadingFlashSale(true);
       try {
         const productIds = checkoutData.items.map((it) => {
           return it.productId;
@@ -263,6 +266,8 @@ export default function Checkout() {
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        setIsLoadingFlashSale(false);
       }
     };
     requestFlashSaleForProducts();
@@ -348,6 +353,10 @@ export default function Checkout() {
 
   const calculateShipping = useCallback(
     async (addressData: { province: string }, subtotal: number) => {
+      const controller = new AbortController();
+
+      shippingAbortRef.current?.abort();
+      shippingAbortRef.current = controller;
       if (!checkoutData) return;
       setIsCalculatingShipping(true);
       try {
@@ -357,6 +366,7 @@ export default function Checkout() {
             subTotal: subtotal,
             customerProvince: addressData.province,
           },
+          { signal: controller.signal },
         );
 
         if (res.status) {
@@ -366,12 +376,15 @@ export default function Checkout() {
           setShippingFee(free);
           setTotalAmount(subtotal + free);
         }
-      } catch (error) {
-        const free = subtotal >= 500000 ? 0 : 35000;
-        setShippingFee(free);
-        setTotalAmount(subtotal + free);
+      } catch (error: any) {
+        // const free = subtotal >= 500000 ? 0 : 35000;
+        // setShippingFee(free);
+        // setTotalAmount(subtotal + free);
+        if (error.name === "CanceledError") return;
       } finally {
-        setIsCalculatingShipping(false);
+        if (!controller.signal.aborted) {
+          setIsCalculatingShipping(false);
+        }
       }
     },
     [checkoutData],
@@ -967,7 +980,9 @@ export default function Checkout() {
               <button
                 className="w-full mt-6 py-3 lg:py-5 uppercase bg-red-500 hover:bg-red-600 text-white text-lg lg:text-xl font-bold rounded-xl shadow-lg transition transform hover:scale-105 active:scale-95"
                 type="submit"
-                disabled={isSubmitting}
+                disabled={
+                  isSubmitting || isCalculatingShipping || isLoadingFlashSale
+                }
               >
                 {isSubmitting ? "Đang xử lý" : "ĐẶT NGAY"}
               </button>
