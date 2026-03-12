@@ -78,9 +78,8 @@ function Cart({ showCart, setShowCart }: CartProp) {
       };
       fetchVariants();
     } else {
-      if (data && data.length > 0) {
-        const cartData = data[0];
-        const formattedItems = cartData.items.map((item: any) => {
+      if (data) {
+        const formattedItems = data.items.map((item: any) => {
           return {
             id: item.variant.id,
             product: item.variant.product,

@@ -12,7 +12,7 @@ export const getStaffs = async (dataQuery: dataQuery) => {
   const query = Object.fromEntries(
     Object.entries(dataQuery).filter(([_, value]) => {
       return value !== null && value !== "";
-    })
+    }),
   );
   const res = await axiosConfig.get("/api/v1/staff/get-staffs", {
     params: query,

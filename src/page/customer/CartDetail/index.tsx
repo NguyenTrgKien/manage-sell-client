@@ -36,6 +36,7 @@ export default function CartDetail() {
     queryFn: getCart,
     enabled: !!user,
   });
+  console.log(data);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -78,9 +79,8 @@ export default function CartDetail() {
       };
       fetchVariants();
     } else {
-      if (data && data.length > 0) {
-        const cartData = data[0];
-        const formattedItems = cartData.items.map((item: any) => {
+      if (data) {
+        const formattedItems = data.items.map((item: any) => {
           return {
             id: item.variant.id,
             product: item.variant.product,
