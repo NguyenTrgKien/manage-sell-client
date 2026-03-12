@@ -302,20 +302,7 @@ function DetailOrder({
               <span className="text-gray-600">Phương thức thanh toán</span>
               <span>{getPaymentMethod[order.paymentMethod].text}</span>
             </div>
-
-            {order.paymentMethod !== PaymentMethod.COD && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">Trạng thái thanh toán</span>
-                <span>
-                  {order?.payment?.status === PaymentStatus.SUCCESS
-                    ? "Đã thanh toán"
-                    : order?.payment
-                      ? "Chưa thanh toán"
-                      : "Chờ xử lý"}
-                </span>
-              </div>
-            )}
-          </div>
+          </div>  
 
           {order.paymentMethod === PaymentMethod.COD &&
             ![OrderStatus.CANCELLED, OrderStatus.COMPLETED].includes(
