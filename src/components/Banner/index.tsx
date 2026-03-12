@@ -4,22 +4,32 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faAngleLeft,
-  faAngleRight,
-  faArrowRight,
-} from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { useQuery } from "@tanstack/react-query";
 import { getListBanner } from "../../api/ui.api";
 import type { BannerType } from "../../utils/ui.type";
 import { Link } from "react-router-dom";
+
+const SkeletonSlide = () => (
+  <div className="relative rounded-xl overflow-hidden bg-gray-100 animate-pulse">
+    <div className="w-full h-[300px] xs:h-[350px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[540px] bg-gray-200" />
+
+    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+
+    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+      <div className="h-8 sm:h-9 md:h-10 bg-gray-300 rounded w-full sm:w-3/4 mb-2 sm:mb-3" />
+      <div className="h-6 sm:h-7 bg-gray-300 rounded w-2/3 sm:w-1/2 mb-4 sm:mb-6" />
+      <div className="h-10 sm:h-12 bg-gray-300 rounded-full w-32 sm:w-40" />
+    </div>
+  </div>
+);
 
 function Banner() {
   const { data, isLoading: isLoadingListBanner } = useQuery({
     queryKey: ["listBanner"],
     queryFn: () => getListBanner(),
   });
-  const listBanner = data && data.data;
+  const listBanner = data?.data || [];
 
   const getRedirectPath = (banner: BannerType) => {
     switch (banner.redirectType) {
@@ -37,20 +47,6 @@ function Banner() {
         return "/";
     }
   };
-
-  const SkeletonSlide = () => (
-    <div className="relative rounded-xl overflow-hidden bg-gray-100 animate-pulse">
-      <div className="w-full h-[300px] xs:h-[350px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[540px] bg-gray-200" />
-
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
-        <div className="h-8 sm:h-9 md:h-10 bg-gray-300 rounded w-full sm:w-3/4 mb-2 sm:mb-3" />
-        <div className="h-6 sm:h-7 bg-gray-300 rounded w-2/3 sm:w-1/2 mb-4 sm:mb-6" />
-        <div className="h-10 sm:h-12 bg-gray-300 rounded-full w-32 sm:w-40" />
-      </div>
-    </div>
-  );
 
   return (
     <div className="rounded-xl bg-white shadow-lg overflow-hidden px-2 xs:px-4 sm:px-8 md:px-4 lg:px-0">

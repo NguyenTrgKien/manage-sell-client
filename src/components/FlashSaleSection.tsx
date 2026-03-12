@@ -6,6 +6,79 @@ import type { FlashSale, FlashSaleProduct } from "../utils/flashsale.type";
 import { Link } from "react-router-dom";
 import { calculatorTimeLeft } from "../utils/calculateTimeLeft";
 
+const FlashSaleSkeleton = () => {
+  return (
+    <div className="space-y-12 mt-8">
+      {[1, 2].map((i) => (
+        <section
+          key={i}
+          className="relative rounded-2xl overflow-hidden shadow-xl py-12 md:py-20 lg:py-25 px-4 md:px-8 lg:px-14"
+        >
+          <div className="absolute inset-0 bg-gray-200 animate-pulse z-0" />
+
+          <div className="relative p-6 md:p-8 z-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
+              <div className="space-y-3">
+                <div className="h-8 w-72 bg-white/40 rounded-lg animate-pulse" />
+                <div className="h-5 w-32 bg-white/30 rounded-full animate-pulse" />
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="h-6 w-24 bg-white/40 rounded animate-pulse" />
+                <div className="flex gap-3">
+                  {[1, 2, 3].map((j) => (
+                    <div
+                      key={j}
+                      className="bg-white/40 rounded-lg px-4 py-2 min-w-[70px] h-[56px] animate-pulse"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 pt-6">
+              {[1, 2, 3, 4, 5].map((k) => (
+                <div
+                  key={k}
+                  className="bg-white rounded-xl p-4 shadow flex flex-col"
+                >
+                  <div className="self-end mb-2 h-7 w-14 bg-gray-200 rounded-full animate-pulse" />
+
+                  <div className="h-[14rem] md:h-[18rem] lg:h-[22rem] bg-gray-200 rounded-lg mb-3 animate-pulse" />
+
+                  <div className="space-y-2 mb-3">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-5 w-20 bg-red-100 rounded animate-pulse" />
+                    <div className="h-4 w-16 bg-gray-100 rounded animate-pulse" />
+                  </div>
+
+                  <div className="mt-auto">
+                    <div className="flex justify-between mb-1">
+                      <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-3 w-8 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-red-200 h-full rounded-full w-1/2 animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 flex justify-center">
+              <div className="h-12 w-52 bg-white/40 rounded-full animate-pulse" />
+            </div>
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+};
+
 const FlashSaleSection = () => {
   const [queryInput] = useState({
     limit: 4,
@@ -50,90 +123,6 @@ const FlashSaleSection = () => {
     const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
   }, [flashsaleEvents]);
-
-  const FlashSaleSkeleton = () => {
-    return (
-      <div className="space-y-12 mt-8">
-        {[1, 2].map((i) => (
-          <section
-            key={i}
-            className="relative rounded-2xl overflow-hidden shadow-xl py-12 md:py-20 lg:py-25 px-4 md:px-8 lg:px-14"
-          >
-            {/* Background skeleton */}
-            <div className="absolute inset-0 bg-gray-200 animate-pulse z-0" />
-
-            <div className="relative p-6 md:p-8 z-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl">
-              {/* Header row */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
-                {/* Title + badge */}
-                <div className="space-y-3">
-                  <div className="h-8 w-72 bg-white/40 rounded-lg animate-pulse" />
-                  <div className="h-5 w-32 bg-white/30 rounded-full animate-pulse" />
-                </div>
-
-                {/* Countdown timer */}
-                <div className="flex items-center gap-4">
-                  <div className="h-6 w-24 bg-white/40 rounded animate-pulse" />
-                  <div className="flex gap-3">
-                    {[1, 2, 3].map((j) => (
-                      <div
-                        key={j}
-                        className="bg-white/40 rounded-lg px-4 py-2 min-w-[70px] h-[56px] animate-pulse"
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Product grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 pt-6">
-                {[1, 2, 3, 4, 5].map((k) => (
-                  <div
-                    key={k}
-                    className="bg-white rounded-xl p-4 shadow flex flex-col"
-                  >
-                    {/* Discount badge */}
-                    <div className="self-end mb-2 h-7 w-14 bg-gray-200 rounded-full animate-pulse" />
-
-                    {/* Image */}
-                    <div className="h-[14rem] md:h-[18rem] lg:h-[22rem] bg-gray-200 rounded-lg mb-3 animate-pulse" />
-
-                    {/* Product name */}
-                    <div className="space-y-2 mb-3">
-                      <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
-                      <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
-                    </div>
-
-                    {/* Price */}
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="h-5 w-20 bg-red-100 rounded animate-pulse" />
-                      <div className="h-4 w-16 bg-gray-100 rounded animate-pulse" />
-                    </div>
-
-                    {/* Progress bar */}
-                    <div className="mt-auto">
-                      <div className="flex justify-between mb-1">
-                        <div className="h-3 w-20 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-3 w-8 bg-gray-200 rounded animate-pulse" />
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-red-200 h-full rounded-full w-1/2 animate-pulse" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA button */}
-              <div className="mt-8 flex justify-center">
-                <div className="h-12 w-52 bg-white/40 rounded-full animate-pulse" />
-              </div>
-            </div>
-          </section>
-        ))}
-      </div>
-    );
-  };
 
   if (isLoading) {
     return <FlashSaleSkeleton />;

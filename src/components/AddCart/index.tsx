@@ -104,7 +104,7 @@ function AddCart({ showAddCart, setShowAddCart }: AddCartProp) {
     }
     return faShirt;
   };
-  
+
   const handleAddCart = async () => {
     setMessage(null);
     if (!selectVariantColor || !selectVariantSize) {

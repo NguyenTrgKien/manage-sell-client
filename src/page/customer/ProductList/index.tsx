@@ -80,20 +80,15 @@ function ProductList() {
                 key={i}
                 className="flex flex-col w-full h-auto border rounded-md border-gray-200 overflow-hidden animate-pulse"
               >
-                {/* Image */}
                 <div className="w-full h-[15rem] md:h-[18rem] bg-gray-200" />
 
                 <div className="flex flex-col flex-1 p-2 md:p-4 space-y-2">
-                  {/* Product name */}
                   <div className="h-5 bg-gray-200 rounded w-full" />
-                  {/* Price */}
                   <div className="h-5 bg-red-100 rounded w-2/3" />
-                  {/* Rating + sold */}
                   <div className="flex items-center gap-3">
                     <div className="h-4 bg-gray-200 rounded w-10" />
                     <div className="h-4 bg-gray-200 rounded w-16" />
                   </div>
-                  {/* Button */}
                   <div className="h-9 bg-pink-100 rounded-md w-full mt-2" />
                 </div>
               </div>

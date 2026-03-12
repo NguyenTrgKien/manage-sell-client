@@ -1,4 +1,6 @@
 import {
+  faAngleDown,
+  faAngleRight,
   faBars,
   faBookJournalWhills,
   faBox,
@@ -29,6 +31,7 @@ import RequireLogin from "../RequireLogin";
 import Sidebar from "../Sidebar";
 import SearchInput from "../SearchInput";
 import Logo from "../Logo";
+import DropdownMenu from "./DropdownMenu";
 
 function Header() {
   const [showCart, setShowCart] = useState(false);
@@ -545,8 +548,8 @@ function Header() {
         )}
       </div>
       <div className="md:block w-[100%] border-t border-t-gray-300 py-[1rem] px-4 md:px-8 lg:px-12 xl:px-[12rem]">
-        <nav className="flex items-center justify-between h-12">
-          <ul className="flex items-center gap-4 lg:gap-8 overflow-x-auto scrollbar-hide">
+        {/* <nav className="relative flex items-center justify-between h-12">
+          <ul className="flex items-center gap-4 lg:gap-8 scrollbar-hide">
             <li className="relative group shrink-0 gap-2">
               <button
                 className="flex items-center text-[1.2rem] lg:text-[1.4rem] font-medium text-pink-600 hover:text-pink-700 whitespace-nowrap mt-1"
@@ -574,18 +577,93 @@ function Header() {
                       onClick={() => handleClickCate(cate.slug)}
                       className="shrink-0"
                     >
-                      <Link
-                        to={`/category/${cate.slug}`}
-                        className="font-medium text-[1.2rem] lg:text-[1.4rem] hover:text-pink-600 transition-colors uppercase whitespace-nowrap"
-                      >
-                        {cate.categoryName}
-                      </Link>
+                      <div className="relative">
+                        <Link
+                          to={`/category/${cate.slug}`}
+                          className="font-medium text-[1.2rem] lg:text-[1.4rem] hover:text-pink-600 transition-colors uppercase whitespace-nowrap"
+                        >
+                          {cate.categoryName}
+                        </Link>
+                      </div>
                     </li>
                   );
                 })
             ) : (
               <></>
             )}
+          </ul>
+
+          <div className="hidden lg:flex items-center gap-4 text-[1.4rem] shrink-0">
+            <Link
+              to="/about-us"
+              className="hover:text-pink-600 text-gray-600 transition-colors whitespace-nowrap"
+            >
+              Giới thiệu
+            </Link>
+            <span className="text-gray-300">|</span>
+            <a
+              href="https://www.facebook.com/kien.trung.732841/"
+              className="hover:text-pink-600 text-gray-600 transition-colors flex items-center gap-1 whitespace-nowrap"
+            >
+              <FontAwesomeIcon icon={faFacebook} />
+              Facebook
+            </a>
+            <a
+              href="https://www.instagram.com/trungkien4420/"
+              className="hover:text-pink-600 text-gray-600 transition-colors flex items-center gap-1 whitespace-nowrap"
+            >
+              <FontAwesomeIcon icon={faInstagram} />
+              Instagram
+            </a>
+          </div>
+          <div className="absolute top-[calc(100%+1rem)] shadow-md left-0 w-full h-[40rem] bg-red-500">
+            danh mục con
+          </div>
+        </nav> */}
+        <nav className="relative flex items-center justify-between h-12">
+          <ul className="flex items-center gap-4 lg:gap-8 scrollbar-hide">
+            <li className="relative group shrink-0 gap-2">
+              <button
+                className="flex items-center text-[1.2rem] lg:text-[1.4rem] font-medium text-pink-600 hover:text-pink-700 whitespace-nowrap mt-1"
+                onClick={() => {
+                  if (isMobile) {
+                    setShowSideBar(true);
+                  } else {
+                    handleClickCate();
+                  }
+                }}
+              >
+                <FontAwesomeIcon icon={faBars} />
+                <span>DANH MỤC</span>
+              </button>
+            </li>
+
+            {!isLoading &&
+              listCategory &&
+              listCategory.length > 0 &&
+              listCategory
+                .filter((c: any) => !c.parentId)
+                .map((cate: CategoriesType) => (
+                  <li
+                    key={cate.id}
+                    className="shrink-0 relative group/cate hidden lg:block"
+                  >
+                    <Link
+                      to={`/category/${cate.slug}`}
+                      className="font-medium text-[1.2rem] lg:text-[1.4rem] hover:text-pink-600 transition-colors uppercase whitespace-nowrap py-4 flex items-center gap-1"
+                    >
+                      {cate.categoryName}
+                    </Link>
+
+                    {cate.children?.length > 0 && (
+                      <DropdownMenu
+                        categories={cate.children}
+                        parentSlug={cate.slug}
+                        parentName={cate.categoryName}
+                      />
+                    )}
+                  </li>
+                ))}
           </ul>
 
           <div className="hidden lg:flex items-center gap-4 text-[1.4rem] shrink-0">

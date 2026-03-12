@@ -3,15 +3,29 @@ import { getAllCategory } from "../api/category.api";
 import type { CategoriesType } from "../utils/types";
 import { Link } from "react-router-dom";
 
+const SkeletonCategories = () => {
+  return (
+    <div className="w-full overflow-x-auto hide-scrollbar">
+      <div className="h-auto grid grid-flow-col auto-cols-[12rem] gap-2.5">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            className="border border-gray-200 rounded-lg p-2.5 flex flex-col items-center justify-center animate-pulse"
+          >
+            <div className="w-[8rem] h-[8rem] rounded-full bg-gray-200" />
+            <div className="h-4 bg-gray-200 rounded w-3/4 mt-2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 function CategoriesSection() {
   const { data: dataCategories = [], isLoading } = useQuery({
     queryKey: ["getAllCategory"],
     queryFn: getAllCategory,
   });
-
-  const SkeletonCategories = () => {
-    return <div>Đang tải dữ liệu</div>;
-  };
 
   return (
     <section className="mt-[2rem] rounded-[.5rem] bg-white p-[1.5rem] md:p-[2rem]">
