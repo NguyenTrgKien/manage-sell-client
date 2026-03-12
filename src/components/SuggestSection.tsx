@@ -50,7 +50,9 @@ function SuggestSection() {
   const SuggestSkeleton = () => {
     return (
       <section className="mt-[2rem] rounded-[.5rem] bg-white p-[1.5rem] md:p-[2rem]">
-        <div className="h-7 w-48 bg-pink-100 rounded animate-pulse mb-6" />
+        <h4 className="text-[1.4rem] md:text-[1.8rem] font-bold text-pink-500 mb-6">
+          Gọi ý hôm nay
+        </h4>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {Array.from({ length: 10 }).map((_, i) => (

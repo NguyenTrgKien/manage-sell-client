@@ -8,7 +8,6 @@ import axiosConfig from "../../../../configs/axiosConfig";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useQueryClient } from "@tanstack/react-query";
-import GoogleLogo from "../../../../assets/images/google-logo.png";
 import { GoogleLogin } from "@react-oauth/google";
 
 export interface LoginResponse {
@@ -28,7 +27,10 @@ function Login() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || "/";
+  const from =
+    location.state?.from && location.state.from !== "/login"
+      ? location.state.from
+      : "/";
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
@@ -60,14 +62,15 @@ function Login() {
           }
         }
       }
+    } catch (error) {
+      toast.error("Lỗi khi gộp giỏ hàng!");
+      localStorage.removeItem("localCart");
+    } finally {
       if (from === "/checkout") {
         navigate("/cart/detail", { replace: true });
       } else {
         navigate(from, { replace: true });
       }
-    } catch (error) {
-      toast.error("Lỗi khi gộp giỏ hàng!");
-      navigate(from, { replace: true });
     }
   };
 
@@ -79,7 +82,10 @@ function Login() {
       await login(UserRole.USER, dataLogin.email, dataLogin.password);
       await handleLoginSuccess();
     } catch (error: any) {
-      if (error.message?.includes(UserRole.ADMIN || UserRole.STAFF)) {
+      if (
+        error.message?.includes(UserRole.ADMIN) ||
+        error.message?.includes(UserRole.STAFF)
+      ) {
         setShowAdminModal(true);
         return;
       }
@@ -88,27 +94,6 @@ function Login() {
       setIsLoading(false);
     }
   };
-
-  const loginWithGoogle = GoogleLogin({
-    onSuccess: async (credentialResponse: any) => {
-      try {
-        const { credential } = credentialResponse;
-        const res = await axiosConfig.post("/api/v1/auth/login-google", {
-          idToken: credential,
-        });
-        if (res.status) {
-          await queryClient.invalidateQueries({ queryKey: ["user"] });
-          await handleLoginSuccess();
-        }
-      } catch (error: any) {
-        console.log(error);
-        toast.error(error.message || "Có lỗi xảy ra. Vui lòng thực hiện lại!");
-      }
-    },
-    onError: () => {
-      toast.error("Đăng nhập Google thất bại. Vui lòng thử lại!");
-    },
-  });
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center md:p-4">
@@ -275,7 +260,7 @@ function Login() {
                     },
                   );
                   if (res.status) {
-                    await queryClient.invalidateQueries({
+                    await queryClient.refetchQueries({
                       queryKey: ["user"],
                     });
                     await handleLoginSuccess();
