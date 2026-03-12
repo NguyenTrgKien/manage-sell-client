@@ -258,6 +258,11 @@ function CustomerOrder() {
                     placeholder="Bạn có thể tìm kiếm theo ID, tên sản phẩm"
                     className="w-full h-full rounded-md outline-none pl-[1.5rem]"
                     onChange={(e) => setSearchOrders(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setQueryOrders((prev) => ({ ...prev, searchOrders }));
+                      }
+                    }}
                   />
                 </div>
                 {data.length > 0 ? (
@@ -283,9 +288,7 @@ function CustomerOrder() {
                               const product = item.variant.product;
                               const isReview =
                                 order.status === OrderStatus.COMPLETED &&
-                                order.orderItems.some(
-                                  (it) => it.evaluate.length === 0,
-                                );
+                                item.evaluate.length === 0;
                               return (
                                 <div
                                   key={item.id}

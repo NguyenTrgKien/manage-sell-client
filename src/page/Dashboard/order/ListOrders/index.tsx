@@ -29,6 +29,7 @@ import OrderDetail from "./OrderDetail";
 import DeleteOrder from "./DeleteOrder";
 import type { EvaluateType } from "../../../../utils/productType";
 import type { VoucherT } from "../../../../utils/voucher.type";
+import type { PaymentType } from "../../../../utils/payment.type";
 
 export interface OrderType {
   id: number;
@@ -59,6 +60,7 @@ export interface OrderType {
   voucherCode: string;
   discountAmount: number;
   voucher: VoucherT;
+  payment: PaymentType;
 }
 
 export interface orderItemsType {

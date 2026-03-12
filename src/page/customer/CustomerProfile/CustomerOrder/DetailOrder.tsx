@@ -64,7 +64,7 @@ function DetailOrder({
     }, 0);
   }, [order?.orderItems]);
   useEffect(() => {
-    scrollTo({ behavior: "smooth", top: 0 });
+    window.scrollTo({ behavior: "smooth", top: 0 });
   }, []);
 
   if (!order) return;
@@ -120,7 +120,7 @@ function DetailOrder({
       ) : (
         <div className="flex items-center justify-center space-x-5 mt-[3rem]">
           {steps.map((step, index) => {
-            const isActive =
+            const nextIsActive =
               steps.findIndex((s) => s.key === order.status) >= index;
             return (
               <div key={step.key} className="flex items-center">
@@ -130,7 +130,7 @@ function DetailOrder({
                 >
                   <div
                     className={`lg:w-[6rem] lg:h-[6rem] md:w-[4rem] md:h-[4rem] w-[3rem] h-[3rem] rounded-full flex items-center justify-center z-10
-                ${isActive ? `${step.color}` : "bg-gray-300"}`}
+                ${nextIsActive ? `${step.color}` : "bg-gray-300"}`}
                   >
                     <FontAwesomeIcon
                       icon={step.icon}
@@ -148,7 +148,9 @@ function DetailOrder({
                   </div>
                 </div>
                 {index !== steps.length - 1 && (
-                  <span className="w-[2rem] md:w-[10rem] border border-green-500"></span>
+                  <span
+                    className={`w-[2rem] md:w-[10rem] border ${nextIsActive ? "border-green-500" : "border-gray-300"}`}
+                  />
                 )}
               </div>
             );
@@ -307,7 +309,9 @@ function DetailOrder({
                 <span>
                   {order?.payment?.status === PaymentStatus.SUCCESS
                     ? "Đã thanh toán"
-                    : "Chưa thanh toán"}
+                    : order?.payment
+                      ? "Chưa thanh toán"
+                      : "Chờ xử lý"}
                 </span>
               </div>
             )}
