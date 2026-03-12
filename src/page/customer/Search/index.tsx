@@ -50,7 +50,7 @@ function SearchProducts() {
         userId: user?.id,
       }),
   }) as any;
-  const products = dataProducts && dataProducts.data;
+  const products = dataProducts?.data ?? [];
 
   const totalPages = (dataProducts && dataProducts.pagination.totalPage) || 1;
   const handleChangeSort = (sort: "popular" | "latest" | "best_seller") => {
@@ -191,7 +191,26 @@ function SearchProducts() {
       </div>
 
       {ProductLoading ? (
-        <div className="py-25 text-center">Đang tải dữ liệu...</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4 mt-[2rem]">
+          {Array.from({ length: 20 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex flex-col w-full h-[28rem] md:h-[31rem] border rounded-md border-gray-200 overflow-hidden animate-pulse"
+            >
+              <div className="w-full h-[16rem] md:h-[20rem] bg-gray-200" />
+
+              <div className="flex flex-col flex-1 p-2 md:p-4 space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-full" />
+                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                <div className="h-4 bg-red-100 rounded w-2/3" />
+                <div className="flex items-center gap-3 mt-auto">
+                  <div className="h-3 bg-gray-200 rounded w-10" />
+                  <div className="h-3 bg-gray-200 rounded w-16" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : products.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4 mt-[2rem]">
           {products.map((product: ProductT) => {
@@ -234,17 +253,9 @@ function SearchProducts() {
           })}
         </div>
       ) : (
-        <div className="py-25 text-center">
-          {products.length === 0 && !ProductLoading && (
-            <div className="py-20 text-center">
-              <p className="text-[1.6rem] text-gray-500 text-nowrap">
-                Không tìm thấy sản phẩm nào cho "{query}"
-              </p>
-              <p className="text-[1.4rem] text-gray-400 mt-2">
-                Thử tìm kiếm với từ khóa khác
-              </p>
-            </div>
-          )}
+        <div className="py-20 text-center">
+          <p>Không tìm thấy sản phẩm nào cho "{query}"</p>
+          <p>Thử tìm kiếm với từ khóa khác</p>
         </div>
       )}
 

@@ -103,10 +103,18 @@ function PopularProduct() {
           {isLoading
             ? Array.from({ length: 10 }).map((_, i) => (
                 <SwiperSlide key={`skeleton-${i}`}>
-                  <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-product animate-pulse">
-                    <div className="h-[18rem] md:h-[20rem] bg-gray-200 rounded-xl mb-4" />
-                    <div className="h-5 bg-gray-200 rounded w-4/5 mb-2" />
-                    <div className="h-5 bg-gray-200 rounded w-1/3" />
+                  <div className="bg-white border border-gray-200 overflow-hidden animate-pulse">
+                    <div className="h-[16rem] md:h-[20rem] lg:h-[24rem] bg-gray-200" />
+
+                    <div className="p-5">
+                      <div className="h-5 bg-gray-200 rounded w-full mb-2" />
+                      <div className="h-5 bg-red-100 rounded w-2/3 mt-2" />
+
+                      <div className="flex flex-col md:flex-row items-center gap-2.5 mt-4">
+                        <div className="w-full h-9 bg-pink-100 rounded-md" />
+                        <div className="w-full h-9 bg-blue-100 rounded-md" />
+                      </div>
+                    </div>
                   </div>
                 </SwiperSlide>
               ))
