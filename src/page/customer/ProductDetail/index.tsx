@@ -54,7 +54,9 @@ function ProductDetail() {
     useState<VariantColorType | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState<string | null>(null);
-  const { addToCart, isLoading, notify, setNotify } = useAddCart();
+  const { addToCart, notify, setNotify } = useAddCart();
+  const [loadingAdd, setLoadingAdd] = useState(false);
+  const [loadingBuy, setLoadingBuy] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [index, setIndex] = useState(0);
   const colors = useMemo(() => {
@@ -158,12 +160,19 @@ function ProductDetail() {
       setMessage("Số lượng sản phẩm ít nhất là 1!");
       return;
     }
+
+    if (action === "add") setLoadingAdd(true);
+    else setLoadingBuy(true);
+
     const dataRequest = {
       variantId: variantId,
       quantity: quantity,
     };
 
     const success = await addToCart([dataRequest]);
+
+    if (action === "add") setLoadingAdd(false);
+    else setLoadingBuy(false);
 
     if (success && action === "buy") {
       navigate(`/cart/detail?buyNowVariant=${variantId}`);
@@ -517,10 +526,10 @@ function ProductDetail() {
             <button
               type="button"
               className="px-[1rem] md:px-[2.5rem] py-[.8rem] md:py-[1.2rem] border border-amber-500 hover:border-amber-600 text-amber-600 hover:text-amber-700 rounded-[.5rem] hover-linear select-none cursor-pointer"
-              disabled={isLoading}
+              disabled={loadingAdd}
               onClick={() => handleAddCartOrBuyNow("add")}
             >
-              {isLoading ? (
+              {loadingAdd ? (
                 <span>Đang xử lý...</span>
               ) : (
                 <>
@@ -532,10 +541,10 @@ function ProductDetail() {
             <button
               type="button"
               className="px-[1rem] md:px-[2.5rem] py-[.8rem] md:py-[1.2rem] bg-red-500 text-white hover:bg-red-600 rounded-[.5rem] hover-linear cursor-pointer"
-              disabled={isLoading}
+              disabled={loadingBuy}
               onClick={() => handleAddCartOrBuyNow("buy")}
             >
-              {isLoading ? "Đang xử lý..." : "Mua ngay"}
+              {loadingBuy ? "Đang xử lý..." : "Mua ngay"}
             </button>
           </div>
         </div>
