@@ -47,8 +47,37 @@ function SuggestSection() {
     }));
   };
 
+  const SuggestSkeleton = () => {
+    return (
+      <section className="mt-[2rem] rounded-[.5rem] bg-white p-[1.5rem] md:p-[2rem]">
+        <div className="h-7 w-48 bg-pink-100 rounded animate-pulse mb-6" />
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-white border border-gray-200 overflow-hidden"
+            >
+              <div className="h-[16rem] md:h-[20rem] lg:h-[24rem] bg-gray-200 animate-pulse" />
+
+              <div className="p-5">
+                <div className="h-5 bg-gray-200 rounded animate-pulse w-full mb-2" />
+                <div className="h-5 bg-red-100 rounded animate-pulse w-2/3 mt-2" />
+
+                <div className="flex flex-col md:flex-row items-center gap-2.5 mt-4">
+                  <div className="w-full h-9 bg-pink-100 rounded-md animate-pulse" />
+                  <div className="w-full h-9 bg-blue-100 rounded-md animate-pulse" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  };
+
   return isLoading ? (
-    <div>Đang tải dữ liệu</div>
+    <SuggestSkeleton />
   ) : (
     <section className="mt-[2rem] rounded-[.5rem] bg-white p-[1.5rem] md:p-[2rem]">
       <h4 className="text-[1.4rem] md:text-[1.8rem] font-bold text-pink-500 mb-6">

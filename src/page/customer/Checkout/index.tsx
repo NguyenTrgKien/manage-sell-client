@@ -361,7 +361,6 @@ export default function Checkout() {
             customerProvince: addressData.province,
           },
         );
-        console.log(res);
 
         if (res.status) {
           setShippingFee(res.data.shippingFee);
@@ -920,6 +919,9 @@ export default function Checkout() {
 
                 <div className="space-y-3">
                   {Object.values(PaymentMethod).map((item) => {
+                    console.log(item);
+
+                    if (item === "vnpay") return null;
                     return (
                       <label
                         key={item}
