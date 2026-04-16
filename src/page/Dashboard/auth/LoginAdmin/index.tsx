@@ -39,7 +39,6 @@ function LoginAdmin() {
     setIsLoading(true);
     try {
       await login(UserRole.ADMIN, dataLogin.email, dataLogin.password);
-
       navigate("/dashboard");
     } catch (error: any) {
       if (error.response?.data?.message) {

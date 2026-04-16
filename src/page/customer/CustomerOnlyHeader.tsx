@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useVoucherContext } from "../../contexts/VoucherContext";
+import ChatboxAI from "../../components/ChatboxAI";
 
 function CustomerOnlyHeader() {
   const location = useLocation();
@@ -22,6 +23,7 @@ function CustomerOnlyHeader() {
         <Outlet />
       </div>
       <Footer />
+      <ChatboxAI />
     </div>
   );
 }

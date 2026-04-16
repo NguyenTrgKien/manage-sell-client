@@ -8,7 +8,7 @@ import {
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { getCollectionBySlug } from "../../../api/collection.api";
-import type { Collection } from "../../../utils/collection.type";
+import type { Collection as CollectionType } from "../../../utils/collection.type";
 import type { ProductT } from "../../../utils/types";
 import AddCart from "../../../components/AddCart";
 
@@ -32,7 +32,7 @@ function Collection() {
     enabled: !!slug,
   });
 
-  const collection: Collection | undefined = data?.data;
+  const collection: CollectionType | undefined = data?.data;
   const products =
     collection?.collectionProducts?.map((cp) => cp.product) || [];
 
