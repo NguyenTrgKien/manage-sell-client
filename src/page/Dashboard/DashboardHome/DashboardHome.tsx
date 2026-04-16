@@ -30,7 +30,7 @@ function DashboardHome() {
     });
 
   const handleChangeQueryInput = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setQueryInput((prev) => ({
@@ -38,6 +38,7 @@ function DashboardHome() {
       [name]: value,
     }));
   };
+  console.log(overview);
 
   const handleApply = () => {
     setQueryOverview({ ...queryInput });

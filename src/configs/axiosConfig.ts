@@ -13,38 +13,59 @@ const axiosConfig = axios.create({
   },
 });
 
+let isRefreshing = false;
+let pendingQueue: Array<{
+  resolve: (token: string | null) => void;
+  reject: (err: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown) => {
+  pendingQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    }
+    pendingQueue = [];
+  });
+};
+
 axiosConfig.interceptors.response.use(
   (response) => response.data as any,
   async (error) => {
     const status = error.response?.status;
-    if (!error.response) {
-      return Promise.reject({
-        message: "Không thể kết nối đến server. Vui lòng kiểm tra mạng!",
-        code: "NETWORK_ERROR",
-      });
-    }
+    const originalRequest = error.config;
 
-    if (status === 401) {
-      const isRedirecting = sessionStorage.getItem("isRedirecting");
-
-      if (!isRedirecting) {
-        sessionStorage.setItem("isRedirecting", "true");
-
-        window.dispatchEvent(new CustomEvent("auth:logout"));
-
-        const isAdminRoute = window.location.pathname.startsWith("/dashboard");
-        window.location.href = isAdminRoute ? "/dashboard/login" : "/";
-
-        setTimeout(() => {
-          sessionStorage.removeItem("isRedirecting");
-        }, 3000);
+    if (status === 401 && !originalRequest._isRetry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          pendingQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            originalRequest._isRetry = true;
+            return axiosConfig(originalRequest);
+          })
+          .catch(Promise.reject.bind(Promise));
       }
 
-      return Promise.reject({
-        message: "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!",
-        code: "UNAUTHORIZED",
-        status,
-      });
+      originalRequest._isRetry = true;
+      isRefreshing = true;
+
+      try {
+        await axiosConfig.post("/auth/refresh");
+
+        processQueue(null);
+
+        return axiosConfig(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError);
+        redirectOnUnauthorized();
+        return Promise.reject({
+          message: "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!",
+          code: "UNAUTHORIZED",
+          status: 401,
+        });
+      } finally {
+        isRefreshing = false;
+      }
     }
 
     if (status === 403) {
@@ -74,4 +95,16 @@ axiosConfig.interceptors.response.use(
   },
 );
 
+function redirectOnUnauthorized() {
+  const isRedirecting = sessionStorage.getItem("isRedirecting");
+  if (isRedirecting) return;
+
+  sessionStorage.setItem("isRedirecting", "true");
+  window.dispatchEvent(new CustomEvent("auth:logout"));
+
+  const isAdminRoute = window.location.pathname.startsWith("/dashboard");
+  window.location.href = isAdminRoute ? "/dashboard/login" : "/";
+
+  setTimeout(() => sessionStorage.removeItem("isRedirecting"), 3000);
+}
 export default axiosConfig;

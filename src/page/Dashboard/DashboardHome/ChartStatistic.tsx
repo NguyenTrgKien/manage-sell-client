@@ -31,7 +31,7 @@ function ChartStatistic({
             ? Number(it.totalRevenue)
             : statisticFollow === "member"
               ? Number(it.member.memberRevenue)
-              : Number(it.guest.guestRevenue)
+              : Number(it.guest.guestRevenue),
         ),
         backgroundColor: "green",
         borderColor: "green",
@@ -46,7 +46,7 @@ function ChartStatistic({
             ? Number(it.totalOrders)
             : statisticFollow === "member"
               ? Number(it.member.memberOrders)
-              : Number(it.guest.guestOrders)
+              : Number(it.guest.guestOrders),
         ),
         backgroundColor: "orange",
         borderColor: "orange",

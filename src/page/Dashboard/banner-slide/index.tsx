@@ -958,7 +958,7 @@ function BannerSlide() {
                 })}
               </div>
             ) : (
-              <div className="w-full flex justify-center items-center pt-[14rem]">
+              <div className="w-full flex justify-center items-center py-[14rem]">
                 Chưa có banner nào
               </div>
             )}

@@ -12,7 +12,6 @@ import { getCategoryBySlugs } from "../../api/category.api";
 import { useState } from "react";
 import Footer from "../../components/Footer";
 import { useVoucherContext } from "../../contexts/VoucherContext";
-import ChatboxAI from "../../components/ChatboxAI";
 
 function CategoryLayout() {
   const { hasVoucher } = useVoucherContext();
@@ -135,8 +134,6 @@ function CategoryLayout() {
         </div>
       </div>
       <Footer />
-
-      <ChatboxAI />
     </div>
   );
 }

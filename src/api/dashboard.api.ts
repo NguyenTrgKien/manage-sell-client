@@ -8,7 +8,7 @@ export const getDashboardOverview = async (queryOverview: {
   const query = Object.fromEntries(
     Object.entries(queryOverview).filter(([_, value]) => {
       return value !== null && value !== "";
-    })
+    }),
   );
 
   const res = await axiosConfig.get("/api/v1/orders/dashboard-overview", {
@@ -25,7 +25,7 @@ export const getDashboardStatistic = async (queryDashboardStatistic: {
   const query = Object.fromEntries(
     Object.entries(queryDashboardStatistic).filter(([_, value]) => {
       return value !== null && value !== "";
-    })
+    }),
   );
   const res = await axiosConfig.get("/api/v1/orders/dashboard-statistics", {
     params: query,

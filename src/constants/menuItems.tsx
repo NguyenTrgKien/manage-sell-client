@@ -1,7 +1,7 @@
 export const menuItems = [
   {
     id: 1,
-    label: "Dashboard",
+    label: "Thống kê",
     path: "",
   },
   {

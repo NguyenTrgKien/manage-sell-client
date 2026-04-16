@@ -210,93 +210,101 @@ function Staffs() {
           </tbody>
         ) : (
           <tbody>
-            {data.map((staff: StaffType) => {
-              return (
-                <tr
-                  key={staff.id}
-                  className="divide-x divide-gray-300 hover:bg-gray-50"
-                >
-                  <td className="text-start px-[1.5rem] py-[1rem] border border-gray-300">
-                    {staff.staffCode}
-                  </td>
-                  <td className="text-center px-[1.5rem] py-[1rem] border border-gray-300">
-                    {staff.user?.username}
-                  </td>
-                  <td className="text-center px-[1.5rem] py-[1rem] border border-gray-300">
-                    {staff.user?.phone}
-                  </td>
-                  <td className="text-center px-[1.5rem] py-[1rem] border border-gray-300 font-medium">
-                    {getStaffPosition[staff.position]}
-                  </td>
-                  <td className="text-center px-[1.5rem] py-[1rem] border border-gray-300 font-medium">
-                    {getStaffStatus[staff.status]}
-                  </td>
-                  <td className="text-end px-[1.5rem] py-[1rem] border border-gray-300 font-medium">
-                    <div className="flex justify-end items-center gap-[1rem]">
-                      <button
-                        className="w-[7.4rem] h-[3.2rem] text-[1.2rem] rounded-xl bg-green-500 hover:bg-green-600 text-white flex items-center justify-center gap-[.5rem] hover-linear"
-                        onClick={() => setViewStaff(staff)}
-                      >
-                        <FontAwesomeIcon icon={faEye} />
-                        <span>Xem</span>
-                      </button>
-                      <div className="relative z-[200]" ref={optionRef}>
+            {data.length < 0 ? (
+              data.map((staff: StaffType) => {
+                return (
+                  <tr
+                    key={staff.id}
+                    className="divide-x divide-gray-300 hover:bg-gray-50"
+                  >
+                    <td className="text-start px-[1.5rem] py-[1rem] border border-gray-300">
+                      {staff.staffCode}
+                    </td>
+                    <td className="text-center px-[1.5rem] py-[1rem] border border-gray-300">
+                      {staff.user?.username}
+                    </td>
+                    <td className="text-center px-[1.5rem] py-[1rem] border border-gray-300">
+                      {staff.user?.phone}
+                    </td>
+                    <td className="text-center px-[1.5rem] py-[1rem] border border-gray-300 font-medium">
+                      {getStaffPosition[staff.position]}
+                    </td>
+                    <td className="text-center px-[1.5rem] py-[1rem] border border-gray-300 font-medium">
+                      {getStaffStatus[staff.status]}
+                    </td>
+                    <td className="text-end px-[1.5rem] py-[1rem] border border-gray-300 font-medium">
+                      <div className="flex justify-end items-center gap-[1rem]">
                         <button
-                          className="w-[3.2rem] h-[3.2rem] rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 hover-linear"
-                          onClick={() => setSelectOptions(staff)}
+                          className="w-[7.4rem] h-[3.2rem] text-[1.2rem] rounded-xl bg-green-500 hover:bg-green-600 text-white flex items-center justify-center gap-[.5rem] hover-linear"
+                          onClick={() => setViewStaff(staff)}
                         >
-                          <FontAwesomeIcon
-                            icon={faEllipsisVertical}
-                            className="text-[1.8rem]"
-                          />
+                          <FontAwesomeIcon icon={faEye} />
+                          <span>Xem</span>
                         </button>
-                        {selectOptions?.id === staff.id && (
-                          <div className="absolute right-[100%] top-0  min-w-[12rem] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] rounded-xl py-[.8rem] border border-gray-200">
-                            <button
-                              className="w-full px-[1.2rem] py-[.8rem] flex items-center gap-[.8rem] text-left hover:bg-gray-100 hover-linear text-[1.4rem] text-gray-700"
-                              onClick={() => {}}
-                            >
-                              <FontAwesomeIcon
-                                icon={faEye}
-                                className="text-green-600"
-                              />
-                              <span
-                                className="text-green-600"
+                        <div className="relative z-[200]" ref={optionRef}>
+                          <button
+                            className="w-[3.2rem] h-[3.2rem] rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 hover-linear"
+                            onClick={() => setSelectOptions(staff)}
+                          >
+                            <FontAwesomeIcon
+                              icon={faEllipsisVertical}
+                              className="text-[1.8rem]"
+                            />
+                          </button>
+                          {selectOptions?.id === staff.id && (
+                            <div className="absolute right-[100%] top-0  min-w-[12rem] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] rounded-xl py-[.8rem] border border-gray-200">
+                              <button
+                                className="w-full px-[1.2rem] py-[.8rem] flex items-center gap-[.8rem] text-left hover:bg-gray-100 hover-linear text-[1.4rem] text-gray-700"
+                                onClick={() => {}}
+                              >
+                                <FontAwesomeIcon
+                                  icon={faEye}
+                                  className="text-green-600"
+                                />
+                                <span
+                                  className="text-green-600"
+                                  onClick={() => {
+                                    setActionStaff({
+                                      open: true,
+                                      data: selectOptions,
+                                      action: "edit",
+                                    });
+                                    setSelectOptions(null);
+                                  }}
+                                >
+                                  Cập nhật
+                                </span>
+                              </button>
+                              <button
+                                className="w-full px-[1.2rem] py-[.8rem] flex whitespace-nowrap items-center gap-[.8rem] text-left hover:bg-gray-100 hover-linear text-[1.4rem] text-gray-700"
                                 onClick={() => {
-                                  setActionStaff({
-                                    open: true,
-                                    data: selectOptions,
-                                    action: "edit",
-                                  });
+                                  setOpenDelete(staff.id);
                                   setSelectOptions(null);
                                 }}
                               >
-                                Cập nhật
-                              </span>
-                            </button>
-                            <button
-                              className="w-full px-[1.2rem] py-[.8rem] flex whitespace-nowrap items-center gap-[.8rem] text-left hover:bg-gray-100 hover-linear text-[1.4rem] text-gray-700"
-                              onClick={() => {
-                                setOpenDelete(staff.id);
-                                setSelectOptions(null);
-                              }}
-                            >
-                              <FontAwesomeIcon
-                                icon={faTrashCan}
-                                className="text-red-500"
-                              />
-                              <span className="text-red-500 flex flex-nowrap">
-                                Xóa
-                              </span>
-                            </button>
-                          </div>
-                        )}
+                                <FontAwesomeIcon
+                                  icon={faTrashCan}
+                                  className="text-red-500"
+                                />
+                                <span className="text-red-500 flex flex-nowrap">
+                                  Xóa
+                                </span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center py-16">
+                  Không có nhân viên nào
+                </td>
+              </tr>
+            )}
           </tbody>
         )}
       </table>

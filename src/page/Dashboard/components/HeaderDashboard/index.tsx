@@ -35,7 +35,7 @@ function HeaderDashboard() {
   }, [openMenu]);
 
   return (
-    <header className="fixed w-full h-[6rem] bg-white backdrop-blur-md bg-opacity-95 flex items-center justify-between px-[2rem] shadow-lg border-b border-gray-200 z-[500]">
+    <header className="fixed left-[24rem] right-0 h-[6rem] bg-white flex items-center justify-between px-[2rem] shadow-sm z-[500]">
       <div className="flex items-center gap-[1rem]">
         <h1 className="text-[2.4rem] font-bold bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">
           NTK.
@@ -46,7 +46,7 @@ function HeaderDashboard() {
         </span>
       </div>
 
-      <div className="relative">
+      {/* <div className="relative">
         <div className="relative w-[36rem] h-[4rem] border-2 border-gray-300 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200 focus-within:border-amber-500 focus-within:shadow-lg">
           <input
             type="text"
@@ -60,7 +60,7 @@ function HeaderDashboard() {
             <FontAwesomeIcon icon={faSearch} className="text-[1.6rem]" />
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div className="relative flex items-center gap-[2rem]" ref={menuRef}>
         <button
@@ -70,29 +70,16 @@ function HeaderDashboard() {
           <img
             src={user?.avatar ?? avatarDefault}
             alt="Admin Avatar"
-            className="h-[4.8rem] w-[4.8rem] rounded-[50%] border border-amber-300 shadow-lg group-hover:border-amber-400 transition-all duration-200"
+            className="h-[4.8rem] w-[4.8rem] object-cover rounded-[50%] border border-amber-300 shadow-lg group-hover:border-amber-400 transition-all duration-200"
           />
           <div className="hidden md:block text-left">
-            <div className="font-bold text-[1.4rem] text-gray-800">
+            <div className="font-bold text-[1.6rem] text-gray-800">
               {user?.username}
             </div>
             <div className="text-[1.2rem] text-amber-600 font-medium">
-              {user?.role === UserRole.ADMIN ? "Super Admin" : "Manager"}
+              {user?.role === UserRole.ADMIN ? "Admin" : "Manager"}
             </div>
           </div>
-          <svg
-            className="h-5 w-5 text-gray-400 group-hover:text-amber-600 transition-colors"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
         </button>
 
         {openMenu && (

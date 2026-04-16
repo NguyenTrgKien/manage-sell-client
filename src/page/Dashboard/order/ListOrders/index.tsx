@@ -136,10 +136,6 @@ function Order() {
       <div className="sticky top-0 flex justify-between items-center border-b-[.1rem] border-b-gray-300 pb-[2rem]">
         <h3 className="text-[2rem] font-semibold ">Đơn hàng</h3>
         <div className="flex items-center gap-[1.5rem]">
-          <button className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-[var(--main-button)] rounded-lg hover:bg-[var(--main-button-hover)] cursor-pointer hover-linear ">
-            <FontAwesomeIcon icon={faFileExport} />
-            Export
-          </button>
           <button
             className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-[var(--button-green)] rounded-lg hover:bg-[var(--button-green-hover)] cursor-pointer hover-linear "
             onClick={() => setOpenAddOrder(true)}

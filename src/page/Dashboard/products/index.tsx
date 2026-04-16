@@ -302,8 +302,8 @@ function Products() {
                       );
                     })
                   ) : (
-                    <tr aria-colspan={6}>
-                      <td>
+                    <tr>
+                      <td colSpan={6} className="text-center py-16">
                         <div>Không có sản phẩm nào</div>
                       </td>
                     </tr>

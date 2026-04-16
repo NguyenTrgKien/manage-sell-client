@@ -4,9 +4,11 @@ import { getFlashsaleBySlug } from "../../../api/flashsale.api";
 import type { FlashSale } from "../../../utils/flashsale.type";
 import { useEffect, useState } from "react";
 import { calculatorTimeLeft } from "../../../utils/calculateTimeLeft";
+import { useVoucherContext } from "../../../contexts/VoucherContext";
 
 function FlashSaleDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const { hasVoucher } = useVoucherContext();
   const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState<{
     hours: number;
@@ -116,7 +118,11 @@ function FlashSaleDetail() {
   };
 
   return (
-    <div className="mt-[20rem] md:mt-[17rem] px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem]">
+    <div
+      className={`${
+        hasVoucher ? "mt-[20rem] md:mt-[17rem]" : "mt-[17rem] md:mt-[14rem]"
+      } px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem]`}
+    >
       {isLoading ? (
         <Skeleton />
       ) : (
