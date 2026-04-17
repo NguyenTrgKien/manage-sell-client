@@ -5,7 +5,7 @@ const tabs = [
   { label: "Danh sách khách hàng", to: "/dashboard/customers" },
   { label: "Khách đã mua", to: "/dashboard/customers/purchased" },
   { label: "Khách chưa mua", to: "/dashboard/customers/no-order" },
-  { label: "Thống kê", to: "/dashboard/customers/statistic" },
+  // { label: "Thống kê", to: "/dashboard/customers/statistic" },
 ];
 
 function CustomerManage() {

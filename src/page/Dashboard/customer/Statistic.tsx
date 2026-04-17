@@ -57,7 +57,7 @@ function Statistic() {
   };
 
   const handleChangeCustomerTopDate = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = e.target;
     setQueryCustomerTop((prev) => ({
@@ -211,7 +211,7 @@ function Statistic() {
           <p className="text-2xl font-bold text-blue-600">
             {statistic.reduce(
               (sum: number, item: any) => sum + item.totalCustomers,
-              0
+              0,
             )}
           </p>
         </div>
@@ -220,7 +220,7 @@ function Statistic() {
           <p className="text-2xl font-bold text-green-600">
             {statistic.reduce(
               (sum: number, item: any) => sum + item.totalOrders,
-              0
+              0,
             )}
           </p>
         </div>
@@ -230,8 +230,8 @@ function Statistic() {
             {formatPrice(
               statistic.reduce(
                 (sum: number, item: any) => sum + item.totalRevenue,
-                0
-              )
+                0,
+              ),
             )}
           </p>
         </div>
@@ -241,12 +241,12 @@ function Statistic() {
             {formatPrice(
               statistic.reduce(
                 (sum: number, item: any) => sum + item.totalRevenue,
-                0
+                0,
               ) /
                 statistic.reduce(
                   (sum: number, item: any) => sum + item.totalOrders,
-                  0
-                ) || 0
+                  0,
+                ) || 0,
             )}
           </p>
         </div>
@@ -391,7 +391,7 @@ function Statistic() {
                               className="border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition"
                               onClick={() =>
                                 navigate(
-                                  `/dashboard/detail-customer/${customer.customerCode}`
+                                  `/dashboard/detail-customer/${customer.customerCode}`,
                                 )
                               }
                             >

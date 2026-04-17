@@ -280,34 +280,35 @@ function OrderDetail({
               {errors && <p className="text-red-500">{errors}</p>}
               {orderDetail.shippingProvider && orderDetail.trackingNumber ? (
                 <div className="flex justify-end items-center gap-[1rem] mt-[2rem]">
-                  {orderDetail.status !== OrderStatus.COMPLETED && (
-                    <>
-                      {editShipping ? (
-                        <>
+                  {orderDetail.status !== OrderStatus.COMPLETED &&
+                    orderDetail.status !== OrderStatus.CANCELLED && (
+                      <>
+                        {editShipping ? (
+                          <>
+                            <button
+                              className="text-white px-6 py-3 bg-green-500 rounded-lg hover:bg-green-600"
+                              onClick={handleUpdateShipping}
+                            >
+                              Lưu thay đổi
+                            </button>
+                            <button
+                              className="text-gray-600 px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300"
+                              onClick={() => setEditShipping(false)}
+                            >
+                              Hủy
+                            </button>
+                          </>
+                        ) : (
                           <button
-                            className="text-white px-6 py-3 bg-green-500 rounded-lg hover:bg-green-600"
-                            onClick={handleUpdateShipping}
+                            className="text-white px-4 py-3 bg-amber-500 rounded-lg hover:bg-amber-600 flex items-center gap-2"
+                            onClick={() => setEditShipping(true)}
                           >
-                            Lưu thay đổi
+                            <FontAwesomeIcon icon={faEdit} />
+                            Chỉnh sửa
                           </button>
-                          <button
-                            className="text-gray-600 px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300"
-                            onClick={() => setEditShipping(false)}
-                          >
-                            Hủy
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          className="text-white px-4 py-3 bg-amber-500 rounded-lg hover:bg-amber-600 flex items-center gap-2"
-                          onClick={() => setEditShipping(true)}
-                        >
-                          <FontAwesomeIcon icon={faEdit} />
-                          Chỉnh sửa
-                        </button>
-                      )}
-                    </>
-                  )}
+                        )}
+                      </>
+                    )}
                 </div>
               ) : (
                 <div className="flex justify-end items-center gap-[1rem] mt-[2rem]">
@@ -492,22 +493,27 @@ function OrderDetail({
             </div>
           </div>
           <div className="flex justify-end items-center gap-[1rem] mt-[2rem]">
-            {orderDetail.status !== OrderStatus.COMPLETED && (
+            {orderDetail.status !== OrderStatus.COMPLETED &&
+              orderDetail.status !== OrderStatus.CANCELLED && (
+                <button
+                  className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-green-500 rounded-lg hover:bg-green-600 cursor-pointer hover-linear"
+                  onClick={() =>
+                    setOpenUpdate({ open: true, data: orderDetail })
+                  }
+                >
+                  <FontAwesomeIcon icon={faEye} />
+                  Cập nhật
+                </button>
+              )}
+            {orderDetail.status !== OrderStatus.CANCELLED && (
               <button
-                className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-green-500 rounded-lg hover:bg-green-600 cursor-pointer hover-linear"
-                onClick={() => setOpenUpdate({ open: true, data: orderDetail })}
+                className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-[var(--main-button)] rounded-lg hover:bg-[var(--main-button-hover)] cursor-pointer hover-linear"
+                onClick={() => handlePrint()}
               >
-                <FontAwesomeIcon icon={faEye} />
-                Cập nhật
+                <FontAwesomeIcon icon={faPrint} />
+                In đơn
               </button>
             )}
-            <button
-              className="text-white text-[1.4rem] flex gap-1.5 items-center px-4 py-3 bg-[var(--main-button)] rounded-lg hover:bg-[var(--main-button-hover)] cursor-pointer hover-linear"
-              onClick={() => handlePrint()}
-            >
-              <FontAwesomeIcon icon={faPrint} />
-              In đơn
-            </button>
           </div>
         </div>
       </div>

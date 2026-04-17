@@ -24,7 +24,7 @@ function DeleteOrder({ open, orderId, onClose, refetch }: DeleteOrderProp) {
     setIsLoading(true);
     try {
       const res = (await axiosConfig.delete(
-        `/api/v1/orders/delete-order/${orderId}`
+        `/api/v1/orders/delete-order/${orderId}`,
       )) as any;
       if (res.status) {
         toast.success(res.message || "Xóa đơn thành công!");

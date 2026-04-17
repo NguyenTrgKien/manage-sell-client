@@ -19,7 +19,7 @@ interface GuestCustomers {
 
 const tabs = [
   { label: "Danh sách khách hàng", to: "/dashboard/guest-customers" },
-  { label: "Thống kê", to: "/dashboard/guest-customers/statistic" },
+  // { label: "Thống kê", to: "/dashboard/guest-customers/statistic" },
 ];
 
 function GuestCustomers() {
@@ -65,7 +65,7 @@ function GuestCustomers() {
           : "Thống kê khách hàng vãng lai"}
       </h4>
       {isLisTab && (
-        <div className="space-x-6 mb-8">
+        <div className="space-x-6 mb-8">  
           <input
             type="text"
             id="search"
@@ -161,7 +161,7 @@ function GuestCustomers() {
                           <button
                             onClick={() =>
                               alert(
-                                `Tặng voucher cho khách hàng: ${guest.fullName}`
+                                `Tặng voucher cho khách hàng: ${guest.fullName}`,
                               )
                             }
                             className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"

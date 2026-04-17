@@ -57,7 +57,7 @@ export default function OrderConfirmation() {
         <div className="text-center">
           <FontAwesomeIcon
             icon={faSpinner}
-            className="text-4xl sm:text-5xl text-blue-500 mb-4 animate-spin"
+            className="text-[1.8rem] text-blue-500 mb-4 animate-spin"
           />
           <p className="text-sm sm:text-base text-gray-600">
             Đang xác thực đơn hàng...
@@ -77,10 +77,10 @@ export default function OrderConfirmation() {
               className="text-2xl sm:text-3xl text-red-500"
             />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
+          <h1 className="text-[1.rem] sm:text-[1.8rem] font-bold text-gray-800 mb-2">
             Không tìm thấy đơn hàng
           </h1>
-          <p className="text-sm sm:text-base text-gray-500 mb-6">
+          <p className=" sm:text-base text-gray-500 mb-6">
             Mã đơn hàng không hợp lệ hoặc đã bị xóa.
           </p>
           <button
@@ -105,19 +105,19 @@ export default function OrderConfirmation() {
             />
           </div>
 
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-[1.6rem] sm:text-[1.8rem] lg:text-[2rem] font-bold text-gray-800 mb-2">
             Đặt hàng thành công!
           </h1>
-          <p className="text-sm sm:text-base text-gray-500 mb-1">
+          <p className="text-gray-500 mb-1">
             Cảm ơn bạn đã đặt hàng tại shop của chúng tôi.
           </p>
-          <p className="text-sm sm:text-base text-gray-500 leading-relaxed mb-5">
+          <p className="text-gray-500 leading-relaxed mb-5">
             Thông tin đơn hàng sẽ được thông báo qua email mà bạn đã cung cấp!
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-            <p className="text-xs sm:text-sm text-gray-500 mb-1">Mã đơn hàng</p>
-            <p className="text-base sm:text-lg font-bold text-blue-600 tracking-wide break-all">
+            <p className="text-[1.4rem] text-gray-500 mb-1">Mã đơn hàng</p>
+            <p className="font-bold text-blue-600 tracking-wide break-all">
               {orderCode}
             </p>
           </div>
@@ -125,13 +125,13 @@ export default function OrderConfirmation() {
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => navigate("/")}
-              className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 text-sm sm:text-base font-semibold rounded-xl transition"
+              className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-semibold rounded-xl transition"
             >
               Về trang chủ
             </button>
             <button
               onClick={handleViewOrder}
-              className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-sm sm:text-base font-semibold rounded-xl transition"
+              className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-semibold rounded-xl transition"
             >
               Xem đơn hàng
             </button>
