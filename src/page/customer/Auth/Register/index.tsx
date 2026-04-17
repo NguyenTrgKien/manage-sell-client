@@ -6,6 +6,7 @@ import useAuth from "../../../../hooks/useAuth";
 import Loading from "../../../../components/Loading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import axiosConfig from "../../../../configs/axiosConfig";
 
 export interface RegisterResponse {
   status: boolean;
@@ -40,15 +41,18 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const onSubmit = async (data: RegisterForm) => {
     try {
-      await register({
+      const userData = {
         email: data.email,
         password: data.password,
         phone: data.phone,
         username: data.username,
-      });
-      navigate("/customer/account/profile");
+      };
+      const res = (await axiosConfig.post(
+        "/api/v1/auth/register",
+        userData,
+      )) as any;
+      navigate("/login");
     } catch (error: any) {
-      console.log(error);
       toast.error(error.message || "Đăng ký tài khoản thất bại!");
     }
   };

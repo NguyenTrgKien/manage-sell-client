@@ -18,6 +18,25 @@ import { toast } from "react-toastify";
 import RenderParentOption from "../../../components/RenderParentOption";
 import { Link } from "react-router-dom";
 
+function findCategoryPath(categories, id) {
+  const map = new Map();
+
+  function build(list: CategoriesType[], parent = []) {
+    list.forEach((cat) => {
+      const path = [...parent, cat];
+
+      map.set(cat.id, path);
+
+      if (cat.children?.length) {
+        build(cat.children, path);
+      }
+    });
+  }
+
+  build(categories);
+  return map.get(id) || [];
+}
+
 function Products() {
   const [openToggleHidden, setOpenToggleHidden] = useState<{
     open: boolean;
@@ -218,6 +237,14 @@ function Products() {
                 <tbody className="divide-y divide-gray-200">
                   {products.length > 0 ? (
                     products?.map((product: ProductT, index: number) => {
+                      const path = findCategoryPath(
+                        dataCategories,
+                        product.category?.id,
+                      );
+
+                      const category = path
+                        .map((c: CategoriesType) => c.categoryName)
+                        .join(" > ");
                       return (
                         <tr
                           key={product.id}
@@ -251,9 +278,10 @@ function Products() {
                             </p>
                           </td>
                           <td className="px-6 py-4 text-gray-700">
-                            {dataCategories?.find(
+                            {/* {dataCategories?.find(
                               (cat: any) => cat.id === product.category?.id,
-                            )?.categoryName ?? "Chưa có danh mục"}
+                            )?.categoryName ?? "Chưa có danh mục"} */}
+                            {category}
                           </td>
                           <td className="px-6 py-4 text-gray-900 font-medium">
                             {Intl.NumberFormat("vi-VN", {

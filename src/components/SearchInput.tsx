@@ -61,6 +61,7 @@ function SearchInput({ isMobile }: { isMobile: boolean }) {
           query: q.trim(),
           ...(user ? undefined : { session_id: sessionId }),
         });
+
         if (res.status) {
           await refetch();
         }

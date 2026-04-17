@@ -7,11 +7,14 @@ import { getSortProducts } from "../../../api/product.api";
 import { useUser } from "../../../hooks/useUser";
 import noProduct from "../../../assets/images/no-product.png";
 import ProductFilterBar from "../../../components/ProductFilterBar";
+import { useVoucherContext } from "../../../contexts/VoucherContext";
 
 function ProductsPage() {
   const navigate = useNavigate();
+  const { hasVoucher } = useVoucherContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const sort = searchParams.get("sort");
+  const price = searchParams.get("price");
   const { user } = useUser();
   const [queryDefault, setQueryDefault] = useState<{
     limit: number;
@@ -35,6 +38,15 @@ function ProductsPage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  useEffect(() => {
+    if (price) {
+      setQueryDefault((prev) => ({
+        ...prev,
+        price: (price as "asc" | "desc") ?? "asc",
+      }));
+    }
+  }, [price]);
 
   useEffect(() => {
     if (sort) {
@@ -66,8 +78,9 @@ function ProductsPage() {
       price: price,
     }));
     setSearchParams((prev) => {
-      prev.set("price", price);
-      return prev;
+      const newParams = new URLSearchParams(prev);
+      newParams.set("price", price);
+      return newParams;
     });
   };
 
@@ -82,7 +95,11 @@ function ProductsPage() {
   };
 
   return (
-    <div className="mt-[20rem] md:mt-[17rem] px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem] ">
+    <div
+      className={`${
+        hasVoucher ? "mt-[20rem] md:mt-[17rem]" : "mt-[17rem] md:mt-[14rem]"
+      } px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem] `}
+    >
       <div className="bg-white p-5 rounded-xl">
         <h3 className="text-[2rem] mb-6 font-bold">
           {sort === "popular"

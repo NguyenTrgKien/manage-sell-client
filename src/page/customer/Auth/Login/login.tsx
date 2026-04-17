@@ -87,6 +87,8 @@ function Login() {
       await login(UserRole.USER, dataLogin.email, dataLogin.password);
       await handleLoginSuccess();
     } catch (error: any) {
+      console.log(error);
+
       if (
         error.message?.includes(UserRole.ADMIN) ||
         error.message?.includes(UserRole.STAFF)
@@ -297,9 +299,6 @@ function Login() {
         <div className="fixed inset-0 bg-[#3f3f3f95] bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
             <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-4xl">🔐</span>
-              </div>
               <h3 className="text-[1.6rem] font-bold text-gray-800 mb-3">
                 Tài khoản Admin/Nhân viên
               </h3>

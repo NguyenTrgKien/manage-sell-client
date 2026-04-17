@@ -49,13 +49,6 @@ const navCustomerProfile = [
     label: "Voucher của tôi",
     path: "my-voucher",
   },
-  {
-    id: 4,
-    icon: faHeart,
-    iconColor: "text-red-500",
-    label: "Sản phẩm yêu thích",
-    path: "favorite",
-  },
 ];
 
 function CustomerProfile() {

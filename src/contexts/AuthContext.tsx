@@ -54,8 +54,6 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
       )) as any;
       if (res.status) {
         await refreshUser();
-      } else {
-        throw new Error(res.message || "Đăng ký thất bại!");
       }
     } catch (error: any) {
       console.log(error);

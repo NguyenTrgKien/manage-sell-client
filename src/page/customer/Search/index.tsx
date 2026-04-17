@@ -14,8 +14,10 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import type { ProductT } from "../../../utils/types";
+import { useVoucherContext } from "../../../contexts/VoucherContext";
 
 function SearchProducts() {
+  const { hasVoucher } = useVoucherContext();
   const { user } = useUser();
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q");
@@ -75,7 +77,11 @@ function SearchProducts() {
   };
 
   return (
-    <div className="mt-[20rem] md:mt-[17rem] px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem]">
+    <div
+      className={`${
+        hasVoucher ? "mt-[20rem] md:mt-[17rem]" : "mt-[17rem] md:mt-[14rem]"
+      } px-4 xs:px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[12rem]`}
+    >
       <h3 className="pb-5">
         {products?.length > 0 ? (
           <>

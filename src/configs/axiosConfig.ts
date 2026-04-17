@@ -34,39 +34,39 @@ axiosConfig.interceptors.response.use(
     const status = error.response?.status;
     const originalRequest = error.config;
 
-    if (status === 401 && !originalRequest._isRetry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          pendingQueue.push({ resolve, reject });
-        })
-          .then(() => {
-            originalRequest._isRetry = true;
-            return axiosConfig(originalRequest);
-          })
-          .catch(Promise.reject.bind(Promise));
-      }
+    // if (status === 401 && !originalRequest._isRetry) {
+    //   if (isRefreshing) {
+    //     return new Promise((resolve, reject) => {
+    //       pendingQueue.push({ resolve, reject });
+    //     })
+    //       .then(() => {
+    //         originalRequest._isRetry = true;
+    //         return axiosConfig(originalRequest);
+    //       })
+    //       .catch(Promise.reject.bind(Promise));
+    //   }
 
-      originalRequest._isRetry = true;
-      isRefreshing = true;
+    //   originalRequest._isRetry = true;
+    //   isRefreshing = true;
 
-      try {
-        await axiosConfig.post("/auth/refresh");
+    //   try {
+    //     await axiosConfig.post("/auth/refresh");
 
-        processQueue(null);
+    //     processQueue(null);
 
-        return axiosConfig(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError);
-        redirectOnUnauthorized();
-        return Promise.reject({
-          message: "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!",
-          code: "UNAUTHORIZED",
-          status: 401,
-        });
-      } finally {
-        isRefreshing = false;
-      }
-    }
+    //     return axiosConfig(originalRequest);
+    //   } catch (refreshError) {
+    //     processQueue(refreshError);
+    //     redirectOnUnauthorized();
+    //     return Promise.reject({
+    //       message: "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!",
+    //       code: "UNAUTHORIZED",
+    //       status: 401,
+    //     });
+    //   } finally {
+    //     isRefreshing = false;
+    //   }
+    // }
 
     if (status === 403) {
       return Promise.reject({
